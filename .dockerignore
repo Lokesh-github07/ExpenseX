@@ -1,0 +1,9 @@
+target/
+.idea/
+.git/
+.gitignore
+.env
+*.md
+mvnw
+mvnw.cmd
+.mvn/

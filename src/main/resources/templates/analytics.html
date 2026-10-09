@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Analytics - Expense Tracker</title>
+
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+
+</head>
+
+<body>
+
+<div class="background"></div>
+
+<div class="dashboard">
+
+    <aside class="sidebar">
+
+        <h2>Expense Tracker</h2>
+
+        <ul>
+
+            <li>
+                <a th:href="@{/dashboard}">🏠 Dashboard</a>
+            </li>
+
+            <li>
+                <a th:href="@{/add-expense}">➕ Add Expense</a>
+            </li>
+
+            <li>
+                <a th:href="@{/analytics}">📊 Analytics</a>
+            </li>
+
+            <li>
+                <a th:href="@{/profile}">👤 Profile</a>
+            </li>
+
+            <li>
+                <a href="#" onclick="logout()">🚪 Logout</a>
+            </li>
+
+        </ul>
+
+    </aside>
+
+    <main class="content">
+
+        <h1>Analytics</h1>
+
+        <div class="glass-card table-card" style="margin-bottom:25px;">
+
+            <div class="filter-bar">
+
+                <div class="input-group">
+                    <label>Show Trend For</label>
+                    <select id="monthsBack">
+                        <option value="3">Last 3 months</option>
+                        <option value="6" selected>Last 6 months</option>
+                        <option value="12">Last 12 months</option>
+                    </select>
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="cards">
+
+            <div class="glass-card stat-card">
+                <h3>Total Spent (All Time)</h3>
+                <h2 id="totalSpent">₹0</h2>
+            </div>
+
+            <div class="glass-card stat-card">
+                <h3>Average Monthly Spend</h3>
+                <h2 id="avgMonthly">₹0</h2>
+            </div>
+
+            <div class="glass-card stat-card">
+                <h3>Categories Tracked</h3>
+                <h2 id="categoryCount">0</h2>
+            </div>
+
+        </div>
+
+        <div class="chart-grid">
+
+            <div class="glass-card chart-card" style="width:100%;">
+                <h2>Spending by Category</h2>
+                <canvas id="pieChart" height="240"></canvas>
+                <p id="pieEmpty" style="display:none;text-align:center;opacity:0.7;">No expenses yet.</p>
+            </div>
+
+            <div class="glass-card chart-card" style="width:100%;">
+                <h2>Monthly Spending Trend</h2>
+                <canvas id="lineChart" height="240"></canvas>
+            </div>
+
+            <div class="glass-card chart-card" style="width:100%;">
+                <h2>Category Comparison</h2>
+                <canvas id="barChart" height="240"></canvas>
+                <p id="barEmpty" style="display:none;text-align:center;opacity:0.7;">No expenses yet.</p>
+            </div>
+
+            <div class="glass-card chart-card" style="width:100%;">
+                <h2>Budget vs Actual</h2>
+                <canvas id="budgetChart" height="240"></canvas>
+                <p style="opacity:0.7;font-size:13px;margin-top:10px;">
+                    Set a budget from the API (or an upcoming budget page) to see it plotted here — months with no budget show as ₹0.
+                </p>
+            </div>
+
+        </div>
+
+        <div class="glass-card table-card">
+
+            <div class="table-header">
+                <h2>Download Report</h2>
+            </div>
+
+            <p style="opacity:0.8;margin:10px 0 20px;">
+                Get a detailed report for a specific month, including the category breakdown and full expense list.
+            </p>
+
+            <div class="filter-bar">
+
+                <div class="input-group">
+                    <label>Month</label>
+                    <select id="reportMonth"></select>
+                </div>
+
+                <div class="input-group">
+                    <label>Year</label>
+                    <select id="reportYear"></select>
+                </div>
+
+            </div>
+
+            <div class="report-actions" style="margin-top:20px;">
+                <button class="btn-primary" onclick="downloadReport('pdf')">⬇ Download PDF</button>
+                <button class="btn-primary" onclick="downloadReport('excel')">⬇ Download Excel</button>
+            </div>
+
+            <p class="form-msg" id="downloadMsg"></p>
+
+        </div>
+
+    </main>
+
+</div>
+
+<script>
+
+    const token = localStorage.getItem("token");
+
+    if(!token){
+        window.location="/login";
+    }
+
+    let currentUserId = null;
+    let pieChartInstance = null;
+    let lineChartInstance = null;
+    let barChartInstance = null;
+    let budgetChartInstance = null;
+
+    const COLORS = [
+        "#4f46e5","#06b6d4","#f59e0b","#ef4444","#10b981",
+        "#8b5cf6","#ec4899","#84cc16","#f97316","#0ea5e9"
+    ];
+
+    function populateMonthYearSelects(){
+
+        const monthSelect = document.getElementById("reportMonth");
+        const yearSelect = document.getElementById("reportYear");
+
+        const monthNames = ["January","February","March","April","May","June",
+            "July","August","September","October","November","December"];
+
+        const now = new Date();
+
+        monthNames.forEach((name, idx) => {
+            const opt = document.createElement("option");
+            opt.value = idx + 1;
+            opt.textContent = name;
+            if(idx === now.getMonth()) opt.selected = true;
+            monthSelect.appendChild(opt);
+        });
+
+        for(let y = now.getFullYear(); y >= now.getFullYear() - 4; y--){
+            const opt = document.createElement("option");
+            opt.value = y;
+            opt.textContent = y;
+            yearSelect.appendChild(opt);
+        }
+    }
+
+    async function resolveUser(){
+
+        const email = JSON.parse(atob(token.split(".")[1])).sub;
+
+        const res = await fetch("/api/users/email/" + encodeURIComponent(email), {
+            headers: { Authorization: "Bearer " + token }
+        });
+
+        if(!res.ok) return;
+
+        const user = await res.json();
+        currentUserId = user.id;
+    }
+
+    async function loadAnalytics(){
+
+        if(!currentUserId) await resolveUser();
+
+        const months = document.getElementById("monthsBack").value;
+
+        const res = await fetch(
+            "/api/reports/analytics?userId=" + currentUserId + "&months=" + months,
+            { headers: { Authorization: "Bearer " + token } }
+        );
+
+        if(!res.ok) return;
+
+        const data = await res.json();
+
+        document.getElementById("totalSpent").textContent = "₹" + (data.totalExpense || 0);
+        document.getElementById("avgMonthly").textContent = "₹" + (data.averageMonthlyExpense || 0);
+        document.getElementById("categoryCount").textContent = (data.categoryBreakdown || []).length;
+
+        renderPieChart(data.categoryBreakdown || []);
+        renderBarChart(data.categoryBreakdown || []);
+        renderLineChart(data.monthlyTrend || []);
+        renderBudgetChart(data.budgetVsActual || []);
+    }
+
+    function renderPieChart(breakdown){
+
+        const canvas = document.getElementById("pieChart");
+        const empty = document.getElementById("pieEmpty");
+
+        if(breakdown.length === 0){
+            canvas.style.display = "none";
+            empty.style.display = "block";
+            return;
+        }
+
+        canvas.style.display = "block";
+        empty.style.display = "none";
+
+        const labels = breakdown.map(b => b.category);
+        const amounts = breakdown.map(b => b.amount);
+
+        if(pieChartInstance) pieChartInstance.destroy();
+
+        pieChartInstance = new Chart(canvas, {
+            type: "pie",
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: amounts,
+                    backgroundColor: labels.map((_, i) => COLORS[i % COLORS.length])
+                }]
+            },
+            options: {
+                plugins: { legend: { position: "bottom" } }
+            }
+        });
+    }
+
+    function renderBarChart(breakdown){
+
+        const canvas = document.getElementById("barChart");
+        const empty = document.getElementById("barEmpty");
+
+        if(breakdown.length === 0){
+            canvas.style.display = "none";
+            empty.style.display = "block";
+            return;
+        }
+
+        canvas.style.display = "block";
+        empty.style.display = "none";
+
+        const labels = breakdown.map(b => b.category);
+        const amounts = breakdown.map(b => b.amount);
+
+        if(barChartInstance) barChartInstance.destroy();
+
+        barChartInstance = new Chart(canvas, {
+            type: "bar",
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: "Amount Spent",
+                    data: amounts,
+                    backgroundColor: "#2563eb",
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                plugins: { legend: { display: false } },
+                scales: { y: { beginAtZero: true } }
+            }
+        });
+    }
+
+    function renderLineChart(trend){
+
+        const canvas = document.getElementById("lineChart");
+        const labels = trend.map(t => t.label);
+        const amounts = trend.map(t => t.total);
+
+        if(lineChartInstance) lineChartInstance.destroy();
+
+        lineChartInstance = new Chart(canvas, {
+            type: "line",
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: "Spending",
+                    data: amounts,
+                    borderColor: "#06b6d4",
+                    backgroundColor: "#06b6d433",
+                    tension: 0.35,
+                    fill: true,
+                    pointBackgroundColor: "#06b6d4"
+                }]
+            },
+            options: {
+                plugins: { legend: { display: false } },
+                scales: { y: { beginAtZero: true } }
+            }
+        });
+    }
+
+    function renderBudgetChart(points){
+
+        const canvas = document.getElementById("budgetChart");
+        const labels = points.map(p => p.label);
+        const budget = points.map(p => p.budget);
+        const actual = points.map(p => p.actual);
+
+        if(budgetChartInstance) budgetChartInstance.destroy();
+
+        budgetChartInstance = new Chart(canvas, {
+            type: "bar",
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: "Budget",
+                        data: budget,
+                        backgroundColor: "#c7d2fe",
+                        borderRadius: 6
+                    },
+                    {
+                        label: "Actual Spend",
+                        data: actual,
+                        backgroundColor: "#ef4444",
+                        borderRadius: 6
+                    }
+                ]
+            },
+            options: {
+                plugins: { legend: { position: "bottom" } },
+                scales: { y: { beginAtZero: true } }
+            }
+        });
+    }
+
+    async function downloadReport(type){
+
+        const msg = document.getElementById("downloadMsg");
+        msg.className = "form-msg";
+        msg.textContent = "";
+
+        if(!currentUserId) await resolveUser();
+
+        const month = document.getElementById("reportMonth").value;
+        const year = document.getElementById("reportYear").value;
+
+        const endpoint = type === "pdf" ? "/api/reports/pdf" : "/api/reports/excel";
+        const filename = type === "pdf" ? "expense-report.pdf" : "expense-report.xlsx";
+
+        try {
+
+            const res = await fetch(
+                endpoint + "?userId=" + currentUserId + "&month=" + month + "&year=" + year,
+                { headers: { Authorization: "Bearer " + token } }
+            );
+
+            if(!res.ok) throw new Error("Download failed");
+
+            const blob = await res.blob();
+            const url = window.URL.createObjectURL(blob);
+
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            window.URL.revokeObjectURL(url);
+
+        } catch(err){
+            msg.textContent = "Could not generate report. Please try again.";
+            msg.className = "form-msg error";
+        }
+    }
+
+    function logout(){
+        localStorage.removeItem("token");
+        window.location="/login";
+    }
+
+    document.getElementById("monthsBack").addEventListener("change", loadAnalytics);
+
+    populateMonthYearSelects();
+    loadAnalytics();
+
+</script>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+
+</html>

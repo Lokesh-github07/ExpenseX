@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Expense Tracker | Login</title>
+
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+</head>
+
+<body>
+
+<div class="background"></div>
+
+<div class="center-box">
+
+    <div class="glass-card login-card">
+
+        <h1>Expense Tracker</h1>
+
+        <p class="subtitle">
+            Manage your income and expenses securely.
+        </p>
+
+        <form id="loginForm">
+
+            <div class="input-group">
+
+                <label>Email</label>
+
+                <input
+                        type="email"
+                        id="email"
+                        placeholder="Enter Email"
+                        required>
+
+            </div>
+
+            <div class="input-group">
+
+                <label>Password</label>
+
+                <input
+                        type="password"
+                        id="password"
+                        placeholder="Enter Password"
+                        required>
+
+            </div>
+
+            <button type="submit" class="btn-primary">
+                Login
+            </button>
+
+        </form>
+
+        <form id="loginOtpForm" style="display:none;">
+
+            <p class="subtitle">
+                We emailed a 6-digit OTP to <span id="loginOtpEmailLabel"></span>.
+            </p>
+
+            <div class="input-group">
+                <label>OTP</label>
+                <input type="text" id="loginOtp" maxlength="6" placeholder="123456" required>
+            </div>
+
+            <button type="submit" class="btn-primary">
+                Verify & Login
+            </button>
+
+        </form>
+
+        <div class="links">
+
+            <a th:href="@{/register}">
+                Create Account
+            </a>
+
+            <a th:href="@{/forgot-password}">
+                Forgot Password?
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script th:src="@{/js/script.js}"></script>
+
+<script>
+
+    document.getElementById("loginForm").addEventListener("submit",async function(e){
+
+        e.preventDefault();
+
+        const email=document.getElementById("email").value;
+
+        const password=document.getElementById("password").value;
+
+        const response=await fetch("/api/auth/login",{
+
+            method:"POST",
+
+            headers:{
+                "Content-Type":"application/json"
+            },
+
+            body:JSON.stringify({
+
+                email:email,
+
+                password:password
+
+            })
+
+        });
+
+        if(response.ok){
+
+            const data=await response.json();
+
+            if(data.otpRequired){
+
+                pendingLoginEmail = email;
+
+                document.getElementById("loginForm").style.display = "none";
+                document.getElementById("loginOtpForm").style.display = "block";
+                document.getElementById("loginOtpEmailLabel").textContent = email;
+
+                return;
+            }
+
+            localStorage.setItem("token",data.accessToken);
+
+            window.location="/dashboard";
+
+        }else{
+
+            alert("Invalid Email or Password");
+
+        }
+
+    });
+
+    let pendingLoginEmail = null;
+
+    document.getElementById("loginOtpForm").addEventListener("submit", async function(e){
+
+        e.preventDefault();
+
+        const response = await fetch("/api/auth/login/verify-otp", {
+
+            method: "POST",
+
+            headers: { "Content-Type": "application/json" },
+
+            body: JSON.stringify({
+                email: pendingLoginEmail,
+                otp: document.getElementById("loginOtp").value
+            })
+
+        });
+
+        if(response.ok){
+
+            const data = await response.json();
+
+            localStorage.setItem("token", data.accessToken);
+            window.location = "/dashboard";
+
+        } else {
+
+            const errBody = await response.json().catch(()=>({}));
+            alert(errBody.message || "Invalid or expired OTP.");
+
+        }
+
+    });
+
+</script>
+
+  <!__ Footer __>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

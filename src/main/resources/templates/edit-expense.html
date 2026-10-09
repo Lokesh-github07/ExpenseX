@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Edit Expense</title>
+
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+</head>
+
+<body>
+
+<div class="background"></div>
+
+<div class="center-box">
+
+    <div class="glass-card expense-card">
+
+        <h1>Edit Expense</h1>
+
+        <form id="editExpenseForm">
+
+            <input type="hidden" id="expenseId">
+
+            <div class="input-group">
+
+                <label>Title</label>
+
+                <input
+                        type="text"
+                        id="title"
+                        required>
+
+            </div>
+
+            <div class="input-group">
+
+                <label>Amount</label>
+
+                <input
+                        type="number"
+                        id="amount"
+                        required>
+
+            </div>
+
+            <div class="input-group">
+
+                <label>Category</label>
+
+                <input
+                        type="text"
+                        id="category"
+                        required>
+
+            </div>
+
+            <div class="input-group">
+
+                <label>Date</label>
+
+                <input
+                        type="date"
+                        id="date"
+                        required>
+
+            </div>
+
+            <div class="input-group">
+
+                <label>Description</label>
+
+                <textarea
+                        id="description"
+                        rows="4"></textarea>
+
+            </div>
+
+            <button
+                    type="submit"
+                    class="btn-primary">
+
+                Update Expense
+
+            </button>
+
+            <br><br>
+
+            <a
+                    class="btn-secondary"
+                    th:href="@{/dashboard}">
+
+                Back
+
+            </a>
+
+        </form>
+
+    </div>
+
+</div>
+
+<script>
+
+    const token = localStorage.getItem("token");
+
+    if(!token){
+
+        window.location="/login";
+
+    }
+
+    const params = new URLSearchParams(window.location.search);
+
+    const expenseId = params.get("id");
+
+    async function loadExpense(){
+
+        const response = await fetch("/api/expenses/" + expenseId,{
+
+            headers:{
+
+                Authorization:"Bearer "+token
+
+            }
+
+        });
+
+        if(!response.ok){
+
+            alert("Expense not found");
+
+            return;
+
+        }
+
+        const e = await response.json();
+
+        document.getElementById("expenseId").value = e.id;
+        document.getElementById("title").value = e.title;
+        document.getElementById("amount").value = e.amount;
+        document.getElementById("category").value = e.category;
+        document.getElementById("date").value = e.date;
+        document.getElementById("description").value = e.description;
+
+    }
+
+    document.getElementById("editExpenseForm").addEventListener("submit",async function(event){
+
+        event.preventDefault();
+
+        const expense={
+
+            title:document.getElementById("title").value,
+
+            amount:parseFloat(document.getElementById("amount").value),
+
+            category:document.getElementById("category").value,
+
+            date:document.getElementById("date").value,
+
+            description:document.getElementById("description").value
+
+        };
+
+        const response=await fetch("/api/expenses/"+expenseId,{
+
+            method:"PUT",
+
+            headers:{
+
+                "Content-Type":"application/json",
+
+                Authorization:"Bearer "+token
+
+            },
+
+            body:JSON.stringify(expense)
+
+        });
+
+        if(response.ok){
+
+            alert("Expense Updated Successfully");
+
+            window.location="/dashboard";
+
+        }else{
+
+            alert("Update Failed");
+
+        }
+
+    });
+
+    loadExpense();
+
+</script>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+
+</html>

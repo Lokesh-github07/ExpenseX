@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Add Expense</title>
+
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+</head>
+
+<body>
+
+<div class="background"></div>
+
+<div class="center-box">
+
+    <div class="glass-card expense-card">
+
+        <h1>Add Expense</h1>
+
+        <form id="expenseForm">
+
+            <div class="input-group">
+
+                <label>Title</label>
+
+                <input
+                        type="text"
+                        id="title"
+                        placeholder="Expense Title"
+                        required>
+
+            </div>
+
+            <div class="input-group">
+
+                <label>Amount</label>
+
+                <input
+                        type="number"
+                        id="amount"
+                        placeholder="Amount"
+                        required>
+
+            </div>
+
+            <div class="input-group">
+
+                <label>Category</label>
+
+                <input
+                        type="text"
+                        id="category"
+                        placeholder="e.g. Food, Travel, Rent"
+                        list="categoryList"
+                        required>
+
+                <datalist id="categoryList"></datalist>
+
+            </div>
+
+            <div class="input-group">
+
+                <label>Date</label>
+
+                <input
+                        type="date"
+                        id="date"
+                        required>
+
+            </div>
+
+            <div class="input-group">
+
+                <label>Description</label>
+
+                <textarea
+                        id="description"
+                        rows="4"
+                        placeholder="Description"></textarea>
+
+            </div>
+
+            <button
+                    class="btn-primary"
+                    type="submit">
+
+                Save Expense
+
+            </button>
+
+            <br><br>
+
+            <a
+                    class="btn-secondary"
+                    th:href="@{/dashboard}">
+
+                Back to Dashboard
+
+            </a>
+
+        </form>
+
+    </div>
+
+</div>
+
+<script>
+
+    const token = localStorage.getItem("token");
+
+    if(!token){
+
+        window.location="/login";
+
+    }
+
+    // Decode the JWT payload to get the logged-in user's email (subject)
+    function getEmailFromToken(t){
+        const payload = JSON.parse(atob(t.split(".")[1]));
+        return payload.sub;
+    }
+
+    let currentUserId = null;
+    let existingCategories = [];
+
+    // Load existing categories to power the autocomplete suggestions
+    async function loadCategories(){
+
+        const res = await fetch("/api/categories",{
+            headers:{ Authorization:"Bearer "+token }
+        });
+
+        existingCategories = await res.json();
+
+        const list = document.getElementById("categoryList");
+        list.innerHTML = "";
+
+        existingCategories.forEach(cat=>{
+            const opt = document.createElement("option");
+            opt.value = cat.name;
+            list.appendChild(opt);
+        });
+
+    }
+
+    // Given a typed category name, return its ID -
+    // reusing an existing category (case-insensitive match) or creating a new one
+    async function resolveCategoryId(name){
+
+        const trimmed = name.trim();
+
+        const match = existingCategories.find(
+            cat => cat.name.toLowerCase() === trimmed.toLowerCase()
+        );
+
+        if(match){
+            return match.id;
+        }
+
+        const res = await fetch("/api/categories",{
+
+            method:"POST",
+
+            headers:{
+                "Content-Type":"application/json",
+                Authorization:"Bearer "+token
+            },
+
+            body: JSON.stringify({ name: trimmed })
+
+        });
+
+        if(!res.ok){
+            throw new Error("Unable to create category.");
+        }
+
+        const created = await res.json();
+        existingCategories.push(created);
+        return created.id;
+
+    }
+
+    // Resolve the current user's numeric ID from their email
+    async function loadCurrentUser(){
+
+        const email = getEmailFromToken(token);
+
+        const res = await fetch("/api/users/email/"+encodeURIComponent(email),{
+            headers:{ Authorization:"Bearer "+token }
+        });
+
+        const user = await res.json();
+        currentUserId = user.id;
+
+    }
+
+    loadCategories();
+    loadCurrentUser();
+
+    document.getElementById("expenseForm").addEventListener("submit",async function(e){
+
+        e.preventDefault();
+
+        if(currentUserId === null){
+            alert("Still loading your account details, please try again in a second.");
+            return;
+        }
+
+        let categoryId;
+
+        try{
+            categoryId = await resolveCategoryId(
+                document.getElementById("category").value
+            );
+        } catch(err){
+            alert(err.message);
+            return;
+        }
+
+        const expense={
+
+            title:document.getElementById("title").value,
+
+            amount:parseFloat(document.getElementById("amount").value),
+
+            categoryId:categoryId,
+
+            expenseDate:document.getElementById("date").value,
+
+            description:document.getElementById("description").value,
+
+            userId:currentUserId
+
+        };
+
+        const response=await fetch("/api/expenses",{
+
+            method:"POST",
+
+            headers:{
+
+                "Content-Type":"application/json",
+
+                Authorization:"Bearer "+token
+
+            },
+
+            body:JSON.stringify(expense)
+
+        });
+
+        if(response.ok){
+
+            alert("Expense Added Successfully.");
+
+            window.location="/dashboard";
+
+        }else{
+
+            let message = "Unable to add expense.";
+
+            try{
+                const errBody = await response.json();
+
+                if(errBody.message){
+                    message = errBody.message;
+                } else {
+                    // validation error map: { field: "message", ... }
+                    message = Object.values(errBody).join("\n");
+                }
+            }catch(parseErr){
+                // response wasn't JSON, fall back to generic message
+            }
+
+            console.error("Add expense failed:", response.status, message);
+            alert(message);
+
+        }
+
+    });
+
+</script>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+
+</html>

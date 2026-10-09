@@ -1,0 +1,44 @@
+<footer class="site-footer" th:fragment="footer">
+
+    <div class="footer-content">
+
+        <div class="footer-logo">
+            ExpenseX<span>.</span>
+        </div>
+
+        <p class="footer-text">
+            &copy; <span id="footerYear"></span> ExpenseX. All Rights Reserved.
+        </p>
+
+    </div>
+
+    <button class="theme-toggle" id="themeToggle" type="button" onclick="toggleTheme()" aria-label="Toggle dark mode">🌙</button>
+
+    <script>
+        document.getElementById("footerYear").textContent = new Date().getFullYear();
+
+        (function () {
+            const saved = localStorage.getItem("theme") || "light";
+            document.documentElement.setAttribute("data-theme", saved);
+
+            function updateIcon() {
+                const btn = document.getElementById("themeToggle");
+                if (btn) {
+                    btn.textContent =
+                        document.documentElement.getAttribute("data-theme") === "dark" ? "☀️" : "🌙";
+                }
+            }
+
+            window.toggleTheme = function () {
+                const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+                const next = isDark ? "light" : "dark";
+                document.documentElement.setAttribute("data-theme", next);
+                localStorage.setItem("theme", next);
+                updateIcon();
+            };
+
+            updateIcon();
+        })();
+    </script>
+
+</footer>

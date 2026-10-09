@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Error</title>
+
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+</head>
+
+<body>
+
+<div class="background"></div>
+
+<div class="center-box">
+
+    <div class="glass-card login-card">
+
+        <h1>Oops!</h1>
+
+        <h2>Something went wrong</h2>
+
+        <p>
+            The page you are looking for doesn't exist or an unexpected error occurred.
+        </p>
+
+        <br>
+
+        <a class="btn-primary" th:href="@{/login}">
+            Go to Login
+        </a>
+
+    </div>
+
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+
+</html>

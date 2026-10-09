@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Profile - Expense Tracker</title>
+
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+</head>
+
+<body>
+
+<div class="background"></div>
+
+<div class="dashboard">
+
+    <aside class="sidebar">
+
+        <h2>Expense Tracker</h2>
+
+        <ul>
+
+            <li>
+                <a th:href="@{/dashboard}">🏠 Dashboard</a>
+            </li>
+
+            <li>
+                <a th:href="@{/add-expense}">➕ Add Expense</a>
+            </li>
+
+            <li>
+                <a th:href="@{/analytics}">📊 Analytics</a>
+            </li>
+
+            <li>
+                <a th:href="@{/profile}">👤 Profile</a>
+            </li>
+
+            <li>
+                <a href="#" onclick="logout()">🚪 Logout</a>
+            </li>
+
+        </ul>
+
+    </aside>
+
+    <main class="content">
+
+        <h1>Profile</h1>
+
+        <div class="glass-card table-card">
+
+            <div class="profile-header">
+
+                <div class="avatar-circle" id="avatarInitials">--</div>
+
+                <div>
+                    <h2 id="profileName">Loading...</h2>
+                    <p id="profileEmail"></p>
+                    <span class="status-pill" id="verifiedPill"></span>
+                </div>
+
+            </div>
+
+            <div class="info-grid">
+
+                <div class="info-item">
+                    <label>Member Since</label>
+                    <p id="memberSince">--</p>
+                </div>
+
+                <div class="info-item">
+                    <label>Account Status</label>
+                    <p id="accountStatus">--</p>
+                </div>
+
+                <div class="info-item">
+                    <label>Phone Number</label>
+                    <p id="phoneDisplay">Not set</p>
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="profile-grid">
+
+            <div class="glass-card table-card">
+
+                <div class="table-header">
+                    <h2>Edit Personal Details</h2>
+                </div>
+
+                <form id="profileForm" style="margin-top:20px;">
+
+                    <div class="row">
+
+                        <div class="col">
+                            <label>First Name</label>
+                            <input type="text" id="firstName" required>
+                        </div>
+
+                        <div class="col">
+                            <label>Last Name</label>
+                            <input type="text" id="lastName" required>
+                        </div>
+
+                    </div>
+
+                    <div class="input-group">
+                        <label>Email</label>
+                        <input type="email" id="email" disabled
+                               style="opacity:.7;cursor:not-allowed;">
+                    </div>
+
+                    <div class="input-group">
+                        <label>Phone Number</label>
+                        <input type="tel" id="phoneNumber" placeholder="e.g. +91 9876543210">
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary">Save Changes</button>
+                    </div>
+
+                    <p class="form-msg" id="formMsg"></p>
+
+                </form>
+
+            </div>
+
+            <div class="settings-card">
+                <h3>Change Password</h3>
+                <p>Update the password used to log in to your ExpenseX account.</p>
+
+                <input type="password" id="currentPassword" placeholder="Current password" />
+                <input type="password" id="newPassword" placeholder="New password" />
+                <input type="password" id="confirmNewPassword" placeholder="Confirm new password" />
+
+                <button class="change-password-btn" onclick="changePassword()">
+                    Update Password
+                </button>
+            </div>
+
+        </div>
+
+        <!-- ================================
+             Danger Zone
+        ================================= -->
+
+        <div class="glass-card danger-zone">
+
+            <div class="danger-header">
+                <h2>Danger Zone</h2>
+                <p>
+                    Permanently delete your ExpenseX account and all associated data.
+                    This action cannot be undone.
+                </p>
+            </div>
+
+            <div class="danger-content">
+
+                <div>
+                    <h3>Delete Account</h3>
+
+                    <p>
+                        Your profile, expenses, categories and other account data
+                        will be permanently removed.
+                    </p>
+                </div>
+
+                <button
+                        type="button"
+                        class="delete-account-btn"
+                        onclick="deleteAccount()">
+                    🗑 Delete Account
+                </button>
+
+            </div>
+
+        </div>
+
+    </main>
+
+</div>
+
+<script>
+
+    const token = localStorage.getItem("token");
+
+    if(!token){
+        window.location="/login";
+    }
+
+    let currentUserId = null;
+
+    function initials(first, last){
+        const a = (first || "").trim()[0] || "";
+        const b = (last || "").trim()[0] || "";
+        return (a + b).toUpperCase() || "?";
+    }
+
+    function formatDate(value){
+        if(!value) return "--";
+        const d = new Date(value);
+        return d.toLocaleDateString("en-IN", { year: "numeric", month: "long", day: "numeric" });
+    }
+
+    async function loadProfile(){
+
+        const email = JSON.parse(atob(token.split(".")[1])).sub;
+
+        const res = await fetch("/api/users/email/" + encodeURIComponent(email), {
+            headers: { Authorization: "Bearer " + token }
+        });
+
+        if(!res.ok){
+            return;
+        }
+
+        const user = await res.json();
+        currentUserId = user.id;
+
+        document.getElementById("avatarInitials").textContent = initials(user.firstName, user.lastName);
+        document.getElementById("profileName").textContent = (user.firstName || "") + " " + (user.lastName || "");
+        document.getElementById("profileEmail").textContent = user.email;
+
+        const pill = document.getElementById("verifiedPill");
+        if(user.emailVerified){
+            pill.textContent = "✓ Email Verified";
+            pill.className = "status-pill verified";
+        } else {
+            pill.textContent = "Email Not Verified";
+            pill.className = "status-pill unverified";
+        }
+
+        document.getElementById("memberSince").textContent = formatDate(user.createdAt);
+        document.getElementById("accountStatus").textContent = user.active ? "Active" : "Inactive";
+        document.getElementById("phoneDisplay").textContent = user.phoneNumber || "Not set";
+
+        document.getElementById("firstName").value = user.firstName || "";
+        document.getElementById("lastName").value = user.lastName || "";
+        document.getElementById("email").value = user.email || "";
+        document.getElementById("phoneNumber").value = user.phoneNumber || "";
+    }
+
+    document.getElementById("profileForm").addEventListener("submit", async (e) => {
+
+        e.preventDefault();
+
+        const msg = document.getElementById("formMsg");
+        msg.className = "form-msg";
+        msg.textContent = "";
+
+        const payload = {
+            firstName: document.getElementById("firstName").value.trim(),
+            lastName: document.getElementById("lastName").value.trim(),
+            phoneNumber: document.getElementById("phoneNumber").value.trim()
+        };
+
+        try {
+
+            const res = await fetch("/api/users/" + currentUserId + "/profile", {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: "Bearer " + token
+                },
+                body: JSON.stringify(payload)
+            });
+
+            if(!res.ok){
+                throw new Error("Update failed");
+            }
+
+            msg.textContent = "Profile updated successfully.";
+            msg.className = "form-msg success";
+
+            loadProfile();
+
+        } catch(err){
+            msg.textContent = "Could not update profile. Please try again.";
+            msg.className = "form-msg error";
+        }
+    });
+
+    function logout(){
+        localStorage.removeItem("token");
+        window.location="/login";
+    }
+
+    loadProfile();
+
+    async function changePassword() {
+        const currentPassword = document.getElementById("currentPassword").value;
+        const newPassword = document.getElementById("newPassword").value;
+        const confirmPassword = document.getElementById("confirmNewPassword").value;
+
+        if (!currentPassword || !newPassword || !confirmPassword) {
+            alert("Please fill in all password fields.");
+            return;
+        }
+
+        try {
+            const response = await fetch("/api/users/change-password", {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": "Bearer " + token
+                },
+                body: JSON.stringify({
+                    currentPassword,
+                    newPassword,
+                    confirmPassword
+                })
+            });
+
+            const data = await response.json();
+
+            if (response.ok && data.success) {
+                alert(data.message || "Password changed successfully.");
+                document.getElementById("currentPassword").value = "";
+                document.getElementById("newPassword").value = "";
+                document.getElementById("confirmNewPassword").value = "";
+            } else {
+                alert(data.message || "Failed to change password.");
+            }
+        } catch (error) {
+            console.error("Change password error:", error);
+            alert("Unable to change your password. Please try again.");
+        }
+    }
+
+    async function deleteAccount() {
+
+        const firstConfirm = confirm(
+            "Are you sure you want to permanently delete your ExpenseX account?"
+        );
+
+        if (!firstConfirm) {
+            return;
+        }
+
+        const secondConfirm = confirm(
+            "WARNING!\n\n" +
+            "This will permanently delete your account and associated data.\n\n" +
+            "This action cannot be undone.\n\n" +
+            "Do you really want to continue?"
+        );
+
+        if (!secondConfirm) {
+            return;
+        }
+
+        if (!token) {
+            window.location.href = "/login";
+            return;
+        }
+
+        try {
+
+            const response = await fetch("/api/users/account", {
+
+                method: "DELETE",
+
+                headers: {
+                    "Authorization": "Bearer " + token
+                }
+
+            });
+
+            if (response.ok) {
+
+                // Remove authentication token
+                localStorage.removeItem("token");
+
+                alert(
+                    "Your ExpenseX account has been permanently deleted."
+                );
+
+                window.location.href = "/login";
+
+            } else {
+
+                const message = await response.text();
+
+                alert(
+                    message || "Unable to delete your account."
+                );
+            }
+
+        } catch (error) {
+
+            console.error("Account deletion error:", error);
+
+            alert(
+                "Unable to connect to the server. Please try again."
+            );
+        }
+    }
+
+</script>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+
+</html>

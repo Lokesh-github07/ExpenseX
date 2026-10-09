@@ -1,0 +1,1036 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Expense Tracker | Register</title>
+
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+          rel="stylesheet">
+
+</head>
+
+<body>
+
+<div class="background"></div>
+
+
+<div class="center-box">
+
+    <div class="glass-card login-card">
+
+        <h1>Create Account</h1>
+
+        <p class="subtitle">
+            Register to start managing your expenses.
+        </p>
+
+
+        <!-- ================================================= -->
+        <!-- REGISTRATION FORM -->
+        <!-- ================================================= -->
+
+        <form id="registerForm">
+
+
+            <!-- FIRST NAME + LAST NAME -->
+
+            <div class="row">
+
+                <div class="col">
+
+                    <label for="firstName">
+                        First Name
+                    </label>
+
+                    <input
+                            type="text"
+                            id="firstName"
+                            name="firstName"
+                            placeholder="First Name"
+                            autocomplete="given-name"
+                            required>
+
+                </div>
+
+
+                <div class="col">
+
+                    <label for="lastName">
+                        Last Name
+                    </label>
+
+                    <input
+                            type="text"
+                            id="lastName"
+                            name="lastName"
+                            placeholder="Last Name"
+                            autocomplete="family-name"
+                            required>
+
+                </div>
+
+            </div>
+
+
+            <!-- EMAIL -->
+
+            <div class="input-group">
+
+                <label for="email">
+                    Email
+                </label>
+
+                <input
+                        type="email"
+                        id="email"
+                        placeholder="Enter Email"
+                        autocomplete="email"
+                        required>
+
+            </div>
+
+
+            <!-- PASSWORD -->
+
+            <div class="input-group">
+
+                <label for="password">
+                    Password
+                </label>
+
+                <input
+                        type="password"
+                        id="password"
+                        placeholder="Enter Password"
+                        autocomplete="new-password"
+                        required>
+
+            </div>
+
+
+            <!-- ================================================= -->
+            <!-- PASSWORD REQUIREMENTS -->
+            <!-- ================================================= -->
+
+            <div class="password-rules" id="passwordRules">
+
+                <span id="lengthRule">
+                    8+ characters
+                </span>
+
+                <span id="upperRule">
+                    Uppercase
+                </span>
+
+                <span id="lowerRule">
+                    Lowercase
+                </span>
+
+                <span id="numberRule">
+                    Number
+                </span>
+
+                <span id="specialRule">
+                    Special character
+                </span>
+
+                <span id="spaceRule">
+                    No spaces
+                </span>
+
+            </div>
+
+
+            <!-- CONFIRM PASSWORD -->
+
+            <div class="input-group">
+
+                <label for="confirmPassword">
+                    Confirm Password
+                </label>
+
+                <input
+                        type="password"
+                        id="confirmPassword"
+                        placeholder="Confirm Password"
+                        autocomplete="new-password"
+                        required>
+
+            </div>
+
+
+            <!-- PASSWORD MATCH MESSAGE -->
+
+            <p
+                    id="passwordMatch"
+                    class="password-match">
+            </p>
+
+
+            <!-- ================================================= -->
+            <!-- TERMS AND CONDITIONS -->
+            <!-- ================================================= -->
+
+            <div class="terms-checkbox">
+
+                <label class="terms-label">
+
+                    <input
+                            type="checkbox"
+                            id="terms"
+                            name="terms"
+                            required>
+
+                    <span>
+
+                        I agree to the
+
+                        <a
+                                th:href="@{/terms}"
+                                target="_blank"
+                                rel="noopener noreferrer">
+
+                            Terms & Conditions
+
+                        </a>
+
+                    </span>
+
+                </label>
+
+            </div>
+
+
+            <!-- REGISTER BUTTON -->
+
+            <button
+                    class="btn-primary"
+                    type="submit"
+                    id="registerButton">
+
+                Register
+
+            </button>
+
+
+        </form>
+
+
+        <!-- ================================================= -->
+        <!-- OTP FORM -->
+        <!-- ================================================= -->
+
+        <form
+                id="otpForm"
+                style="display:none;">
+
+            <p class="subtitle">
+
+                We emailed a 6-digit OTP to
+
+                <span id="otpEmailLabel"></span>.
+
+                Enter it below to activate your account.
+
+            </p>
+
+
+            <div class="input-group">
+
+                <label for="otp">
+                    OTP
+                </label>
+
+                <input
+                        type="text"
+                        id="otp"
+                        maxlength="6"
+                        inputmode="numeric"
+                        pattern="[0-9]{6}"
+                        placeholder="123456"
+                        autocomplete="one-time-code"
+                        required>
+
+            </div>
+
+
+            <button
+                    class="btn-primary"
+                    type="submit">
+
+                Verify OTP
+
+            </button>
+
+
+            <div class="otp-resend">
+
+                <a
+                        href="#"
+                        onclick="resendOtp(); return false;">
+
+                    Resend OTP
+
+                </a>
+
+            </div>
+
+
+        </form>
+
+
+        <!-- ================================================= -->
+        <!-- LOGIN LINK -->
+        <!-- ================================================= -->
+
+        <div class="links">
+
+            <a th:href="@{/login}">
+
+                Already have an account? Login
+
+            </a>
+
+        </div>
+
+
+    </div>
+
+</div>
+
+
+<!-- ================================================= -->
+<!-- JAVASCRIPT -->
+<!-- ================================================= -->
+
+<script th:src="@{/js/script.js}"></script>
+
+
+<script>
+
+    // ============================================================
+    // GLOBAL VARIABLES
+    // ============================================================
+
+    let registeredEmail = null;
+
+
+    // ============================================================
+    // PASSWORD ELEMENTS
+    // ============================================================
+
+    const passwordInput =
+        document.getElementById("password");
+
+    const confirmPasswordInput =
+        document.getElementById("confirmPassword");
+
+    const registerButton =
+        document.getElementById("registerButton");
+
+
+    // ============================================================
+    // PASSWORD REQUIREMENT HELPER
+    // ============================================================
+
+    function updateRequirement(
+        elementId,
+        valid
+    ) {
+
+        const element =
+            document.getElementById(elementId);
+
+        if (!element) {
+            return;
+        }
+
+
+        if (valid) {
+
+            element.classList.add("valid");
+
+            element.classList.remove("invalid");
+
+            element.textContent =
+                "✓ " + getRequirementText(elementId);
+
+        } else {
+
+            element.classList.add("invalid");
+
+            element.classList.remove("valid");
+
+            element.textContent =
+                "○ " + getRequirementText(elementId);
+
+        }
+
+    }
+
+
+    // ============================================================
+    // REQUIREMENT TEXT
+    // ============================================================
+
+    function getRequirementText(elementId) {
+
+        switch (elementId) {
+
+            case "lengthRule":
+                return "8+ characters";
+
+            case "upperRule":
+                return "Uppercase";
+
+            case "lowerRule":
+                return "Lowercase";
+
+            case "numberRule":
+                return "Number";
+
+            case "specialRule":
+                return "Special character";
+
+            case "spaceRule":
+                return "No spaces";
+
+            default:
+                return "";
+
+        }
+
+    }
+
+
+    // ============================================================
+    // PASSWORD VALIDATION
+    // ============================================================
+
+    function validatePassword() {
+
+        const password =
+            passwordInput.value;
+
+
+        const hasLength =
+            password.length >= 8;
+
+
+        const hasUppercase =
+            /[A-Z]/.test(password);
+
+
+        const hasLowercase =
+            /[a-z]/.test(password);
+
+
+        const hasNumber =
+            /[0-9]/.test(password);
+
+
+        const hasSpecial =
+            /[^A-Za-z0-9\s]/.test(password);
+
+
+        const hasNoSpace =
+            !/\s/.test(password);
+
+
+        updateRequirement(
+            "lengthRule",
+            hasLength
+        );
+
+
+        updateRequirement(
+            "upperRule",
+            hasUppercase
+        );
+
+
+        updateRequirement(
+            "lowerRule",
+            hasLowercase
+        );
+
+
+        updateRequirement(
+            "numberRule",
+            hasNumber
+        );
+
+
+        updateRequirement(
+            "specialRule",
+            hasSpecial
+        );
+
+
+        updateRequirement(
+            "spaceRule",
+            hasNoSpace
+        );
+
+
+        return (
+
+            hasLength &&
+
+            hasUppercase &&
+
+            hasLowercase &&
+
+            hasNumber &&
+
+            hasSpecial &&
+
+            hasNoSpace
+
+        );
+
+    }
+
+
+    // ============================================================
+    // PASSWORD INPUT EVENT
+    // ============================================================
+
+    passwordInput.addEventListener(
+        "input",
+        function () {
+
+            validatePassword();
+
+            checkPasswordMatch();
+
+        }
+    );
+
+
+    // ============================================================
+    // PASSWORD MATCH
+    // ============================================================
+
+    function checkPasswordMatch() {
+
+        const password =
+            passwordInput.value;
+
+        const confirm =
+            confirmPasswordInput.value;
+
+        const message =
+            document.getElementById("passwordMatch");
+
+
+        if (confirm.length === 0) {
+
+            message.textContent = "";
+
+            message.className =
+                "password-match";
+
+            return false;
+
+        }
+
+
+        if (password === confirm) {
+
+            message.textContent =
+                "✓ Passwords match.";
+
+            message.className =
+                "password-match success";
+
+            return true;
+
+        }
+
+
+        message.textContent =
+            "✕ Passwords do not match.";
+
+        message.className =
+            "password-match error";
+
+        return false;
+
+    }
+
+
+    confirmPasswordInput.addEventListener(
+        "input",
+        checkPasswordMatch
+    );
+
+
+    // ============================================================
+    // REGISTER
+    // ============================================================
+
+    document
+        .getElementById("registerForm")
+        .addEventListener(
+            "submit",
+            async function (e) {
+
+                e.preventDefault();
+
+
+                // --------------------------------------------
+                // Validate password
+                // --------------------------------------------
+
+                if (!validatePassword()) {
+
+                    alert(
+                        "Please make sure your password meets all requirements."
+                    );
+
+                    passwordInput.focus();
+
+                    return;
+
+                }
+
+
+                // --------------------------------------------
+                // Confirm password
+                // --------------------------------------------
+
+                const password =
+                    passwordInput.value;
+
+                const confirm =
+                    confirmPasswordInput.value;
+
+
+                if (password !== confirm) {
+
+                    alert(
+                        "Passwords do not match."
+                    );
+
+                    confirmPasswordInput.focus();
+
+                    return;
+
+                }
+
+
+                // --------------------------------------------
+                // Terms
+                // --------------------------------------------
+
+                const terms =
+                    document.getElementById("terms");
+
+
+                if (!terms.checked) {
+
+                    alert(
+                        "Please accept the Terms & Conditions."
+                    );
+
+                    return;
+
+                }
+
+
+                // --------------------------------------------
+                // Register button
+                // --------------------------------------------
+
+                registerButton.disabled = true;
+
+                registerButton.textContent =
+                    "Registering...";
+
+
+                try {
+
+                    const response =
+                        await fetch(
+                            "/api/auth/register",
+                            {
+
+                                method: "POST",
+
+                                headers: {
+
+                                    "Content-Type":
+                                        "application/json"
+
+                                },
+
+                                body: JSON.stringify({
+
+                                    firstName:
+                                        document.getElementById(
+                                            "firstName"
+                                        ).value.trim(),
+
+                                    lastName:
+                                        document.getElementById(
+                                            "lastName"
+                                        ).value.trim(),
+
+                                    email:
+                                        document.getElementById(
+                                            "email"
+                                        ).value.trim(),
+
+                                    password:
+                                    password
+
+                                })
+
+                            }
+                        );
+
+
+                    // --------------------------------------------
+                    // SUCCESS
+                    // --------------------------------------------
+
+                    if (response.ok) {
+
+                        registeredEmail =
+                            document.getElementById(
+                                "email"
+                            ).value.trim();
+
+
+                        document
+                            .getElementById(
+                                "registerForm"
+                            )
+                            .style.display =
+                            "none";
+
+
+                        document
+                            .getElementById(
+                                "otpForm"
+                            )
+                            .style.display =
+                            "block";
+
+
+                        document
+                            .getElementById(
+                                "otpEmailLabel"
+                            )
+                            .textContent =
+                            registeredEmail;
+
+
+                        return;
+
+                    }
+
+
+                    // --------------------------------------------
+                    // ERROR RESPONSE
+                    // --------------------------------------------
+
+                    const contentType =
+                        response.headers.get(
+                            "content-type"
+                        );
+
+
+                    if (
+                        contentType &&
+                        contentType.includes(
+                            "application/json"
+                        )
+                    ) {
+
+                        const error =
+                            await response.json();
+
+
+                        alert(
+                            error.message ||
+                            error.error ||
+                            "Registration failed."
+                        );
+
+                    } else {
+
+                        const msg =
+                            await response.text();
+
+
+                        alert(
+                            msg ||
+                            "Registration failed."
+                        );
+
+                    }
+
+
+                } catch (error) {
+
+                    console.error(
+                        "Registration error:",
+                        error
+                    );
+
+
+                    alert(
+                        "Unable to connect to the server."
+                    );
+
+
+                } finally {
+
+                    registerButton.disabled =
+                        false;
+
+                    registerButton.textContent =
+                        "Register";
+
+                }
+
+            }
+        );
+
+
+    // ============================================================
+    // VERIFY REGISTRATION OTP
+    // ============================================================
+
+    document
+        .getElementById("otpForm")
+        .addEventListener(
+            "submit",
+            async function (e) {
+
+                e.preventDefault();
+
+
+                const otp =
+                    document
+                        .getElementById("otp")
+                        .value
+                        .trim();
+
+
+                if (!/^\d{6}$/.test(otp)) {
+
+                    alert(
+                        "Please enter a valid 6-digit OTP."
+                    );
+
+                    return;
+
+                }
+
+
+                if (!registeredEmail) {
+
+                    alert(
+                        "Registration session expired. Please register again."
+                    );
+
+                    window.location =
+                        "/register";
+
+                    return;
+
+                }
+
+
+                try {
+
+                    const response =
+                        await fetch(
+                            "/api/auth/verify-otp",
+                            {
+
+                                method: "POST",
+
+                                headers: {
+
+                                    "Content-Type":
+                                        "application/json"
+
+                                },
+
+                                body: JSON.stringify({
+
+                                    email:
+                                    registeredEmail,
+
+                                    otp:
+                                    otp
+
+                                })
+
+                            }
+                        );
+
+
+                    if (response.ok) {
+
+                        alert(
+                            "Email verified successfully! You can now log in."
+                        );
+
+
+                        window.location =
+                            "/login";
+
+
+                    } else {
+
+                        const errBody =
+                            await response
+                                .json()
+                                .catch(
+                                    () => ({})
+                                );
+
+
+                        alert(
+                            errBody.message ||
+                            errBody.error ||
+                            "Invalid or expired OTP."
+                        );
+
+                    }
+
+
+                } catch (error) {
+
+                    console.error(
+                        "OTP verification error:",
+                        error
+                    );
+
+
+                    alert(
+                        "Unable to connect to the server."
+                    );
+
+                }
+
+            }
+        );
+
+
+    // ============================================================
+    // RESEND OTP
+    // ============================================================
+
+    async function resendOtp() {
+
+        if (!registeredEmail) {
+
+            alert(
+                "Registration email not found."
+            );
+
+            return;
+
+        }
+
+
+        try {
+
+            const response =
+                await fetch(
+                    "/api/auth/resend-otp",
+                    {
+
+                        method: "POST",
+
+                        headers: {
+
+                            "Content-Type":
+                                "application/json"
+
+                        },
+
+                        body: JSON.stringify({
+
+                            email:
+                            registeredEmail
+
+                        })
+
+                    }
+                );
+
+
+            if (response.ok) {
+
+                alert(
+                    "A new OTP has been sent to your email."
+                );
+
+            } else {
+
+                const errBody =
+                    await response
+                        .json()
+                        .catch(
+                            () => ({})
+                        );
+
+
+                alert(
+                    errBody.message ||
+                    errBody.error ||
+                    "Unable to resend OTP."
+                );
+
+            }
+
+
+        } catch (error) {
+
+            console.error(
+                "Resend OTP error:",
+                error
+            );
+
+
+            alert(
+                "Unable to connect to the server."
+            );
+
+        }
+
+    }
+
+
+    // ============================================================
+    // INITIAL PASSWORD STATE
+    // ============================================================
+
+    validatePassword();
+
+</script>
+
+
+<!-- ================================================= -->
+<!-- FOOTER -->
+<!-- ================================================= -->
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+
+</body>
+
+</html>
