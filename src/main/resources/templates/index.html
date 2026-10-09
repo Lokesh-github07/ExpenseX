@@ -2,7 +2,6 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 
 <head>
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -17,7 +16,6 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
 
     <style>
-
         /* ================================
            Expense Action Buttons
            ================================ */
@@ -60,7 +58,6 @@
         }
 
         /* Empty expense message */
-
         .empty-expenses {
             text-align: center;
             padding: 25px;
@@ -68,13 +65,12 @@
         }
 
         /* Action column */
-
         .action-column {
             white-space: nowrap;
         }
 
+        /* NOTE: Floating Quick Action styles now live in style.css */
     </style>
-
 </head>
 
 <body>
@@ -89,38 +85,81 @@
 
     <aside class="sidebar">
 
-        <h2>Expense Tracker</h2>
+        <h2>💰 ExpenseX</h2>
 
-        <ul>
+        <ul class="sidebar-menu">
 
             <li>
-                <a th:href="@{/dashboard}">
-                    🏠 Dashboard
-                </a>
+                <a th:href="@{/dashboard}" class="active">🏠 Dashboard</a>
             </li>
 
             <li>
-                <a th:href="@{/add-expense}">
-                    ➕ Add Expense
-                </a>
+                <a th:href="@{/financial-overview}">📈 Financial Overview</a>
             </li>
 
-            <li>
-                <a th:href="@{/analytics}">
-                    📊 Analytics
-                </a>
+            <!-- MONEY MANAGEMENT DROPDOWN -->
+            <li class="dropdown-section">
+                <button type="button"
+                        class="sidebar-dropdown-toggle"
+                        onclick="toggleSidebarDropdown(this)"
+                        aria-expanded="false">
+                    <span>💰 MONEY MANAGEMENT</span>
+                    <span class="dropdown-arrow">⌄</span>
+                </button>
+
+                <ul class="sidebar-submenu">
+                    <li><a th:href="@{/transactions}">💳 Transactions</a></li>
+                    <li><a th:href="@{/add-expense}">➕ Add Expense</a></li>
+                    <li><a th:href="@{/salary}">💵 Salary &amp; Income</a></li>
+                    <li><a th:href="@{/budgets}">🎯 Budget Planner</a></li>
+                    <li><a th:href="@{/bills}">🧾 Bills &amp; Payments</a></li>
+                    <li><a th:href="@{/loans}">🏦 Loans &amp; EMIs</a></li>
+                    <li><a th:href="@{/savings}">🐷 Savings Goals</a></li>
+                    <li><a th:href="@{/credit-cards}">💳 Credit Cards</a></li>
+                </ul>
             </li>
 
-            <li>
-                <a th:href="@{/profile}">
-                    👤 Profile
-                </a>
+            <!-- INVESTMENTS & MARKETS DROPDOWN -->
+            <li class="dropdown-section">
+                <button type="button"
+                        class="sidebar-dropdown-toggle"
+                        onclick="toggleSidebarDropdown(this)"
+                        aria-expanded="false">
+                    <span>📊 INVESTMENTS &amp; MARKETS</span>
+                    <span class="dropdown-arrow">⌄</span>
+                </button>
+
+                <ul class="sidebar-submenu">
+                    <li><a th:href="@{/investments}">📊 Investment Portfolio</a></li>
+                    <li><a th:href="@{/sip-fd}">📈 SIP &amp; FD Management</a></li>
+                    <li><a th:href="@{/markets}">🌐 Live Market</a></li>
+                    <li><a th:href="@{/market-news}">📰 Market News &amp; Insights</a></li>
+                    <li><a th:href="@{/price-alerts}">🔔 Price Alerts</a></li>
+                </ul>
             </li>
 
+            <!-- INTELLIGENCE DROPDOWN -->
+            <li class="dropdown-section">
+                <button type="button"
+                        class="sidebar-dropdown-toggle"
+                        onclick="toggleSidebarDropdown(this)"
+                        aria-expanded="false">
+                    <span>🧠 INTELLIGENCE</span>
+                    <span class="dropdown-arrow">⌄</span>
+                </button>
+
+                <ul class="sidebar-submenu">
+                    <li><a th:href="@{/ai-assistant}">🤖 AI Finance Assistant</a></li>
+                    <li><a th:href="@{/analytics}">📉 Reports &amp; Analytics</a></li>
+                    <li><a th:href="@{/financial-calendar}">📅 Financial Calendar</a></li>
+                </ul>
+            </li>
+
+            <!-- PERSONAL -->
+            <li class="sidebar-section personal-heading">PERSONAL</li>
+
             <li>
-                <a href="#" onclick="logout(); return false;">
-                    🚪 Logout
-                </a>
+                <a th:href="@{/profile}">👤 My Profile</a>
             </li>
 
         </ul>
@@ -136,184 +175,86 @@
 
         <h1>Dashboard</h1>
 
-
-        <!-- ================================
-             STAT CARDS
-             ================================ -->
-
+        <!-- STAT CARDS -->
         <div class="cards">
 
             <div class="glass-card stat-card">
-
                 <h3>Total Balance</h3>
-
-                <h2 id="balance">
-                    ₹0
-                </h2>
-
+                <h2 id="balance">₹0</h2>
             </div>
 
-
             <div class="glass-card stat-card">
-
                 <h3>Total Income</h3>
-
-                <h2 id="income">
-                    ₹0
-                </h2>
-
+                <h2 id="income">₹0</h2>
             </div>
 
-
             <div class="glass-card stat-card">
-
                 <h3>Total Expense</h3>
-
-                <h2 id="expense">
-                    ₹0
-                </h2>
-
+                <h2 id="expense">₹0</h2>
             </div>
 
         </div>
 
-
-        <!-- ================================
-             CATEGORY PIE CHART
-             ================================ -->
-
-        <div
-                class="glass-card table-card"
-                style="max-width:420px;margin-bottom:24px;"
-        >
+        <!-- CATEGORY PIE CHART -->
+        <div class="glass-card table-card"
+             style="max-width:420px;margin-bottom:24px;">
 
             <div class="table-header">
-
-                <h2>
-                    Spending by Category
-                </h2>
-
+                <h2>Spending by Category</h2>
             </div>
 
+            <canvas id="categoryPieChart" height="260"></canvas>
 
-            <canvas
-                    id="categoryPieChart"
-                    height="260">
-            </canvas>
-
-
-            <p
-                    id="pieChartEmpty"
-                    style="
-                        display:none;
-                        text-align:center;
-                        opacity:0.7;
-                    "
-            >
+            <p id="pieChartEmpty"
+               style="display:none;text-align:center;opacity:0.7;">
                 No expenses yet — add one to see your breakdown.
             </p>
 
         </div>
 
-
-        <!-- ================================
-             RECENT EXPENSES
-             ================================ -->
-
+        <!-- RECENT EXPENSES -->
         <div class="glass-card table-card">
 
             <div class="table-header">
+                <h2>Recent Expenses</h2>
 
-                <h2>
-                    Recent Expenses
-                </h2>
-
-
-                <a
-                        class="btn-primary"
-                        th:href="@{/add-expense}"
-                >
+                <a class="btn-primary" th:href="@{/add-expense}">
                     Add Expense
                 </a>
-
             </div>
 
-
             <table>
-
                 <thead>
-
                 <tr>
-
-                    <th>
-                        Title
-                    </th>
-
-                    <th>
-                        Category
-                    </th>
-
-                    <th>
-                        Amount
-                    </th>
-
-                    <th>
-                        Date
-                    </th>
-
-                    <th>
-                        Action
-                    </th>
-
+                    <th>Title</th>
+                    <th>Category</th>
+                    <th>Amount</th>
+                    <th>Date</th>
+                    <th>Action</th>
                 </tr>
-
                 </thead>
 
-
-                <tbody id="expenseTable">
-
-                </tbody>
-
+                <tbody id="expenseTable"></tbody>
             </table>
 
         </div>
 
-
-        <!-- ================================
-             BANK SMS AUTO TRACKING
-             ================================ -->
-
-        <div
-                class="glass-card table-card"
-                style="margin-top:24px;"
-        >
+        <!-- BANK SMS AUTO TRACKING -->
+        <div class="glass-card table-card" style="margin-top:24px;">
 
             <div class="table-header">
-
-                <h2>
-                    Bank SMS Auto-Tracking
-                </h2>
-
+                <h2>Bank SMS Auto-Tracking</h2>
             </div>
 
-
             <p style="opacity:0.8;">
-
                 Point an SMS-forwarding app on your phone at the URL below
                 to auto-log bank debit SMS as expenses.
-
                 Keep it private - anyone with this URL can create expenses
                 on your account.
-
             </p>
 
-
             <p style="word-break:break-all;">
-
-                <code id="webhookUrl">
-                    Loading...
-                </code>
-
+                <code id="webhookUrl">Loading...</code>
             </p>
 
         </div>
@@ -323,439 +264,324 @@
 </div>
 
 
-<script>
+<!-- ================================
+     FLOATING QUICK ACTIONS
+     (placed BEFORE the script so the elements exist when JS runs)
+     ================================ -->
 
+<div class="quick-action-container" id="quickActionContainer">
+
+    <div class="quick-action-menu" id="quickActionMenu"
+         aria-label="Quick actions" hidden>
+
+        <a class="quick-action-item" th:href="@{/add-expense}">
+            <span class="quick-action-icon expense-icon">−</span>
+            <span>Add Expense</span>
+        </a>
+
+        <a class="quick-action-item" th:href="@{/salary}">
+            <span class="quick-action-icon income-icon">+</span>
+            <span>Add Income</span>
+        </a>
+
+        <a class="quick-action-item" th:href="@{/transactions}">
+            <span class="quick-action-icon transaction-icon">⇄</span>
+            <span>Add Transaction</span>
+        </a>
+
+        <a class="quick-action-item" th:href="@{/savings}">
+            <span class="quick-action-icon savings-icon">◎</span>
+            <span>Add Savings Goal</span>
+        </a>
+
+        <a class="quick-action-item" th:href="@{/bills}">
+            <span class="quick-action-icon bill-icon">▤</span>
+            <span>Add Bill</span>
+        </a>
+
+    </div>
+
+    <button type="button"
+            class="floating-add-button"
+            id="floatingAddButton"
+            aria-label="Open quick actions"
+            aria-expanded="false"
+            aria-controls="quickActionMenu">
+        <span class="floating-add-icon">+</span>
+    </button>
+
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+
+<script>
     // ============================================================
     // AUTHENTICATION
     // ============================================================
 
     const token = localStorage.getItem("token");
 
-
     if (!token) {
-
         window.location = "/login";
-
     }
 
+    // ============================================================
+    // SIDEBAR DROPDOWNS
+    // ============================================================
+
+    function toggleSidebarDropdown(button) {
+        const section = button.closest(".dropdown-section");
+
+        if (!section) {
+            console.error("Sidebar dropdown section not found.");
+            return;
+        }
+
+        section.classList.toggle("open");
+
+        const isOpen = section.classList.contains("open");
+        button.setAttribute("aria-expanded", String(isOpen));
+    }
+
+    // ============================================================
+    // FLOATING QUICK ACTIONS
+    // ============================================================
+
+    document.addEventListener("DOMContentLoaded", function initializeQuickActions() {
+        const container = document.getElementById("quickActionContainer");
+        const button = document.getElementById("floatingAddButton");
+        const menu = document.getElementById("quickActionMenu");
+
+        if (!container || !button || !menu) {
+            console.error("Quick action menu elements not found.");
+            return;
+        }
+
+        function setMenuOpen(isOpen) {
+            menu.hidden = !isOpen;
+            button.setAttribute("aria-expanded", String(isOpen));
+            button.setAttribute(
+                "aria-label",
+                isOpen ? "Close quick actions" : "Open quick actions"
+            );
+        }
+
+        button.addEventListener("click", function () {
+            const isOpen = button.getAttribute("aria-expanded") === "true";
+            setMenuOpen(!isOpen);
+        });
+
+        document.addEventListener("click", function (event) {
+            if (!container.contains(event.target)) {
+                setMenuOpen(false);
+            }
+        });
+
+        document.addEventListener("keydown", function (event) {
+            if (event.key === "Escape") {
+                setMenuOpen(false);
+                button.focus();
+            }
+        });
+
+        menu.querySelectorAll("a").forEach(function (link) {
+            link.addEventListener("click", function () {
+                setMenuOpen(false);
+            });
+        });
+
+        setMenuOpen(false);
+    });
 
     // ============================================================
     // LOAD EXPENSES
     // ============================================================
 
     async function loadExpenses() {
-
         try {
-
-            const response = await fetch(
-                "/api/expenses",
-                {
-                    method: "GET",
-
-                    headers: {
-                        Authorization: "Bearer " + token
-                    }
+            const response = await fetch("/api/expenses", {
+                method: "GET",
+                headers: {
+                    Authorization: "Bearer " + token
                 }
-            );
-
+            });
 
             if (!response.ok) {
-
-                console.error(
-                    "Failed to load expenses:",
-                    response.status
-                );
-
+                console.error("Failed to load expenses:", response.status);
                 return;
             }
 
-
             const expenses = await response.json();
 
-
             let html = "";
-
             let totalExpense = 0;
 
-
-            // ====================================================
-            // NO EXPENSES
-            // ====================================================
-
             if (!expenses || expenses.length === 0) {
-
                 html = `
                     <tr>
-
-                        <td
-                                colspan="5"
-                                class="empty-expenses"
-                        >
+                        <td colspan="5" class="empty-expenses">
                             No expenses found.
                             <br>
                             Add your first expense.
                         </td>
-
                     </tr>
                 `;
-
-            }
-
-
-                // ====================================================
-                // DISPLAY EXPENSES
-            // ====================================================
-
-            else {
-
+            } else {
                 expenses.forEach(e => {
-
-                    const amount =
-                        Number(e.amount || 0);
-
-
+                    const amount = Number(e.amount || 0);
                     totalExpense += amount;
 
+                    const title = escapeHtml(e.title || "");
 
-                    const title =
-                        escapeHtml(e.title || "");
+                    const category = escapeHtml(
+                        e.categoryName ? e.categoryName : "Uncategorized"
+                    );
 
-
-                    const category =
-                        escapeHtml(
-                            e.categoryName
-                                ? e.categoryName
-                                : "Uncategorized"
-                        );
-
-
-                    const date =
-                        e.expenseDate
-                            ? new Date(
-                                e.expenseDate
-                            ).toLocaleDateString("en-IN")
-                            : "";
-
+                    const date = e.expenseDate
+                        ? new Date(e.expenseDate).toLocaleDateString("en-IN")
+                        : "";
 
                     html += `
-
                         <tr id="expense-row-${e.id}">
-
-                            <td>
-                                ${title}
-                            </td>
-
-
-                            <td>
-                                ${category}
-                            </td>
-
-
-                            <td>
-                                ₹${amount.toFixed(2)}
-                            </td>
-
-
-                            <td>
-                                ${date}
-                            </td>
-
-
+                            <td>${title}</td>
+                            <td>${category}</td>
+                            <td>₹${amount.toFixed(2)}</td>
+                            <td>${date}</td>
                             <td class="action-column">
-
                                 <div class="expense-actions">
-
-
-                                    <!-- EDIT -->
-
                                     <a
-                                            class="edit-btn"
-                                            href="/edit-expense?id=${e.id}"
-                                            title="Edit expense"
-                                    >
-                                        ✏️
-                                    </a>
-
-
-                                    <!-- DELETE -->
+                                        class="edit-btn"
+                                        href="/edit-expense?id=${e.id}"
+                                        title="Edit expense"
+                                    >✏️</a>
 
                                     <button
-                                            type="button"
-                                            class="delete-btn"
-                                            onclick="deleteExpense(${e.id})"
-                                            title="Delete expense"
-                                            aria-label="Delete expense"
-                                    >
-                                        🗑️
-                                    </button>
-
-
+                                        type="button"
+                                        class="delete-btn"
+                                        onclick="deleteExpense(${e.id})"
+                                        title="Delete expense"
+                                        aria-label="Delete expense"
+                                    >🗑️</button>
                                 </div>
-
                             </td>
-
                         </tr>
-
                     `;
-
                 });
-
             }
 
+            document.getElementById("expenseTable").innerHTML = html;
 
-            // ====================================================
-            // UPDATE TABLE
-            // ====================================================
-
-            document.getElementById(
-                "expenseTable"
-            ).innerHTML = html;
-
-
-            // ====================================================
-            // UPDATE TOTALS
-            // ====================================================
-
-            document.getElementById(
-                "expense"
-            ).innerHTML =
+            document.getElementById("expense").innerHTML =
                 "₹" + totalExpense.toFixed(2);
 
-
-            document.getElementById(
-                "balance"
-            ).innerHTML =
+            document.getElementById("balance").innerHTML =
                 "₹" + (-totalExpense).toFixed(2);
 
-
-            document.getElementById(
-                "income"
-            ).innerHTML =
-                "₹0.00";
-
+            document.getElementById("income").innerHTML = "₹0.00";
 
         } catch (error) {
-
-            console.error(
-                "Error loading expenses:",
-                error
-            );
-
+            console.error("Error loading expenses:", error);
         }
-
     }
-
 
     // ============================================================
     // DELETE EXPENSE
     // ============================================================
 
     async function deleteExpense(expenseId) {
-
-
-        // --------------------------------------------------------
-        // Confirmation
-        // --------------------------------------------------------
-
         const confirmed = confirm(
             "Are you sure you want to delete this expense?"
         );
 
-
         if (!confirmed) {
-
             return;
-
         }
 
+        const row = document.getElementById("expense-row-" + expenseId);
 
-        // --------------------------------------------------------
-        // Find button
-        // --------------------------------------------------------
-
-        const row =
-            document.getElementById(
-                "expense-row-" + expenseId
-            );
-
-
-        const deleteButton =
-            row
-                ? row.querySelector(".delete-btn")
-                : null;
-
+        const deleteButton = row
+            ? row.querySelector(".delete-btn")
+            : null;
 
         if (deleteButton) {
-
             deleteButton.disabled = true;
-
             deleteButton.innerHTML = "⏳";
-
         }
 
-
         try {
-
-
-            // ----------------------------------------------------
-            // DELETE REQUEST
-            // ----------------------------------------------------
-
-            const response = await fetch(
-
-                "/api/expenses/" + expenseId,
-
-                {
-
-                    method: "DELETE",
-
-                    headers: {
-
-                        Authorization:
-                            "Bearer " + token
-
-                    }
-
+            const response = await fetch("/api/expenses/" + expenseId, {
+                method: "DELETE",
+                headers: {
+                    Authorization: "Bearer " + token
                 }
-
-            );
-
-
-            // ----------------------------------------------------
-            // DELETE FAILED
-            // ----------------------------------------------------
+            });
 
             if (!response.ok) {
-
-                let errorMessage =
-                    "Failed to delete expense.";
-
+                let errorMessage = "Failed to delete expense.";
 
                 try {
+                    const responseText = await response.text();
 
-                    const text =
-                        await response.text();
-
-                    if (text) {
-
-                        errorMessage = text;
-
+                    if (responseText) {
+                        errorMessage = responseText;
                     }
-
                 } catch (error) {
-
                     console.error(error);
-
                 }
-
 
                 alert(errorMessage);
 
-
                 if (deleteButton) {
-
                     deleteButton.disabled = false;
-
                     deleteButton.innerHTML = "🗑️";
-
                 }
 
-
                 return;
-
             }
-
-
-            // ----------------------------------------------------
-            // REMOVE ROW
-            // ----------------------------------------------------
 
             if (row) {
-
                 row.remove();
-
             }
-
-
-            // ----------------------------------------------------
-            // RELOAD EXPENSES
-            // ----------------------------------------------------
 
             await loadExpenses();
-
-
-            // ----------------------------------------------------
-            // RELOAD CATEGORY CHART
-            // ----------------------------------------------------
-
             await loadCategoryPieChart();
 
-
-            alert(
-                "Expense deleted successfully."
-            );
-
+            alert("Expense deleted successfully.");
 
         } catch (error) {
+            console.error("Delete expense error:", error);
 
-            console.error(
-                "Delete expense error:",
-                error
-            );
-
-
-            alert(
-                "Unable to delete the expense. Please try again."
-            );
-
+            alert("Unable to delete the expense. Please try again.");
 
             if (deleteButton) {
-
                 deleteButton.disabled = false;
-
                 deleteButton.innerHTML = "🗑️";
-
             }
-
         }
-
     }
-
 
     // ============================================================
     // LOGOUT
     // ============================================================
 
     function logout() {
-
         localStorage.removeItem("token");
-
         window.location = "/login";
-
     }
-
 
     // ============================================================
     // ESCAPE HTML
-    // Prevents expense titles/categories from injecting HTML
     // ============================================================
 
     function escapeHtml(value) {
-
         return String(value)
-
             .replace(/&/g, "&amp;")
-
             .replace(/</g, "&lt;")
-
             .replace(/>/g, "&gt;")
-
             .replace(/"/g, "&quot;")
-
             .replace(/'/g, "&#039;");
-
     }
-
 
     // ============================================================
     // CATEGORY PIE CHART
@@ -763,334 +589,148 @@
 
     let pieChartInstance = null;
 
-
     async function loadCategoryPieChart() {
-
         try {
-
-
-            // ----------------------------------------------------
             // Get email from JWT
-            // ----------------------------------------------------
+            const payload = JSON.parse(atob(token.split(".")[1]));
+            const email = payload.sub;
 
-            const payload =
-                JSON.parse(
-                    atob(
-                        token.split(".")[1]
-                    )
-                );
-
-
-            const email =
-                payload.sub;
-
-
-            // ----------------------------------------------------
             // Find user
-            // ----------------------------------------------------
-
-            const userRes =
-                await fetch(
-
-                    "/api/users/email/" +
-                    encodeURIComponent(email),
-
-                    {
-
-                        headers: {
-
-                            Authorization:
-                                "Bearer " + token
-
-                        }
-
+            const userRes = await fetch(
+                "/api/users/email/" + encodeURIComponent(email),
+                {
+                    headers: {
+                        Authorization: "Bearer " + token
                     }
-
-                );
-
+                }
+            );
 
             if (!userRes.ok) {
-
-                console.error(
-                    "Unable to find user."
-                );
-
+                console.error("Unable to find user.");
                 return;
-
             }
 
+            const user = await userRes.json();
 
-            const user =
-                await userRes.json();
-
-
-            // ----------------------------------------------------
             // Webhook URL
-            // ----------------------------------------------------
+            const webhookElement = document.getElementById("webhookUrl");
 
-            if (user.webhookToken) {
-
-                document.getElementById(
-                    "webhookUrl"
-                ).textContent =
-
+            if (user.webhookToken && webhookElement) {
+                webhookElement.textContent =
                     window.location.origin +
                     "/api/webhook/sms/" +
                     user.webhookToken;
-
             }
 
-
-            // ----------------------------------------------------
             // Category summary
-            // ----------------------------------------------------
-
-            const res =
-                await fetch(
-
-                    "/api/reports/category-summary?userId=" +
-                    user.id,
-
-                    {
-
-                        headers: {
-
-                            Authorization:
-                                "Bearer " + token
-
-                        }
-
+            const res = await fetch(
+                "/api/reports/category-summary?userId=" + user.id,
+                {
+                    headers: {
+                        Authorization: "Bearer " + token
                     }
-
-                );
-
+                }
+            );
 
             if (!res.ok) {
-
-                console.error(
-                    "Unable to load category summary."
-                );
-
+                console.error("Unable to load category summary.");
                 return;
-
             }
 
+            const data = await res.json();
+            const breakdown = data.breakdown || [];
 
-            const data =
-                await res.json();
+            const canvas = document.getElementById("categoryPieChart");
+            const emptyMessage = document.getElementById("pieChartEmpty");
 
+            if (!canvas || !emptyMessage) {
+                console.error("Pie chart elements not found.");
+                return;
+            }
 
-            const breakdown =
-                data.breakdown || [];
-
-
-            const canvas =
-                document.getElementById(
-                    "categoryPieChart"
-                );
-
-
-            const emptyMessage =
-                document.getElementById(
-                    "pieChartEmpty"
-                );
-
-
-            // ----------------------------------------------------
             // No expenses
-            // ----------------------------------------------------
-
             if (breakdown.length === 0) {
-
-                canvas.style.display =
-                    "none";
-
-                emptyMessage.style.display =
-                    "block";
-
+                canvas.style.display = "none";
+                emptyMessage.style.display = "block";
 
                 if (pieChartInstance) {
-
                     pieChartInstance.destroy();
-
                     pieChartInstance = null;
-
                 }
 
                 return;
-
             }
 
-
-            // ----------------------------------------------------
             // Show chart
-            // ----------------------------------------------------
+            canvas.style.display = "block";
+            emptyMessage.style.display = "none";
 
-            canvas.style.display =
-                "block";
-
-            emptyMessage.style.display =
-                "none";
-
-
-            const labels =
-                breakdown.map(
-                    b => b.category
-                );
-
-
-            const amounts =
-                breakdown.map(
-                    b => Number(b.amount || 0)
-                );
-
+            const labels = breakdown.map(b => b.category);
+            const amounts = breakdown.map(b => Number(b.amount || 0));
 
             const colors = [
-
-                "#4f46e5",
-                "#06b6d4",
-                "#f59e0b",
-                "#ef4444",
-                "#10b981",
-                "#8b5cf6",
-                "#ec4899",
-                "#84cc16",
-                "#f97316",
-                "#0ea5e9"
-
+                "#4f46e5", "#06b6d4", "#f59e0b", "#ef4444", "#10b981",
+                "#8b5cf6", "#ec4899", "#84cc16", "#f97316", "#0ea5e9"
             ];
 
-
-            // ----------------------------------------------------
-            // Destroy previous chart
-            // ----------------------------------------------------
-
             if (pieChartInstance) {
-
                 pieChartInstance.destroy();
-
+                pieChartInstance = null;
             }
 
+            pieChartInstance = new Chart(canvas, {
+                type: "pie",
 
-            // ----------------------------------------------------
-            // Create chart
-            // ----------------------------------------------------
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: amounts,
+                        backgroundColor: labels.map(
+                            (_, i) => colors[i % colors.length]
+                        )
+                    }]
+                },
 
-            pieChartInstance =
-                new Chart(
+                options: {
+                    responsive: true,
 
-                    canvas,
-
-                    {
-
-                        type: "pie",
-
-                        data: {
-
-                            labels: labels,
-
-                            datasets: [
-
-                                {
-
-                                    data: amounts,
-
-                                    backgroundColor:
-                                        labels.map(
-                                            (_, i) =>
-                                                colors[
-                                                i %
-                                                colors.length
-                                                    ]
-                                        )
-
-                                }
-
-                            ]
-
+                    plugins: {
+                        legend: {
+                            position: "bottom"
                         },
 
+                        tooltip: {
+                            callbacks: {
+                                label: function (ctx) {
+                                    const b = breakdown[ctx.dataIndex];
 
-                        options: {
-
-                            responsive: true,
-
-                            plugins: {
-
-                                legend: {
-
-                                    position:
-                                        "bottom"
-
-                                },
-
-
-                                tooltip: {
-
-                                    callbacks: {
-
-                                        label:
-                                            function(ctx) {
-
-                                                const b =
-                                                    breakdown[
-                                                        ctx.dataIndex
-                                                        ];
-
-
-                                                return (
-
-                                                    ctx.label +
-                                                    ": ₹" +
-                                                    Number(
-                                                        b.amount
-                                                    ).toFixed(2) +
-                                                    " (" +
-                                                    Number(
-                                                        b.percentage
-                                                    ).toFixed(1) +
-                                                    "%)"
-
-                                                );
-
-                                            }
-
-                                    }
-
+                                    return (
+                                        ctx.label +
+                                        ": ₹" +
+                                        Number(b.amount).toFixed(2) +
+                                        " (" +
+                                        Number(b.percentage).toFixed(1) +
+                                        "%)"
+                                    );
                                 }
-
                             }
-
                         }
-
                     }
-
-                );
-
+                }
+            });
 
         } catch (error) {
-
-            console.error(
-                "Category chart error:",
-                error
-            );
-
+            console.error("Category chart error:", error);
         }
-
     }
-
 
     // ============================================================
     // INITIAL LOAD
     // ============================================================
 
     loadExpenses();
-
     loadCategoryPieChart();
-
 </script>
-
-<div th:replace="~{fragments/footer :: footer}"></div>
 
 </body>
 
