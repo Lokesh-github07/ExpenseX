@@ -89,73 +89,72 @@
 
         <ul class="sidebar-menu">
 
+            <!-- Always visible -->
             <li>
-                <a th:href="@{/dashboard}" class="active">🏠 Dashboard</a>
+                <a th:href="@{/dashboard}" class="active">
+                    🏠 Dashboard
+                </a>
             </li>
 
             <li>
-                <a th:href="@{/financial-overview}">📈 Financial Overview</a>
+                <a th:href="@{/financial-overview}">
+                    📈 Financial Overview
+                </a>
             </li>
 
-            <!-- MONEY MANAGEMENT DROPDOWN -->
-            <li class="dropdown-section">
-                <button type="button"
-                        class="sidebar-dropdown-toggle"
-                        onclick="toggleSidebarDropdown(this)"
+            <!-- MONEY MANAGEMENT POPUP -->
+            <li class="popup-section">
+                <button type="button" class="popup-toggle"
                         aria-expanded="false">
-                    <span>💰 MONEY MANAGEMENT</span>
-                    <span class="dropdown-arrow">⌄</span>
+                    <span>💰 Money Management</span>
+                    <span class="popup-arrow">⌄</span>
                 </button>
 
-                <ul class="sidebar-submenu">
-                    <li><a th:href="@{/transactions}">💳 Transactions</a></li>
-                    <li><a th:href="@{/add-expense}">➕ Add Expense</a></li>
-                    <li><a th:href="@{/salary}">💵 Salary &amp; Income</a></li>
-                    <li><a th:href="@{/budgets}">🎯 Budget Planner</a></li>
-                    <li><a th:href="@{/bills}">🧾 Bills &amp; Payments</a></li>
-                    <li><a th:href="@{/loans}">🏦 Loans &amp; EMIs</a></li>
-                    <li><a th:href="@{/savings}">🐷 Savings Goals</a></li>
-                    <li><a th:href="@{/credit-cards}">💳 Credit Cards</a></li>
-                </ul>
+                <div class="sidebar-popup" hidden>
+                    <a th:href="@{/transactions}">💳 Transactions</a>
+                    <a th:href="@{/add-expense}">➕ Add Expense</a>
+                    <a th:href="@{/salary}">💵 Salary &amp; Income</a>
+                    <a th:href="@{/budgets}">🎯 Budget Planner</a>
+                    <a th:href="@{/bills}">🧾 Bills &amp; Payments</a>
+                    <a th:href="@{/loans}">🏦 Loans &amp; EMIs</a>
+                    <a th:href="@{/savings}">🐷 Savings Goals</a>
+                    <a th:href="@{/credit-cards}">💳 Credit Cards</a>
+                </div>
             </li>
 
-            <!-- INVESTMENTS & MARKETS DROPDOWN -->
-            <li class="dropdown-section">
-                <button type="button"
-                        class="sidebar-dropdown-toggle"
-                        onclick="toggleSidebarDropdown(this)"
+            <!-- INVESTMENTS & MARKETS POPUP -->
+            <li class="popup-section">
+                <button type="button" class="popup-toggle"
                         aria-expanded="false">
-                    <span>📊 INVESTMENTS &amp; MARKETS</span>
-                    <span class="dropdown-arrow">⌄</span>
+                    <span>📊 Investments &amp; Markets</span>
+                    <span class="popup-arrow">⌄</span>
                 </button>
 
-                <ul class="sidebar-submenu">
-                    <li><a th:href="@{/investments}">📊 Investment Portfolio</a></li>
-                    <li><a th:href="@{/sip-fd}">📈 SIP &amp; FD Management</a></li>
-                    <li><a th:href="@{/markets}">🌐 Live Market</a></li>
-                    <li><a th:href="@{/market-news}">📰 Market News &amp; Insights</a></li>
-                    <li><a th:href="@{/price-alerts}">🔔 Price Alerts</a></li>
-                </ul>
+                <div class="sidebar-popup" hidden>
+                    <a th:href="@{/investments}">📊 Investment Portfolio</a>
+                    <a th:href="@{/sip-fd}">📈 SIP &amp; FD Management</a>
+                    <a th:href="@{/markets}">🌐 Live Market</a>
+                    <a th:href="@{/market-news}">📰 Market News &amp; Insights</a>
+                    <a th:href="@{/price-alerts}">🔔 Price Alerts</a>
+                </div>
             </li>
 
-            <!-- INTELLIGENCE DROPDOWN -->
-            <li class="dropdown-section">
-                <button type="button"
-                        class="sidebar-dropdown-toggle"
-                        onclick="toggleSidebarDropdown(this)"
+            <!-- INTELLIGENCE POPUP -->
+            <li class="popup-section">
+                <button type="button" class="popup-toggle"
                         aria-expanded="false">
-                    <span>🧠 INTELLIGENCE</span>
-                    <span class="dropdown-arrow">⌄</span>
+                    <span>🧠 Intelligence</span>
+                    <span class="popup-arrow">⌄</span>
                 </button>
 
-                <ul class="sidebar-submenu">
-                    <li><a th:href="@{/ai-assistant}">🤖 AI Finance Assistant</a></li>
-                    <li><a th:href="@{/analytics}">📉 Reports &amp; Analytics</a></li>
-                    <li><a th:href="@{/financial-calendar}">📅 Financial Calendar</a></li>
-                </ul>
+                <div class="sidebar-popup" hidden>
+                    <a th:href="@{/ai-assistant}">🤖 AI Finance Assistant</a>
+                    <a th:href="@{/analytics}">📉 Reports &amp; Analytics</a>
+                    <a th:href="@{/financial-calendar}">📅 Financial Calendar</a>
+                </div>
             </li>
 
-            <!-- PERSONAL -->
+            <!-- Always visible -->
             <li class="sidebar-section personal-heading">PERSONAL</li>
 
             <li>
@@ -327,22 +326,69 @@
     }
 
     // ============================================================
-    // SIDEBAR DROPDOWNS
+    // INDIVIDUAL SIDEBAR POPUP MENUS
     // ============================================================
 
-    function toggleSidebarDropdown(button) {
-        const section = button.closest(".dropdown-section");
+    document.addEventListener("DOMContentLoaded", function () {
 
-        if (!section) {
-            console.error("Sidebar dropdown section not found.");
-            return;
+        const sections = document.querySelectorAll(".popup-section");
+
+        function closeAllPopups(exceptSection = null) {
+            sections.forEach(section => {
+                if (section === exceptSection) return;
+
+                const button = section.querySelector(".popup-toggle");
+                const menu = section.querySelector(".sidebar-popup");
+
+                menu.hidden = true;
+                button.setAttribute("aria-expanded", "false");
+            });
         }
 
-        section.classList.toggle("open");
+        sections.forEach(section => {
+            const button = section.querySelector(".popup-toggle");
+            const menu = section.querySelector(".sidebar-popup");
 
-        const isOpen = section.classList.contains("open");
-        button.setAttribute("aria-expanded", String(isOpen));
-    }
+            // Start closed
+            menu.hidden = true;
+            button.setAttribute("aria-expanded", "false");
+
+            button.addEventListener("click", function (event) {
+                event.stopPropagation();
+
+                const isOpen =
+                    button.getAttribute("aria-expanded") === "true";
+
+                closeAllPopups();
+
+                if (!isOpen) {
+                    menu.hidden = false;
+                    button.setAttribute("aria-expanded", "true");
+                }
+            });
+
+            menu.querySelectorAll("a").forEach(link => {
+                link.addEventListener("click", function () {
+                    closeAllPopups();
+                });
+            });
+        });
+
+        // Close when clicking outside the sidebar popup sections
+        document.addEventListener("click", function (event) {
+            if (!event.target.closest(".popup-section")) {
+                closeAllPopups();
+            }
+        });
+
+        // Close all menus with Escape
+        document.addEventListener("keydown", function (event) {
+            if (event.key === "Escape") {
+                closeAllPopups();
+            }
+        });
+
+    });
 
     // ============================================================
     // FLOATING QUICK ACTIONS
