@@ -2,7 +2,6 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 
 <head>
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#10151f" id="themeColor">
@@ -15,26 +14,21 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
           rel="stylesheet">
 
-    <!-- Shared ExpenseX styles -->
+    <!-- Shared application styles -->
     <link rel="stylesheet" th:href="@{/css/style.css}">
 
-    <!-- Calendar styles -->
-    <link rel="stylesheet" th:href="@{/css/financial-calendar.css}">
-
+    <!-- Financial Calendar styles -->
+    <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 
 <body>
 
-<div class="background"></div>
+<div class="background" aria-hidden="true"></div>
 
 <div class="dashboard">
 
-    <!-- ================================
-         SIDEBAR
-         ================================ -->
-
+    <!-- Sidebar -->
     <aside class="sidebar">
-
         <h2>💰 ExpenseX</h2>
 
         <ul class="sidebar-menu">
@@ -47,9 +41,10 @@
                 <a th:href="@{/financial-overview}">📈 Financial Overview</a>
             </li>
 
-            <!-- MONEY MANAGEMENT POPUP -->
+            <!-- Money Management -->
             <li class="popup-section">
-                <button type="button" class="popup-toggle"
+                <button type="button"
+                        class="popup-toggle"
                         aria-expanded="false">
                     <span>💰 Money Management</span>
                     <span class="popup-arrow">⌄</span>
@@ -67,9 +62,10 @@
                 </div>
             </li>
 
-            <!-- INVESTMENTS & MARKETS POPUP -->
+            <!-- Investments and Markets -->
             <li class="popup-section">
-                <button type="button" class="popup-toggle"
+                <button type="button"
+                        class="popup-toggle"
                         aria-expanded="false">
                     <span>📊 Investments &amp; Markets</span>
                     <span class="popup-arrow">⌄</span>
@@ -84,9 +80,10 @@
                 </div>
             </li>
 
-            <!-- INTELLIGENCE POPUP -->
+            <!-- Intelligence -->
             <li class="popup-section">
-                <button type="button" class="popup-toggle"
+                <button type="button"
+                        class="popup-toggle"
                         aria-expanded="false">
                     <span>🧠 Intelligence</span>
                     <span class="popup-arrow">⌄</span>
@@ -95,13 +92,13 @@
                 <div class="sidebar-popup" hidden>
                     <a th:href="@{/ai-assistant}">🤖 AI Finance Assistant</a>
                     <a th:href="@{/analytics}">📉 Reports &amp; Analytics</a>
-                    <a th:href="@{/financial-calendar}" class="active">
+                    <a th:href="@{/financial-calendar}" class="active"
+                       aria-current="page">
                         📅 Financial Calendar
                     </a>
                 </div>
             </li>
 
-            <!-- Always visible -->
             <li class="sidebar-section personal-heading">PERSONAL</li>
 
             <li>
@@ -109,19 +106,12 @@
             </li>
 
         </ul>
-
     </aside>
 
-
-    <!-- ================================
-         MAIN CONTENT
-         ================================ -->
-
+    <!-- Main Content -->
     <main class="content financial-calendar">
 
-        <!-- Header — Refresh only.
-             The theme toggle is the global floating one (top-right),
-             injected and bound entirely by /js/script.js. -->
+        <!-- Page Header -->
         <header class="fc-topbar">
             <div>
                 <h1>Financial Calendar</h1>
@@ -139,9 +129,8 @@
             </div>
         </header>
 
-        <!-- Toolbar: filter + Today on one row -->
+        <!-- Filters -->
         <div class="fc-toolbar">
-
             <div class="fc-filter">
                 <label for="category">Event category</label>
 
@@ -155,11 +144,12 @@
                 </select>
             </div>
 
-            <button id="todayBtn" type="button" class="fc-btn">Today</button>
-
+            <button id="todayBtn" type="button" class="fc-btn">
+                Today
+            </button>
         </div>
 
-        <!-- Status -->
+        <!-- Status and messages -->
         <div id="status"
              class="fc-status"
              role="status"
@@ -167,23 +157,27 @@
             Loading calendar...
         </div>
 
-        <!-- Main layout -->
+        <!-- Calendar Layout -->
         <div class="fc-layout">
 
-            <!-- Calendar -->
+            <!-- Monthly Calendar -->
             <section class="fc-panel"
                      aria-label="Monthly financial calendar">
 
                 <div class="fc-calendar-header">
                     <button id="prevBtn"
                             type="button"
-                            aria-label="Previous month">←</button>
+                            aria-label="Previous month">
+                        ←
+                    </button>
 
                     <h2 id="monthLabel">Loading...</h2>
 
                     <button id="nextBtn"
                             type="button"
-                            aria-label="Next month">→</button>
+                            aria-label="Next month">
+                        →
+                    </button>
                 </div>
 
                 <div class="fc-weekdays" aria-hidden="true">
@@ -197,10 +191,9 @@
                 </div>
 
                 <div id="calendarGrid" class="fc-grid"></div>
-
             </section>
 
-            <!-- Reminders and events -->
+            <!-- Reminders and Events -->
             <aside class="fc-panel">
 
                 <h2 class="fc-section-title">Add a reminder</h2>
@@ -209,16 +202,20 @@
 
                     <label for="reminderTitle">Title</label>
                     <input id="reminderTitle"
+                           name="title"
                            type="text"
                            required
                            maxlength="100"
                            placeholder="e.g. Rent payment">
 
                     <label for="reminderDate">Date</label>
-                    <input id="reminderDate" type="date" required>
+                    <input id="reminderDate"
+                           name="date"
+                           type="date"
+                           required>
 
                     <label for="reminderType">Type</label>
-                    <select id="reminderType">
+                    <select id="reminderType" name="type">
                         <option value="salary">Salary</option>
                         <option value="bill">Bill / EMI</option>
                         <option value="expense">Expense</option>
@@ -227,6 +224,7 @@
 
                     <label for="reminderAmount">Amount (INR)</label>
                     <input id="reminderAmount"
+                           name="amount"
                            type="number"
                            min="0"
                            step="0.01"
@@ -245,24 +243,19 @@
                 </h2>
 
                 <div id="eventList" class="fc-event-list"></div>
-
             </aside>
 
         </div>
-
     </main>
-
 </div>
 
-
-<!-- ================================
-     FLOATING QUICK ACTIONS
-     ================================ -->
-
+<!-- Floating Quick Actions -->
 <div class="quick-action-container" id="quickActionContainer">
 
-    <div class="quick-action-menu" id="quickActionMenu"
-         aria-label="Quick actions" hidden>
+    <div class="quick-action-menu"
+         id="quickActionMenu"
+         aria-label="Quick actions"
+         hidden>
 
         <a class="quick-action-item" th:href="@{/add-expense}">
             <span class="quick-action-icon expense-icon">−</span>
@@ -299,39 +292,22 @@
             aria-controls="quickActionMenu">
         <span class="floating-add-icon">+</span>
     </button>
-
 </div>
 
+<!-- Shared Footer -->
 <div th:replace="~{fragments/footer :: footer}"></div>
 
-
-<!-- Shared ExpenseX helpers — owns the theme toggle for the whole app -->
+<!-- Shared JavaScript: theme, sidebar and global actions -->
 <script th:src="@{/js/script.js}" defer></script>
 
-<!-- Calendar behaviour -->
+<!-- Calendar-specific JavaScript -->
 <script th:src="@{/js/financial-calendar.js}" defer></script>
 
-
-<!-- Page-level bootstrapping -->
-<script>
-    // Auth guard
-    (function () {
-        const token = localStorage.getItem("token");
-        if (!token) {
-            window.location = "/login";
-        }
-    })();
-
-    // Theme toggle is injected and handled entirely by /js/script.js
-    // via event delegation — do not create, remove, or bind it here.
-</script>
-
 <noscript>
-    <p style="padding:20px;text-align:center;opacity:0.8;">
+    <p style="padding:20px;text-align:center;">
         Financial Calendar requires JavaScript to be enabled.
     </p>
 </noscript>
 
 </body>
-
 </html>
