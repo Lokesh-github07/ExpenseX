@@ -314,7 +314,7 @@
 
 <!-- Page-level bootstrapping -->
 <script>
-    // Auth guard — script.js also checks, but keep as belt-and-suspenders.
+    // Auth guard
     (function () {
         const token = localStorage.getItem("token");
         if (!token) {
@@ -322,10 +322,8 @@
         }
     })();
 
-    // The floating theme toggle is injected AND bound entirely by
-    // /js/script.js via ensureThemeToggleExists() + initTheme().
-    // Do NOT create another one here — that causes the "not working"
-    // bug because the new node never gets a click handler bound.
+    // Theme toggle is injected and handled entirely by /js/script.js
+    // via event delegation — do not create, remove, or bind it here.
 </script>
 
 <noscript>
