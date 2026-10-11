@@ -53,5 +53,8 @@ public class PageController {
     public String analytics() {
         return "analytics";
     }
+
+    @GetMapping("/financial-calendar")
+    public String financialCalendar() {return "financial-calendar";}
 }
 
