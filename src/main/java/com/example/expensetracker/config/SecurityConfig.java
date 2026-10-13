@@ -76,7 +76,6 @@ public class SecurityConfig {
                                 "/profile",
                                 "/analytics",
                                 "/financial-calendar",
-                                "/financial-overview",
 
                                 // Static Resources
                                 "/css/**",

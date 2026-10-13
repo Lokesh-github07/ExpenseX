@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 
@@ -5,7 +6,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Expense Tracker Dashboard</title>
+    <title>ExpenseX | Financial Dashboard</title>
 
     <link rel="stylesheet" th:href="@{/css/style.css}">
 
@@ -79,92 +80,87 @@
 
 <div class="dashboard">
 
-    <!-- ================================
-         SIDEBAR
-         ================================ -->
+    <!-- SIDEBAR: all navigation items remain visible; no popup menus -->
+    <aside class="sidebar" id="appSidebar" aria-label="Main navigation">
+        <div class="sidebar-brand-row">
+            <a class="sidebar-brand" th:href="@{/dashboard}" aria-label="ExpenseX Dashboard">
+                <span class="brand-icon" aria-hidden="true">💰</span>
+                <span class="brand-name">ExpenseX</span>
+            </a>
+            <button type="button" class="sidebar-toggle" id="sidebarToggle"
+                    aria-label="Collapse sidebar" aria-controls="appSidebar" aria-expanded="true">
+                <span aria-hidden="true">☰</span>
+            </button>
+        </div>
 
-    <aside class="sidebar">
+        <nav class="sidebar-navigation" aria-label="ExpenseX sections">
+            <ul class="sidebar-menu">
+                <li>
+                    <a th:href="@{/dashboard}" class="active" aria-current="page" title="Dashboard">
+                        <span class="nav-icon" aria-hidden="true">🏠</span>
+                        <span class="nav-label">Dashboard</span>
+                    </a>
+                </li>
+                <li>
+                    <a th:href="@{/transactions}" title="Transactions & Add Expenses">
+                        <span class="nav-icon" aria-hidden="true">💳</span>
+                        <span class="nav-label">Transactions &amp; Expenses</span>
+                    </a>
+                </li>
+                <li>
+                    <a th:href="@{/salary}" title="Salary, Income & Budget Planner">
+                        <span class="nav-icon" aria-hidden="true">💵</span>
+                        <span class="nav-label">Income &amp; Budget</span>
+                    </a>
+                </li>
+                <li>
+                    <a th:href="@{/bills}" title="Bills, Payments, Loans & EMIs">
+                        <span class="nav-icon" aria-hidden="true">🧾</span>
+                        <span class="nav-label">Bills, Loans &amp; EMIs</span>
+                    </a>
+                </li>
+                <li>
+                    <a th:href="@{/savings}" title="Savings Goals & CIBIL Score">
+                        <span class="nav-icon" aria-hidden="true">🎯</span>
+                        <span class="nav-label">Savings &amp; CIBIL Score</span>
+                    </a>
+                </li>
+                <li>
+                    <a th:href="@{/ai-assistant}" title="AI Finance Assistant">
+                        <span class="nav-icon" aria-hidden="true">🤖</span>
+                        <span class="nav-label">AI Finance Assistant</span>
+                    </a>
+                </li>
+                <li>
+                    <a th:href="@{/analytics}" title="Reports & Analysis">
+                        <span class="nav-icon" aria-hidden="true">📊</span>
+                        <span class="nav-label">Reports &amp; Analysis</span>
+                    </a>
+                </li>
+                <li>
+                    <a th:href="@{/financial-calendar}" title="Financial Calendar">
+                        <span class="nav-icon" aria-hidden="true">📅</span>
+                        <span class="nav-label">Financial Calendar</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
 
-        <h2>💰 ExpenseX</h2>
-
-        <ul class="sidebar-menu">
-
-            <!-- Always visible -->
-            <li>
-                <a th:href="@{/dashboard}" class="active">
-                    🏠 Dashboard
-                </a>
-            </li>
-
-            <li>
-                <a th:href="@{/financial-overview}">
-                    📈 Financial Overview
-                </a>
-            </li>
-
-            <!-- MONEY MANAGEMENT POPUP -->
-            <li class="popup-section">
-                <button type="button" class="popup-toggle"
-                        aria-expanded="false">
-                    <span>💰 Money Management</span>
-                    <span class="popup-arrow"></span>
-                </button>
-
-                <div class="sidebar-popup" hidden>
-                    <a th:href="@{/transactions}">💳 Transactions</a>
-                    <a th:href="@{/add-expense}">➕ Add Expense</a>
-                    <a th:href="@{/salary}">💵 Salary &amp; Income</a>
-                    <a th:href="@{/budgets}">🎯 Budget Planner</a>
-                    <a th:href="@{/bills}">🧾 Bills &amp; Payments</a>
-                    <a th:href="@{/loans}">🏦 Loans &amp; EMIs</a>
-                    <a th:href="@{/savings}">🐷 Savings Goals</a>
-                    <a th:href="@{/credit-cards}">💳 Credit Cards</a>
-                </div>
-            </li>
-
-            <!-- INVESTMENTS & MARKETS POPUP -->
-            <li class="popup-section">
-                <button type="button" class="popup-toggle"
-                        aria-expanded="false">
-                    <span>📊 Investments &amp; Markets</span>
-                    <span class="popup-arrow"></span>
-                </button>
-
-                <div class="sidebar-popup" hidden>
-                    <a th:href="@{/investments}">📊 Investment Portfolio</a>
-                    <a th:href="@{/sip-fd}">📈 SIP &amp; FD Management</a>
-                    <a th:href="@{/markets}">🌐 Live Market</a>
-                    <a th:href="@{/market-news}">📰 Market News &amp; Insights</a>
-                    <a th:href="@{/price-alerts}">🔔 Price Alerts</a>
-                </div>
-            </li>
-
-            <!-- INTELLIGENCE POPUP -->
-            <li class="popup-section">
-                <button type="button" class="popup-toggle"
-                        aria-expanded="false">
-                    <span>🧠 Intelligence</span>
-                    <span class="popup-arrow"></span>
-                </button>
-
-                <div class="sidebar-popup" hidden>
-                    <a th:href="@{/ai-assistant}">🤖 AI Finance Assistant</a>
-                    <a th:href="@{/analytics}">📉 Reports &amp; Analytics</a>
-                    <a th:href="@{/financial-calendar}">📅 Financial Calendar</a>
-                </div>
-            </li>
-
-            <!-- Always visible -->
-            <li class="sidebar-section personal-heading">PERSONAL</li>
-
-            <li>
-                <a th:href="@{/profile}">👤 My Profile</a>
-            </li>
-
-        </ul>
-
+        <!-- Profile stays pinned at the bottom of the sidebar -->
+        <div class="sidebar-profile" id="sidebarProfile">
+            <a class="profile-link" th:href="@{/profile}" title="My Profile">
+                <span class="profile-avatar" aria-hidden="true">👤</span>
+                <span class="profile-details">
+                    <span class="profile-name">My Profile</span>
+                    <span class="profile-caption">Account settings</span>
+                </span>
+            </a>
+            <button type="button" class="profile-logout" onclick="logout()" title="Log out">
+                <span aria-hidden="true">↪</span>
+                <span class="nav-label">Logout</span>
+            </button>
+        </div>
     </aside>
-
 
     <!-- ================================
          MAIN CONTENT
@@ -172,7 +168,13 @@
 
     <main class="content">
 
-        <h1>Dashboard</h1>
+        <div class="content-topbar">
+            <button type="button" class="mobile-sidebar-toggle" id="mobileSidebarToggle"
+                    aria-label="Open navigation" aria-controls="appSidebar" aria-expanded="false">
+                <span aria-hidden="true">☰</span>
+            </button>
+            <h1>Dashboard</h1>
+        </div>
 
         <!-- STAT CARDS -->
         <div class="cards">
@@ -263,53 +265,12 @@
 </div>
 
 
-<!-- ================================
-     FLOATING QUICK ACTIONS
-     (placed BEFORE the script so the elements exist when JS runs)
-     ================================ -->
-
-<div class="quick-action-container" id="quickActionContainer">
-
-    <div class="quick-action-menu" id="quickActionMenu"
-         aria-label="Quick actions" hidden>
-
-        <a class="quick-action-item" th:href="@{/add-expense}">
-            <span class="quick-action-icon expense-icon">−</span>
-            <span>Add Expense</span>
-        </a>
-
-        <a class="quick-action-item" th:href="@{/salary}">
-            <span class="quick-action-icon income-icon">+</span>
-            <span>Add Income</span>
-        </a>
-
-        <a class="quick-action-item" th:href="@{/transactions}">
-            <span class="quick-action-icon transaction-icon">⇄</span>
-            <span>Add Transaction</span>
-        </a>
-
-        <a class="quick-action-item" th:href="@{/savings}">
-            <span class="quick-action-icon savings-icon">◎</span>
-            <span>Add Savings Goal</span>
-        </a>
-
-        <a class="quick-action-item" th:href="@{/bills}">
-            <span class="quick-action-icon bill-icon">▤</span>
-            <span>Add Bill</span>
-        </a>
-
-    </div>
-
-    <button type="button"
-            class="floating-add-button"
-            id="floatingAddButton"
-            aria-label="Open quick actions"
-            aria-expanded="false"
-            aria-controls="quickActionMenu">
-        <span class="floating-add-icon">+</span>
-    </button>
-
-</div>
+<!-- Floating AI chatbot button -->
+<a class="chatbot-fab" id="chatbotFab" th:href="@{/ai-assistant}"
+   aria-label="Open AI Finance Assistant" title="Chat with AI Finance Assistant">
+    <span class="chatbot-fab-icon" aria-hidden="true">💬</span>
+    <span class="chatbot-fab-label">Ask ExpenseX AI</span>
+</a>
 
 <div th:replace="~{fragments/footer :: footer}"></div>
 
@@ -326,118 +287,60 @@
     }
 
     // ============================================================
-    // INDIVIDUAL SIDEBAR POPUP MENUS
+    // SLIDING SIDEBAR
+    // CSS will control the animation and collapsed appearance.
     // ============================================================
+    document.addEventListener("DOMContentLoaded", function initializeSidebar() {
+        const dashboard = document.querySelector(".dashboard");
+        const sidebar = document.getElementById("appSidebar");
+        const desktopToggle = document.getElementById("sidebarToggle");
+        const mobileToggle = document.getElementById("mobileSidebarToggle");
 
-    document.addEventListener("DOMContentLoaded", function () {
+        if (!dashboard || !sidebar) return;
 
-        const sections = document.querySelectorAll(".popup-section");
-
-        function closeAllPopups(exceptSection = null) {
-            sections.forEach(section => {
-                if (section === exceptSection) return;
-
-                const button = section.querySelector(".popup-toggle");
-                const menu = section.querySelector(".sidebar-popup");
-
-                menu.hidden = true;
-                button.setAttribute("aria-expanded", "false");
-            });
-        }
-
-        sections.forEach(section => {
-            const button = section.querySelector(".popup-toggle");
-            const menu = section.querySelector(".sidebar-popup");
-
-            // Start closed
-            menu.hidden = true;
-            button.setAttribute("aria-expanded", "false");
-
-            button.addEventListener("click", function (event) {
-                event.stopPropagation();
-
-                const isOpen =
-                    button.getAttribute("aria-expanded") === "true";
-
-                closeAllPopups();
-
-                if (!isOpen) {
-                    menu.hidden = false;
-                    button.setAttribute("aria-expanded", "true");
-                }
-            });
-
-            menu.querySelectorAll("a").forEach(link => {
-                link.addEventListener("click", function () {
-                    closeAllPopups();
-                });
-            });
-        });
-
-        // Close when clicking outside the sidebar popup sections
-        document.addEventListener("click", function (event) {
-            if (!event.target.closest(".popup-section")) {
-                closeAllPopups();
+        function setSidebarCollapsed(collapsed) {
+            dashboard.classList.toggle("sidebar-collapsed", collapsed);
+            sidebar.classList.toggle("is-collapsed", collapsed);
+            if (desktopToggle) {
+                desktopToggle.setAttribute("aria-expanded", String(!collapsed));
+                desktopToggle.setAttribute("aria-label", collapsed ? "Expand sidebar" : "Collapse sidebar");
             }
-        });
+        }
 
-        // Close all menus with Escape
-        document.addEventListener("keydown", function (event) {
-            if (event.key === "Escape") {
-                closeAllPopups();
+        function setMobileSidebarOpen(open) {
+            sidebar.classList.toggle("is-mobile-open", open);
+            if (mobileToggle) {
+                mobileToggle.setAttribute("aria-expanded", String(open));
+                mobileToggle.setAttribute("aria-label", open ? "Close navigation" : "Open navigation");
             }
-        });
-
-    });
-
-    // ============================================================
-    // FLOATING QUICK ACTIONS
-    // ============================================================
-
-    document.addEventListener("DOMContentLoaded", function initializeQuickActions() {
-        const container = document.getElementById("quickActionContainer");
-        const button = document.getElementById("floatingAddButton");
-        const menu = document.getElementById("quickActionMenu");
-
-        if (!container || !button || !menu) {
-            console.error("Quick action menu elements not found.");
-            return;
         }
 
-        function setMenuOpen(isOpen) {
-            menu.hidden = !isOpen;
-            button.setAttribute("aria-expanded", String(isOpen));
-            button.setAttribute(
-                "aria-label",
-                isOpen ? "Close quick actions" : "Open quick actions"
-            );
+        if (desktopToggle) {
+            desktopToggle.addEventListener("click", function () {
+                setSidebarCollapsed(!dashboard.classList.contains("sidebar-collapsed"));
+            });
         }
 
-        button.addEventListener("click", function () {
-            const isOpen = button.getAttribute("aria-expanded") === "true";
-            setMenuOpen(!isOpen);
-        });
+        if (mobileToggle) {
+            mobileToggle.addEventListener("click", function () {
+                setMobileSidebarOpen(!sidebar.classList.contains("is-mobile-open"));
+            });
+        }
 
         document.addEventListener("click", function (event) {
-            if (!container.contains(event.target)) {
-                setMenuOpen(false);
+            if (sidebar.classList.contains("is-mobile-open") &&
+                !sidebar.contains(event.target) &&
+                !(mobileToggle && mobileToggle.contains(event.target))) {
+                setMobileSidebarOpen(false);
             }
         });
 
         document.addEventListener("keydown", function (event) {
-            if (event.key === "Escape") {
-                setMenuOpen(false);
-                button.focus();
-            }
+            if (event.key === "Escape") setMobileSidebarOpen(false);
         });
 
-        menu.querySelectorAll("a").forEach(function (link) {
-            link.addEventListener("click", function () {
-                setMenuOpen(false);
-            });
-        });
-
-        setMenuOpen(false);
+        // Start expanded on desktop; mobile visibility is handled by CSS.
+        setSidebarCollapsed(false);
     });
 
     // ============================================================

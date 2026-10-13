@@ -1,219 +1,624 @@
-// ===========================
-// Financial Calendar
-// ===========================
+// ============================================================
+// ExpenseX — financial-calendar.js
+// ============================================================
 
-const SERIES = {
-    GDP: "GDP",
-    CPIAUCSL: "Consumer Price Index",
-    UNRATE: "Unemployment rate",
-    FEDFUNDS: "Fed funds rate"
-};
-const REMINDER_KEY = "expensex_reminders";
+(function () {
+    "use strict";
 
-const today = new Date();
-const state = {
-    year: today.getFullYear(),
-    month: today.getMonth(),          // 0-11
-    selected: toISO(today),
-    category: "all",
-    economic: [],
-    reminders: loadReminders()
-};
+    // ----------------------------
+    // State
+    // ----------------------------
 
-const el = id => document.getElementById(id);
+    const state = {
+        currentMonth: new Date(),
+        selectedDate: null,
+        category: "all",
+        events: []
+    };
 
-function pad(n) { return String(n).padStart(2, "0"); }
-function toISO(d) { return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`; }
+    // ----------------------------
+    // DOM references (resolved on init)
+    // ----------------------------
 
-function setStatus(msg) {
-    const s = el("status");
-    if (s) s.textContent = msg;
-}
+    let dom = {};
 
-// ---------- Reminders (stored in this browser only) ----------
-function loadReminders() {
-    try { return JSON.parse(localStorage.getItem(REMINDER_KEY)) || []; }
-    catch { return []; }
-}
-function saveReminders() {
-    localStorage.setItem(REMINDER_KEY, JSON.stringify(state.reminders));
-}
-
-// ---------- Economic data from backend (FRED) ----------
-async function fetchSeries(seriesId) {
-    const res = await fetch(
-        `/api/financial-calendar/economic-data?seriesId=${encodeURIComponent(seriesId)}`,
-        { headers: authHeaders() }
-    );
-    if (res.status === 401) { logout(); return []; }
-    if (!res.ok) throw new Error(`${seriesId}: ${res.status}`);
-
-    const data = await res.json();
-    return (data.observations || [])
-        .filter(o => o.value !== ".")                // FRED uses "." for missing values
-        .map(o => ({
-            id: `${seriesId}-${o.date}`,
-            date: o.date,
-            title: `${SERIES[seriesId]}: ${o.value}`,
-            category: "economic"
-        }));
-}
-
-async function loadEconomic() {
-    setStatus("Loading economic data...");
-    const results = await Promise.allSettled(Object.keys(SERIES).map(fetchSeries));
-
-    state.economic = results
-        .filter(r => r.status === "fulfilled")
-        .flatMap(r => r.value);
-
-    const failed = results.filter(r => r.status === "rejected").length;
-    setStatus(failed
-        ? `Loaded with ${failed} failed request(s). Check the server log / FRED API key.`
-        : "Economic data loaded.");
-
-    render();
-}
-
-// ---------- Helpers ----------
-function allEvents() {
-    const reminders = state.reminders.map(r => ({
-        id: r.id,
-        date: r.date,
-        title: r.amount ? `${r.title} (₹${r.amount})` : r.title,
-        category: "personal"
-    }));
-    return [...state.economic, ...reminders].filter(
-        e => state.category === "all" || e.category === state.category
-    );
-}
-
-// ---------- Rendering ----------
-function renderCalendar() {
-    const grid = el("calendarGrid");
-    grid.replaceChildren();
-
-    const first = new Date(state.year, state.month, 1);
-    el("monthLabel").textContent =
-        first.toLocaleString("en-IN", { month: "long", year: "numeric" });
-
-    const daysInMonth = new Date(state.year, state.month + 1, 0).getDate();
-    const events = allEvents();
-
-    for (let i = 0; i < first.getDay(); i++) {
-        grid.appendChild(document.createElement("div"));   // empty leading cells
+    function cacheDom() {
+        dom = {
+            monthLabel: document.getElementById("monthLabel"),
+            calendarGrid: document.getElementById("calendarGrid"),
+            prevBtn: document.getElementById("prevBtn"),
+            nextBtn: document.getElementById("nextBtn"),
+            todayBtn: document.getElementById("todayBtn"),
+            refreshBtn: document.getElementById("refreshBtn"),
+            categorySelect: document.getElementById("category"),
+            status: document.getElementById("status"),
+            eventList: document.getElementById("eventList"),
+            selectedTitle: document.getElementById("selectedTitle"),
+            reminderForm: document.getElementById("reminderForm"),
+            reminderTitle: document.getElementById("reminderTitle"),
+            reminderDate: document.getElementById("reminderDate"),
+            reminderType: document.getElementById("reminderType"),
+            reminderAmount: document.getElementById("reminderAmount")
+        };
     }
 
-    for (let day = 1; day <= daysInMonth; day++) {
-        const iso = `${state.year}-${pad(state.month + 1)}-${pad(day)}`;
-        const count = events.filter(e => e.date === iso).length;
+    // ----------------------------
+    // Auth + fetch helpers
+    // ----------------------------
 
-        const cell = document.createElement("button");
-        cell.type = "button";
-        cell.className = "fc-day";
-        if (iso === toISO(today)) cell.classList.add("today");
-        if (iso === state.selected) cell.classList.add("selected");
-        cell.textContent = count ? `${day} •${count}` : String(day);
-        cell.addEventListener("click", () => { state.selected = iso; render(); });
-        grid.appendChild(cell);
-    }
-}
-
-function renderEvents() {
-    el("selectedTitle").textContent = `Events · ${state.selected}`;
-    const list = el("eventList");
-    list.replaceChildren();
-
-    const items = allEvents().filter(e => e.date === state.selected);
-    if (!items.length) {
-        list.textContent = "No events on this date.";
-        return;
+    function getToken() {
+        return localStorage.getItem("token");
     }
 
-    items.forEach(e => {
-        const row = document.createElement("div");
-        row.className = "fc-event";
-        row.textContent = `${e.category === "economic" ? "📊" : "🔔"} ${e.title}`;   // textContent = no XSS
+    async function apiGet(path) {
+        const token = getToken();
+        if (!token) {
+            window.location = "/login";
+            return null;
+        }
 
-        if (e.category === "personal") {
+        try {
+            const res = await fetch("/api" + path, {
+                method: "GET",
+                headers: { "Authorization": "Bearer " + token }
+            });
+
+            if (res.status === 401) {
+                localStorage.removeItem("token");
+                window.location = "/login";
+                return null;
+            }
+
+            if (!res.ok) {
+                console.error("GET " + path + " → " + res.status);
+                return null;
+            }
+
+            const text = await res.text();
+            if (!text) return null;
+
+            try { return JSON.parse(text); }
+            catch (e) { console.error("Bad JSON from " + path, text); return null; }
+
+        } catch (err) {
+            console.error("GET " + path + " network error:", err);
+            return null;
+        }
+    }
+
+    async function apiPost(path, body) {
+        const token = getToken();
+        if (!token) {
+            window.location = "/login";
+            return null;
+        }
+
+        try {
+            const res = await fetch("/api" + path, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": "Bearer " + token
+                },
+                body: JSON.stringify(body)
+            });
+
+            if (res.status === 401) {
+                localStorage.removeItem("token");
+                window.location = "/login";
+                return null;
+            }
+
+            return res;
+
+        } catch (err) {
+            console.error("POST " + path + " network error:", err);
+            return null;
+        }
+    }
+
+    async function apiDelete(path) {
+        const token = getToken();
+        if (!token) {
+            window.location = "/login";
+            return null;
+        }
+
+        try {
+            const res = await fetch("/api" + path, {
+                method: "DELETE",
+                headers: { "Authorization": "Bearer " + token }
+            });
+
+            if (res.status === 401) {
+                localStorage.removeItem("token");
+                window.location = "/login";
+                return null;
+            }
+
+            return res;
+
+        } catch (err) {
+            console.error("DELETE " + path + " network error:", err);
+            return null;
+        }
+    }
+
+    // ----------------------------
+    // Date helpers
+    // ----------------------------
+
+    function startOfMonth(d) {
+        return new Date(d.getFullYear(), d.getMonth(), 1);
+    }
+
+    function endOfMonth(d) {
+        return new Date(d.getFullYear(), d.getMonth() + 1, 0);
+    }
+
+    function sameDay(a, b) {
+        return a.getFullYear() === b.getFullYear()
+            && a.getMonth() === b.getMonth()
+            && a.getDate() === b.getDate();
+    }
+
+    function isoDate(d) {
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, "0");
+        const day = String(d.getDate()).padStart(2, "0");
+        return y + "-" + m + "-" + day;
+    }
+
+    function formatMonthLabel(d) {
+        return d.toLocaleDateString("en-IN", {
+            month: "long",
+            year: "numeric"
+        });
+    }
+
+    function formatEventDate(iso) {
+        if (!iso) return "";
+        const d = new Date(iso);
+        if (isNaN(d)) return iso;
+        return d.toLocaleDateString("en-IN", {
+            weekday: "short",
+            day: "numeric",
+            month: "short",
+            year: "numeric"
+        });
+    }
+
+    // ----------------------------
+    // Status
+    // ----------------------------
+
+    function setStatus(message, isError) {
+        if (!dom.status) return;
+        dom.status.textContent = message || "";
+        dom.status.classList.toggle("error", !!isError);
+    }
+
+    // ----------------------------
+    // Category → CSS class
+    // ----------------------------
+
+    function eventClassForCategory(category) {
+        const c = (category || "").toLowerCase();
+
+        if (c === "economic") return "fc-economic";
+        if (c === "earnings") return "fc-earnings";
+        if (c === "dividend") return "fc-dividend";
+        if (c === "ipo") return "fc-ipo";
+        if (c === "personal") return "fc-personal";
+
+        // Reminder types map into personal styling
+        return "fc-personal";
+    }
+
+    // ----------------------------
+    // Load events (reminders + anything the API returns)
+    // ----------------------------
+
+    async function loadEvents() {
+        setStatus("Loading calendar...", false);
+
+        // The app currently stores reminders. If your backend exposes
+        // other endpoints (economic events, earnings, etc.), fetch them
+        // here and concat into the same array.
+        const reminders = await apiGet("/reminders");
+
+        // If the endpoint doesn't exist yet, reminders will be null.
+        // That's fine — we render an empty calendar.
+        const list = Array.isArray(reminders) ? reminders : [];
+
+        state.events = list.map(function (r) {
+            return {
+                id: r.id,
+                title: r.title || "Reminder",
+                date: r.date || r.reminderDate || r.dueDate || "",
+                category: (r.type || r.category || "personal").toLowerCase(),
+                amount: r.amount != null ? Number(r.amount) : null,
+                note: r.note || ""
+            };
+        }).filter(function (e) { return !!e.date; });
+
+        setStatus(
+            state.events.length
+                ? state.events.length + " event(s) this month"
+                : "No events yet. Add a reminder to get started.",
+            false
+        );
+
+        renderCalendar();
+        renderEventList();
+    }
+
+    // ----------------------------
+    // Calendar rendering
+    // ----------------------------
+
+    function getEventsForDay(day) {
+        return state.events.filter(function (e) {
+            const d = new Date(e.date);
+            return !isNaN(d) && sameDay(d, day);
+        });
+    }
+
+    function renderCalendar() {
+
+        if (!dom.calendarGrid || !dom.monthLabel) return;
+
+        const month = state.currentMonth;
+        const first = startOfMonth(month);
+        const last = endOfMonth(month);
+
+        dom.monthLabel.textContent = formatMonthLabel(month);
+
+        // Grid starts on Sunday of the week containing the 1st
+        const startOffset = first.getDay(); // 0 = Sun
+        const gridStart = new Date(first);
+        gridStart.setDate(first.getDate() - startOffset);
+
+        // End on Saturday of the week containing the last day
+        const endOffset = last.getDay();
+        const gridEnd = new Date(last);
+        gridEnd.setDate(last.getDate() + (6 - endOffset));
+
+        const today = new Date();
+
+        const frag = document.createDocumentFragment();
+
+        const cursor = new Date(gridStart);
+        while (cursor <= gridEnd) {
+
+            const day = new Date(cursor);
+
+            const cell = document.createElement("div");
+            cell.className = "fc-day";
+            cell.setAttribute("role", "button");
+            cell.setAttribute("tabindex", "0");
+            cell.dataset.date = isoDate(day);
+
+            // Outside current month?
+            if (day.getMonth() !== month.getMonth()) {
+                cell.classList.add("outside");
+            }
+
+            // Today?
+            if (sameDay(day, today)) {
+                cell.classList.add("today");
+            }
+
+            // Selected?
+            if (state.selectedDate && sameDay(day, state.selectedDate)) {
+                cell.classList.add("selected");
+            }
+
+            // Day number
+            const num = document.createElement("span");
+            num.className = "fc-day-number";
+            num.textContent = day.getDate();
+            cell.appendChild(num);
+
+            // Events for this day
+            const dayEvents = getEventsForDay(day);
+
+            dayEvents.forEach(function (ev) {
+
+                // Filter by category
+                if (state.category !== "all"
+                    && ev.category !== state.category) {
+                    return;
+                }
+
+                const dot = document.createElement("div");
+                dot.className = "fc-event-dot " + eventClassForCategory(ev.category);
+                dot.textContent = ev.title;
+                dot.title = ev.title;
+                cell.appendChild(dot);
+            });
+
+            // Click handler
+            cell.addEventListener("click", function () {
+                state.selectedDate = day;
+                renderCalendar();
+                renderEventList();
+            });
+
+            // Keyboard (Enter / Space)
+            cell.addEventListener("keydown", function (e) {
+                if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    state.selectedDate = day;
+                    renderCalendar();
+                    renderEventList();
+                }
+            });
+
+            frag.appendChild(cell);
+
+            cursor.setDate(cursor.getDate() + 1);
+        }
+
+        dom.calendarGrid.innerHTML = "";
+        dom.calendarGrid.appendChild(frag);
+    }
+
+    // ----------------------------
+    // Event list (right column)
+    // ----------------------------
+
+    function renderEventList() {
+
+        if (!dom.eventList) return;
+
+        // If a date is selected, filter to that date; otherwise show all
+        let list = state.events.slice();
+
+        if (state.selectedDate) {
+            list = list.filter(function (e) {
+                const d = new Date(e.date);
+                return !isNaN(d) && sameDay(d, state.selectedDate);
+            });
+        }
+
+        if (state.category !== "all") {
+            list = list.filter(function (e) {
+                return e.category === state.category;
+            });
+        }
+
+        // Update heading
+        if (dom.selectedTitle) {
+            if (state.selectedDate) {
+                dom.selectedTitle.textContent =
+                    "Events · " + state.selectedDate.toLocaleDateString(
+                        "en-IN",
+                        { day: "numeric", month: "short", year: "numeric" }
+                    );
+            } else {
+                dom.selectedTitle.textContent = "Events";
+            }
+        }
+
+        dom.eventList.innerHTML = "";
+
+        if (list.length === 0) {
+            const empty = document.createElement("div");
+            empty.className = "fc-empty";
+            empty.textContent = state.selectedDate
+                ? "No events on this day."
+                : "No events yet.";
+            dom.eventList.appendChild(empty);
+            return;
+        }
+
+        list.sort(function (a, b) {
+            return new Date(a.date) - new Date(b.date);
+        });
+
+        list.forEach(function (ev) {
+
+            const card = document.createElement("div");
+            card.className = "fc-event-card";
+
+            const title = document.createElement("strong");
+            title.textContent = ev.title;
+            card.appendChild(title);
+
+            if (ev.amount != null && !isNaN(ev.amount)) {
+                const amt = document.createElement("p");
+                amt.textContent = "Amount: ₹" + ev.amount.toFixed(2);
+                card.appendChild(amt);
+            }
+
+            const dateEl = document.createElement("p");
+            dateEl.className = "fc-event-date";
+            dateEl.textContent = formatEventDate(ev.date);
+            card.appendChild(dateEl);
+
+            // Delete button
             const del = document.createElement("button");
             del.type = "button";
-            del.textContent = " ✕";
-            del.addEventListener("click", () => {
-                state.reminders = state.reminders.filter(r => r.id !== e.id);
-                saveReminders();
-                render();
+            del.className = "fc-delete";
+            del.textContent = "Delete";
+            del.addEventListener("click", function (e) {
+                e.stopPropagation();
+                deleteEvent(ev.id);
             });
-            row.appendChild(del);
-        }
-        list.appendChild(row);
-    });
-}
+            card.appendChild(del);
 
-function render() {
-    renderCalendar();
-    renderEvents();
-}
+            dom.eventList.appendChild(card);
+        });
+    }
 
-// ---------- Wiring ----------
-function changeMonth(delta) {
-    const d = new Date(state.year, state.month + delta, 1);
-    state.year = d.getFullYear();
-    state.month = d.getMonth();
-    render();
-}
+    // ----------------------------
+    // Create / delete reminders
+    // ----------------------------
 
-document.addEventListener("DOMContentLoaded", () => {
-    el("prevBtn").addEventListener("click", () => changeMonth(-1));
-    el("nextBtn").addEventListener("click", () => changeMonth(1));
+    async function handleReminderSubmit(e) {
 
-    el("todayBtn").addEventListener("click", () => {
-        state.year = today.getFullYear();
-        state.month = today.getMonth();
-        state.selected = toISO(today);
-        render();
-    });
-
-    el("category").addEventListener("change", e => {
-        state.category = e.target.value;
-        render();
-    });
-
-    el("refreshBtn").addEventListener("click", loadEconomic);
-
-    el("reminderForm").addEventListener("submit", e => {
         e.preventDefault();
-        const f = e.target;
-        state.reminders.push({
-            id: String(Date.now()),
-            title: f.title.value.trim(),
-            date: f.date.value,
-            type: f.type.value,
-            amount: f.amount.value
-        });
-        saveReminders();
-        f.reset();
-        render();
-    });
 
-    // Sidebar dropdowns (script.js has no code for these)
-    document.querySelectorAll(".popup-toggle").forEach(btn => {
-        btn.addEventListener("click", () => {
-            const popup = btn.nextElementSibling;
-            const open = popup.hidden;
-            popup.hidden = !open;
-            btn.setAttribute("aria-expanded", String(open));
-        });
-    });
+        if (!dom.reminderForm) return;
 
-    // Floating quick-action button (same reason)
-    const fab = el("floatingAddButton");
-    const menu = el("quickActionMenu");
-    fab.addEventListener("click", () => {
-        menu.hidden = !menu.hidden;
-        fab.setAttribute("aria-expanded", String(!menu.hidden));
-    });
+        const title = (dom.reminderTitle.value || "").trim();
+        const date = (dom.reminderDate.value || "").trim();
+        const type = (dom.reminderType.value || "personal").toLowerCase();
+        const amountRaw = (dom.reminderAmount.value || "").trim();
 
-    render();
-    loadEconomic();
-});
+        if (!title || !date) {
+            setStatus("Please provide a title and date.", true);
+            return;
+        }
+
+        const payload = {
+            title: title,
+            date: date,
+            type: type,
+            amount: amountRaw === "" ? null : Number(amountRaw)
+        };
+
+        setStatus("Saving reminder...", false);
+
+        const res = await apiPost("/reminders", payload);
+
+        if (!res) {
+            setStatus("Could not save the reminder. Please try again.", true);
+            return;
+        }
+
+        if (!res.ok) {
+            let msg = "Could not save the reminder.";
+            try {
+                const t = await res.text();
+                if (t) msg = t;
+            } catch (e) { /* ignore */ }
+            setStatus(msg, true);
+            return;
+        }
+
+        // Reset form
+        dom.reminderForm.reset();
+
+        setStatus("Reminder saved.", false);
+
+        await loadEvents();
+    }
+
+    async function deleteEvent(id) {
+
+        if (!id) return;
+
+        const ok = confirm("Delete this reminder?");
+        if (!ok) return;
+
+        const res = await apiDelete("/reminders/" + id);
+
+        if (!res) {
+            setStatus("Could not delete the reminder.", true);
+            return;
+        }
+
+        if (!res.ok) {
+            setStatus("Could not delete the reminder.", true);
+            return;
+        }
+
+        await loadEvents();
+    }
+
+    // ----------------------------
+    // Navigation
+    // ----------------------------
+
+    function goPrevMonth() {
+        state.currentMonth = new Date(
+            state.currentMonth.getFullYear(),
+            state.currentMonth.getMonth() - 1,
+            1
+        );
+        state.selectedDate = null;
+        renderCalendar();
+        renderEventList();
+    }
+
+    function goNextMonth() {
+        state.currentMonth = new Date(
+            state.currentMonth.getFullYear(),
+            state.currentMonth.getMonth() + 1,
+            1
+        );
+        state.selectedDate = null;
+        renderCalendar();
+        renderEventList();
+    }
+
+    function goToday() {
+        state.currentMonth = new Date();
+        state.selectedDate = new Date();
+        renderCalendar();
+        renderEventList();
+    }
+
+    // ----------------------------
+    // Event wiring
+    // ----------------------------
+
+    function wireEvents() {
+
+        if (dom.prevBtn) dom.prevBtn.addEventListener("click", goPrevMonth);
+        if (dom.nextBtn) dom.nextBtn.addEventListener("click", goNextMonth);
+        if (dom.todayBtn) dom.todayBtn.addEventListener("click", goToday);
+
+        if (dom.refreshBtn) {
+            dom.refreshBtn.addEventListener("click", function () {
+                loadEvents();
+            });
+        }
+
+        if (dom.categorySelect) {
+            dom.categorySelect.addEventListener("change", function () {
+                state.category = dom.categorySelect.value || "all";
+                renderCalendar();
+                renderEventList();
+            });
+        }
+
+        if (dom.reminderForm) {
+            dom.reminderForm.addEventListener("submit", handleReminderSubmit);
+        }
+    }
+
+    // ----------------------------
+    // Init
+    // ----------------------------
+
+    function init() {
+
+        cacheDom();
+
+        if (!dom.calendarGrid) {
+            console.error("[FinancialCalendar] #calendarGrid not found");
+            return;
+        }
+
+        state.selectedDate = new Date();
+
+        wireEvents();
+
+        // Immediately render an empty grid so it doesn't say "Loading..."
+        renderCalendar();
+        renderEventList();
+
+        // Then fetch the real events
+        loadEvents();
+    }
+
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", init);
+    } else {
+        init();
+    }
+
+})();
