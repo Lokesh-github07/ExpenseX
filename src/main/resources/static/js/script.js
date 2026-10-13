@@ -2,6 +2,92 @@
 // Expense Tracker - script.js
 // ================================
 
+/* =========================================================
+   GLOBAL THEME MANAGER
+   Runs first, on every page that loads this script.
+   Uses ONE key ("expensex-theme") and ONE attribute
+   (<html data-theme="light|dark">) so every page stays
+   in sync — Dashboard, Financial Calendar, Financial
+   Overview, Profile, Analytics.
+========================================================= */
+
+(function () {
+    var THEME_KEY = "expensex-theme";
+
+    // Apply saved theme immediately (before paint) to prevent flash
+    try {
+        var saved = localStorage.getItem(THEME_KEY) || localStorage.getItem("theme") || "light";
+        document.documentElement.setAttribute("data-theme", saved);
+        document.documentElement.dataset.theme = saved;
+    } catch (e) { /* ignore private-mode errors */ }
+
+    // Public helper — other scripts can call window.ExpenseXTheme.set(...)
+    window.ExpenseXTheme = {
+        key: THEME_KEY,
+
+        get: function () {
+            return document.documentElement.getAttribute("data-theme") || "light";
+        },
+
+        set: function (theme) {
+            document.documentElement.setAttribute("data-theme", theme);
+            document.documentElement.dataset.theme = theme;
+
+            // Also mirror on <body> so any page-scoped selector picks it up
+            if (document.body) {
+                document.body.setAttribute("data-theme", theme);
+                document.body.dataset.theme = theme;
+            }
+
+            try {
+                localStorage.setItem(THEME_KEY, theme);
+            } catch (e) { /* ignore */ }
+
+            // Keep any toggle's aria-label in sync
+            var btn = document.getElementById("themeToggle");
+            if (btn) {
+                btn.setAttribute(
+                    "aria-label",
+                    "Switch to " + (theme === "dark" ? "light" : "dark") + " mode"
+                );
+            }
+
+            // Notify listeners (e.g. chart redraw)
+            window.dispatchEvent(new CustomEvent("expensex-theme-change", {
+                detail: { theme: theme }
+            }));
+        },
+
+        toggle: function () {
+            this.set(this.get() === "dark" ? "light" : "dark");
+        }
+    };
+
+    // Wire up the toggle button on any page that has one
+    document.addEventListener("DOMContentLoaded", function () {
+        var btn = document.getElementById("themeToggle");
+        if (!btn) return;
+
+        // Remove any pre-existing inline handler binding to avoid double toggles
+        if (!btn.dataset.themeWired) {
+            btn.dataset.themeWired = "1";
+            btn.addEventListener("click", function (e) {
+                e.preventDefault();
+                window.ExpenseXTheme.toggle();
+            });
+        }
+
+        // Ensure aria-label reflects current state
+        btn.setAttribute(
+            "aria-label",
+            "Switch to " +
+            (window.ExpenseXTheme.get() === "dark" ? "light" : "dark") +
+            " mode"
+        );
+    });
+})();
+
+
 const API_BASE = "/api";
 
 // ----------------------------
@@ -282,7 +368,9 @@ const protectedPages = [
 
     "/profile",
 
-    "/financial-calendar"
+    "/financial-calendar",
+
+    "/financial-overview"
 
 ];
 

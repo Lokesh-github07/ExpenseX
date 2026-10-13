@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#10151f" id="themeColor">
+
+    <title>Financial Overview | ExpenseX</title>
+    <meta name="description" content="ExpenseX financial overview dashboard for income, expenses, budgets, savings and upcoming bills.">
+
+    <!-- ============================================================
+         THEME BOOTSTRAP
+         Runs BEFORE any CSS or DOM. Reads the SAME key the
+         Dashboard writes and applies data-theme immediately.
+         If nothing is stored yet, defaults to "light".
+    ============================================================ -->
+    <script>
+        (function () {
+            var THEME_KEY = "expensex-theme";
+            var theme;
+            try {
+                theme = localStorage.getItem(THEME_KEY) || localStorage.getItem("theme");
+            } catch (e) {
+                theme = null;
+            }
+            if (theme !== "dark" && theme !== "light") {
+                theme = "light";
+            }
+            document.documentElement.setAttribute("data-theme", theme);
+            document.documentElement.dataset.theme = theme;
+        })();
+    </script>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+          rel="stylesheet">
+
+    <!-- Shared application styles -->
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+
+    <!-- Favicon fix -->
+    <link rel="icon" href="data:,">
+</head>
+<body>
+
+<div class="background" aria-hidden="true"></div>
+
+<div class="app financial-overview-page">
+
+    <!-- ================= SIDEBAR ================= -->
+    <aside class="sidebar" id="sidebar">
+
+        <div class="sidebar-brand">
+            <div class="brand-logo">E</div>
+            <div class="brand-copy">
+                <h2>ExpenseX</h2>
+                <span>Personal Finance</span>
+            </div>
+
+            <button type="button"
+                    class="sidebar-close"
+                    id="sidebarClose"
+                    aria-label="Close navigation">
+                &times;
+            </button>
+        </div>
+
+        <div class="sidebar-section">
+            <span class="sidebar-label">WORKSPACE</span>
+
+            <nav class="sidebar-nav" aria-label="Main navigation">
+                <a class="nav-link" th:href="@{/dashboard}">
+                    <span class="nav-icon">🏠</span><span>Dashboard</span>
+                </a>
+
+                <a class="nav-link" th:href="@{/analytics}">
+                    <span class="nav-icon">📉</span><span>Analytics</span>
+                </a>
+
+                <a class="nav-link" th:href="@{/financial-calendar}">
+                    <span class="nav-icon">📅</span><span>Financial Calendar</span>
+                </a>
+
+                <a class="nav-link active"
+                   th:href="@{/financial-overview}"
+                   aria-current="page">
+                    <span class="nav-icon">📈</span><span>Financial Overview</span>
+                </a>
+
+                <a class="nav-link" th:href="@{/add-expense}">
+                    <span class="nav-icon">➕</span><span>Add Expense</span>
+                </a>
+
+                <a class="nav-link" th:href="@{/profile}">
+                    <span class="nav-icon">👤</span><span>My Profile</span>
+                </a>
+            </nav>
+        </div>
+
+        <div class="sidebar-bottom">
+            <div class="sidebar-help">
+                <div class="help-icon">?</div>
+                <div>
+                    <strong>Need help?</strong>
+                    <span>Manage your finances</span>
+                </div>
+            </div>
+
+            <a class="nav-link" th:href="@{/logout}">
+                <span class="nav-icon">↪</span><span>Logout</span>
+            </a>
+        </div>
+
+    </aside>
+
+    <!-- ================= MAIN CONTENT ================= -->
+    <main class="main">
+
+        <!-- TOPBAR -->
+        <header class="topbar">
+
+            <div class="topbar-left">
+                <button type="button"
+                        class="menu-toggle"
+                        id="menuToggle"
+                        aria-label="Open navigation"
+                        aria-controls="sidebar"
+                        aria-expanded="false">
+                    ☰
+                </button>
+
+                <div class="breadcrumb">
+                    <span>ExpenseX</span>
+                    <span class="breadcrumb-separator">/</span>
+                    <strong>Financial Overview</strong>
+                </div>
+            </div>
+
+            <div class="topbar-right">
+                <div class="current-date">
+                    <span class="date-icon">▦</span>
+                    <span id="currentDate">Loading date...</span>
+                </div>
+
+                <!-- Theme toggle (emoji icon set by JS, same as other pages) -->
+                <button type="button"
+                        class="theme-toggle"
+                        id="themeToggle"
+                        aria-label="Switch to dark mode">🌙</button>
+
+                <a class="profile-avatar"
+                   th:href="@{/profile}"
+                   aria-label="Open profile">
+                    E
+                </a>
+            </div>
+
+        </header>
+
+        <!-- PAGE CONTENT -->
+        <section class="content">
+
+            <div class="page-heading">
+                <div class="page-heading-copy">
+                    <span class="eyebrow">YOUR MONEY AT A GLANCE</span>
+                    <h1>Financial Overview</h1>
+                    <p>
+                        Track your income, spending, savings and upcoming
+                        financial commitments in one place.
+                    </p>
+                </div>
+
+                <div class="page-actions">
+                    <label class="sr-only" for="periodSelect">Reporting period</label>
+
+                    <select id="periodSelect" class="period-select">
+                        <option value="month" selected>This month</option>
+                        <option value="quarter">Last 3 months</option>
+                        <option value="year">Last 12 months</option>
+                    </select>
+
+                    <button type="button"
+                            class="primary-btn"
+                            id="addTransactionBtn">
+                        <span>＋</span> Add transaction
+                    </button>
+                </div>
+            </div>
+
+            <!-- SUMMARY CARDS -->
+            <section class="summary-grid" aria-label="Financial summary">
+
+                <article class="summary-card balance-card">
+                    <div class="summary-card-top">
+                        <span class="summary-label">Total balance</span>
+                        <span class="summary-icon balance-icon">₹</span>
+                    </div>
+                    <h2 id="totalBalance">₹0</h2>
+                    <p class="summary-footnote">Illustrative account balance</p>
+                </article>
+
+                <article class="summary-card">
+                    <div class="summary-card-top">
+                        <span class="summary-label">Total income</span>
+                        <span class="summary-icon income-icon">↗</span>
+                    </div>
+                    <h2 id="totalIncome">₹0</h2>
+                    <p class="summary-footnote">For the selected period</p>
+                </article>
+
+                <article class="summary-card">
+                    <div class="summary-card-top">
+                        <span class="summary-label">Total expenses</span>
+                        <span class="summary-icon expense-icon">↘</span>
+                    </div>
+                    <h2 id="totalExpenses">₹0</h2>
+                    <p class="summary-footnote">For the selected period</p>
+                </article>
+
+                <article class="summary-card">
+                    <div class="summary-card-top">
+                        <span class="summary-label">Savings rate</span>
+                        <span class="summary-icon savings-icon">％</span>
+                    </div>
+                    <h2 id="savingsRate">0%</h2>
+                    <div class="progress-track savings-progress-track">
+                        <span id="savingsProgress" style="width:0%"></span>
+                    </div>
+                    <p class="summary-footnote">Net income as a share of income</p>
+                </article>
+
+            </section>
+
+            <!-- CASH FLOW + BREAKDOWN -->
+            <section class="content-grid">
+
+                <article class="panel cashflow-panel">
+                    <div class="panel-header">
+                        <div>
+                            <h2>Cash flow</h2>
+                            <p>Income and expense trends</p>
+                        </div>
+
+                        <div class="chart-legend">
+                            <span class="legend-item">
+                                <i class="legend-dot income-dot"></i> Income
+                            </span>
+                            <span class="legend-item">
+                                <i class="legend-dot expense-dot"></i> Expenses
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="cashflow-chart-container">
+                        <canvas id="cashflowChart"
+                                height="250"
+                                role="img"
+                                aria-label="Income and expense trend chart">
+                            Cash-flow chart.
+                        </canvas>
+                    </div>
+
+                    <div class="cashflow-footer">
+                        <div>
+                            <span class="muted-label">Net cash flow</span>
+                            <strong id="netCashFlow">₹0</strong>
+                        </div>
+                        <span class="chart-note" id="chartNote">No data for this period</span>
+                    </div>
+                </article>
+
+                <article class="panel category-panel">
+                    <div class="panel-header">
+                        <div>
+                            <h2>Expense breakdown</h2>
+                            <p>Spending by category</p>
+                        </div>
+                        <span class="panel-menu-icon" aria-hidden="true">•••</span>
+                    </div>
+
+                    <div class="donut-wrapper">
+                        <div class="donut-chart" id="donutChart">
+                            <div class="donut-center">
+                                <span>Total expenses</span>
+                                <strong id="donutTotal">₹0</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="category-legend" id="categoryLegend"></div>
+
+                    <div class="category-insight">
+                        <span>Highest spending category</span>
+                        <strong id="highestCategory">—</strong>
+                    </div>
+                </article>
+
+            </section>
+
+            <!-- BUDGET + GOALS -->
+            <section class="lower-grid">
+
+                <article class="panel budget-panel">
+                    <div class="panel-header">
+                        <div>
+                            <h2>Monthly budget</h2>
+                            <p>Keep spending within your limit</p>
+                        </div>
+                        <button type="button"
+                                class="secondary-btn"
+                                id="editBudgetBtn">
+                            Edit budget
+                        </button>
+                    </div>
+
+                    <div class="budget-overview">
+                        <div class="budget-overview-amount">
+                            <span>Budget limit</span>
+                            <strong id="budgetTotal">₹0</strong>
+                        </div>
+                        <div class="budget-overview-amount">
+                            <span>Remaining</span>
+                            <strong id="budgetRemaining">₹0</strong>
+                        </div>
+                    </div>
+
+                    <div class="budget-progress-container">
+                        <div class="budget-progress-track">
+                            <span id="budgetProgress" style="width:0%"></span>
+                        </div>
+                        <div class="budget-progress-labels">
+                            <span id="budgetUsedLabel">0% used</span>
+                            <span id="budgetLeftLabel">100% remaining</span>
+                        </div>
+                    </div>
+
+                    <div class="budget-list" id="budgetList"></div>
+                </article>
+
+                <article class="panel goals-panel">
+                    <div class="panel-header">
+                        <div>
+                            <h2>Savings goals</h2>
+                            <p>Progress towards your targets</p>
+                        </div>
+                        <button type="button"
+                                class="secondary-btn"
+                                id="addGoalBtn">
+                            ＋ Add goal
+                        </button>
+                    </div>
+
+                    <div class="goal-list" id="goalList"></div>
+                </article>
+
+            </section>
+
+            <!-- TRANSACTIONS -->
+            <section class="panel transactions-panel">
+                <div class="panel-header">
+                    <div>
+                        <h2>Recent transactions</h2>
+                        <p>Your latest recorded income and expenses</p>
+                    </div>
+                    <a class="text-link" th:href="@{/analytics}">View analytics →</a>
+                </div>
+
+                <div class="table-wrapper">
+                    <table class="transactions-table">
+                        <thead>
+                        <tr>
+                            <th scope="col">Transaction</th>
+                            <th scope="col">Category</th>
+                            <th scope="col">Date</th>
+                            <th scope="col" class="align-right">Amount</th>
+                            <th scope="col" class="align-right">Action</th>
+                        </tr>
+                        </thead>
+                        <tbody id="transactionRows">
+                        <tr><td colspan="5">Loading transactions...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <p class="demo-disclaimer">
+                    The initial transactions shown by this page are sample
+                    data. They are not automatically loaded from your database.
+                </p>
+            </section>
+
+            <!-- BILLS -->
+            <section class="panel bills-panel">
+                <div class="panel-header">
+                    <div>
+                        <h2>Upcoming bills</h2>
+                        <p>Keep track of your next payments</p>
+                    </div>
+                    <button type="button"
+                            class="secondary-btn"
+                            id="addBillBtn">
+                        ＋ Add bill
+                    </button>
+                </div>
+
+                <div class="bill-list" id="billList"></div>
+
+                <div class="bills-footer">
+                    <span>Total upcoming bills</span>
+                    <strong id="upcomingTotal">₹0</strong>
+                </div>
+            </section>
+
+            <footer class="page-footer">
+                <span>ExpenseX · Financial Overview</span>
+                <span>Demo figures are for illustrative purposes.</span>
+            </footer>
+
+        </section>
+
+    </main>
+
+    <!-- ================= DIALOGS ================= -->
+
+    <!-- ADD TRANSACTION -->
+    <dialog class="modal" id="transactionModal">
+        <form id="transactionForm" class="modal-form">
+            <div class="modal-header">
+                <div>
+                    <h2>Add transaction</h2>
+                    <p>Enter an income or expense record.</p>
+                </div>
+                <button type="button"
+                        class="modal-close"
+                        data-close="transactionModal"
+                        aria-label="Close dialog">&times;</button>
+            </div>
+
+            <div class="form-group">
+                <label for="txName">Transaction name</label>
+                <input type="text"
+                       id="txName"
+                       name="name"
+                       maxlength="100"
+                       placeholder="e.g. Grocery shopping"
+                       required>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="txAmount">Amount (₹)</label>
+                    <input type="number"
+                           id="txAmount"
+                           name="amount"
+                           min="0.01"
+                           step="0.01"
+                           placeholder="0.00"
+                           required>
+                </div>
+                <div class="form-group">
+                    <label for="txType">Transaction type</label>
+                    <select id="txType" name="type" required>
+                        <option value="expense">Expense</option>
+                        <option value="income">Income</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="txCategory">Category</label>
+                    <select id="txCategory" name="category" required>
+                        <option value="Housing">Housing</option>
+                        <option value="Food">Food</option>
+                        <option value="Transport">Transport</option>
+                        <option value="Shopping">Shopping</option>
+                        <option value="Utilities">Utilities</option>
+                        <option value="Salary">Salary</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="txDate">Transaction date</label>
+                    <input type="date" id="txDate" name="date" required>
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <button type="button"
+                        class="secondary-btn"
+                        data-close="transactionModal">
+                    Cancel
+                </button>
+                <button type="submit" class="primary-btn">Save transaction</button>
+            </div>
+        </form>
+    </dialog>
+
+    <!-- EDIT BUDGET -->
+    <dialog class="modal" id="budgetModal">
+        <form id="budgetForm" class="modal-form">
+            <div class="modal-header">
+                <div>
+                    <h2>Monthly budget</h2>
+                    <p>Set your overall monthly spending limit.</p>
+                </div>
+                <button type="button"
+                        class="modal-close"
+                        data-close="budgetModal"
+                        aria-label="Close dialog">&times;</button>
+            </div>
+
+            <div class="form-group">
+                <label for="budgetInput">Budget amount (₹)</label>
+                <input type="number"
+                       id="budgetInput"
+                       name="budget"
+                       min="1"
+                       step="0.01"
+                       required>
+            </div>
+
+            <div class="modal-actions">
+                <button type="button"
+                        class="secondary-btn"
+                        data-close="budgetModal">
+                    Cancel
+                </button>
+                <button type="submit" class="primary-btn">Save budget</button>
+            </div>
+        </form>
+    </dialog>
+
+    <!-- ADD GOAL -->
+    <dialog class="modal" id="goalModal">
+        <form id="goalForm" class="modal-form">
+            <div class="modal-header">
+                <div>
+                    <h2>Create savings goal</h2>
+                    <p>Define a target and your current savings.</p>
+                </div>
+                <button type="button"
+                        class="modal-close"
+                        data-close="goalModal"
+                        aria-label="Close dialog">&times;</button>
+            </div>
+
+            <div class="form-group">
+                <label for="goalName">Goal name</label>
+                <input type="text"
+                       id="goalName"
+                       name="name"
+                       maxlength="100"
+                       placeholder="e.g. New laptop"
+                       required>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="goalTarget">Target amount (₹)</label>
+                    <input type="number"
+                           id="goalTarget"
+                           name="target"
+                           min="1"
+                           step="0.01"
+                           required>
+                </div>
+                <div class="form-group">
+                    <label for="goalSaved">Already saved (₹)</label>
+                    <input type="number"
+                           id="goalSaved"
+                           name="saved"
+                           min="0"
+                           step="0.01"
+                           value="0"
+                           required>
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <button type="button"
+                        class="secondary-btn"
+                        data-close="goalModal">
+                    Cancel
+                </button>
+                <button type="submit" class="primary-btn">Save goal</button>
+            </div>
+        </form>
+    </dialog>
+
+    <!-- ADD BILL -->
+    <dialog class="modal" id="billModal">
+        <form id="billForm" class="modal-form">
+            <div class="modal-header">
+                <div>
+                    <h2>Add upcoming bill</h2>
+                    <p>Record a future payment commitment.</p>
+                </div>
+                <button type="button"
+                        class="modal-close"
+                        data-close="billModal"
+                        aria-label="Close dialog">&times;</button>
+            </div>
+
+            <div class="form-group">
+                <label for="billName">Bill name</label>
+                <input type="text"
+                       id="billName"
+                       name="name"
+                       maxlength="100"
+                       placeholder="e.g. Internet bill"
+                       required>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="billAmount">Amount (₹)</label>
+                    <input type="number"
+                           id="billAmount"
+                           name="amount"
+                           min="0.01"
+                           step="0.01"
+                           required>
+                </div>
+                <div class="form-group">
+                    <label for="billDate">Due date</label>
+                    <input type="date"
+                           id="billDate"
+                           name="date"
+                           required>
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <button type="button"
+                        class="secondary-btn"
+                        data-close="billModal">
+                    Cancel
+                </button>
+                <button type="submit" class="primary-btn">Save bill</button>
+            </div>
+        </form>
+    </dialog>
+
+    <!-- TOAST -->
+    <div id="toast"
+         class="toast"
+         role="status"
+         aria-live="polite"></div>
+
+</div>
+
+<!-- Financial Overview script -->
+<script th:src="@{/js/financial-overview.js}" defer></script>
+
+<!-- Theme toggle + mobile sidebar -->
+<script>
+    (function () {
+        var THEME_KEY = "expensex-theme";
+
+        function applyTheme(theme) {
+            document.documentElement.setAttribute("data-theme", theme);
+            document.documentElement.dataset.theme = theme;
+
+            try {
+                localStorage.setItem(THEME_KEY, theme);
+            } catch (e) { /* ignore */ }
+
+            updateIcon(theme);
+
+            // Update toggle aria-label
+            var btn = document.getElementById("themeToggle");
+            if (btn) {
+                btn.setAttribute(
+                    "aria-label",
+                    "Switch to " + (theme === "dark" ? "light" : "dark") + " mode"
+                );
+            }
+
+            // Notify the chart to redraw
+            try {
+                window.dispatchEvent(new CustomEvent("expensex-theme-change", {
+                    detail: { theme: theme }
+                }));
+            } catch (e) { /* ignore */ }
+        }
+
+        function updateIcon(theme) {
+            var btn = document.getElementById("themeToggle");
+            if (btn) btn.textContent = theme === "dark" ? "\u2600\uFE0F" : "\uD83C\uDF19";
+        }
+
+        function currentTheme() {
+            return document.documentElement.getAttribute("data-theme") || "light";
+        }
+
+        // Wire the toggle as soon as the button exists (no DOMContentLoaded needed)
+        var attempts = 0;
+        function wireToggle() {
+            var btn = document.getElementById("themeToggle");
+            if (!btn) {
+                if (attempts++ < 50) requestAnimationFrame(wireToggle);
+                return;
+            }
+            if (btn.dataset.themeWired === "1") return;
+            btn.dataset.themeWired = "1";
+
+            updateIcon(currentTheme());
+
+            // Set correct label based on currently applied theme
+            btn.setAttribute(
+                "aria-label",
+                "Switch to " + (currentTheme() === "dark" ? "light" : "dark") + " mode"
+            );
+
+            btn.addEventListener("click", function (e) {
+                e.preventDefault();
+                applyTheme(currentTheme() === "dark" ? "light" : "dark");
+            });
+        }
+
+        wireToggle();
+
+        // Sync across tabs / windows if user toggles on another page
+        window.addEventListener("storage", function (e) {
+            if (e.key === THEME_KEY && e.newValue) {
+                document.documentElement.setAttribute("data-theme", e.newValue);
+                document.documentElement.dataset.theme = e.newValue;
+
+                updateIcon(e.newValue);
+
+                var btn = document.getElementById("themeToggle");
+                if (btn) {
+                    btn.setAttribute(
+                        "aria-label",
+                        "Switch to " + (e.newValue === "dark" ? "light" : "dark") + " mode"
+                    );
+                }
+
+                try {
+                    window.dispatchEvent(new CustomEvent("expensex-theme-change", {
+                        detail: { theme: e.newValue }
+                    }));
+                } catch (err) { /* ignore */ }
+            }
+        });
+    })();
+</script>
+
+</body>
+</html>

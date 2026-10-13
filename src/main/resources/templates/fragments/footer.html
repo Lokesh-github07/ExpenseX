@@ -12,30 +12,40 @@
 
     </div>
 
-    <button class="theme-toggle" id="themeToggle" type="button" onclick="toggleTheme()" aria-label="Toggle dark mode">🌙</button>
+    <button class="theme-toggle" id="themeToggle" type="button" data-theme-wired="1" onclick="toggleTheme()" aria-label="Toggle dark mode">🌙</button>
 
     <script>
         document.getElementById("footerYear").textContent = new Date().getFullYear();
 
         (function () {
-            const saved = localStorage.getItem("theme") || "light";
+            const KEY = "expensex-theme";
+            let saved = "light";
+            try { saved = localStorage.getItem(KEY) || localStorage.getItem("theme") || "light"; } catch (e) {}
+            if (saved !== "dark" && saved !== "light") saved = "light";
             document.documentElement.setAttribute("data-theme", saved);
 
             function updateIcon() {
                 const btn = document.getElementById("themeToggle");
                 if (btn) {
                     btn.textContent =
-                        document.documentElement.getAttribute("data-theme") === "dark" ? "☀️" : "🌙";
+                        document.documentElement.getAttribute("data-theme") === "dark" ? "\u2600\uFE0F" : "\uD83C\uDF19";
                 }
             }
 
             window.toggleTheme = function () {
-                const isDark = document.documentElement.getAttribute("data-theme") === "dark";
-                const next = isDark ? "light" : "dark";
+                const next = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
                 document.documentElement.setAttribute("data-theme", next);
-                localStorage.setItem("theme", next);
+                try { localStorage.setItem(KEY, next); } catch (e) {}
                 updateIcon();
+                window.dispatchEvent(new CustomEvent("expensex-theme-change", { detail: { theme: next } }));
             };
+
+            window.addEventListener("storage", function (e) {
+                if (e.key === KEY && e.newValue) {
+                    document.documentElement.setAttribute("data-theme", e.newValue);
+                    updateIcon();
+                }
+            });
 
             updateIcon();
         })();

@@ -1641,7 +1641,6 @@ table tr:hover { background: var(--table-row-hover); }
     box-shadow: 0 12px 32px rgba(0, 0, 0, .7);
 }
 
-
 /* ============================================================
    FINANCIAL CALENDAR
    ============================================================ */
@@ -1672,10 +1671,7 @@ table tr:hover { background: var(--table-row-hover); }
     margin-top: 6px;
 }
 
-/* ---------- Topbar (title left, Refresh right) ----------
-   Reserve space on the right so the floating theme toggle
-   (position: fixed; top: 20px; right: 20px; 44px wide)
-   never overlaps the Refresh button. */
+/* ---------- Topbar ---------- */
 
 .financial-calendar .fc-topbar {
     display: flex;
@@ -1702,7 +1698,7 @@ table tr:hover { background: var(--table-row-hover); }
     flex-shrink: 0;
 }
 
-/* ---------- Toolbar (filter + Today on one row) ---------- */
+/* ---------- Toolbar ---------- */
 
 .financial-calendar .fc-toolbar {
     display: flex;
@@ -1770,7 +1766,7 @@ table tr:hover { background: var(--table-row-hover); }
     margin: 0;
 }
 
-/* ---------- Buttons (unified) ---------- */
+/* ---------- Buttons ---------- */
 
 .financial-calendar button,
 .financial-calendar select,
@@ -1809,7 +1805,6 @@ table tr:hover { background: var(--table-row-hover); }
     color: var(--accent);
 }
 
-/* Primary buttons (Refresh, Save reminder) */
 .financial-calendar .fc-btn-primary,
 .financial-calendar .fc-primary,
 .financial-calendar #refreshBtn,
@@ -1839,7 +1834,6 @@ table tr:hover { background: var(--table-row-hover); }
     color: var(--on-accent);
 }
 
-/* Prev / Next circular-ish */
 .financial-calendar #prevBtn,
 .financial-calendar #nextBtn {
     min-width: 42px;
@@ -2206,7 +2200,7 @@ table tr:hover { background: var(--table-row-hover); }
     }
 
     .financial-calendar .fc-topbar {
-        padding-right: 64px; /* smaller toggle on mobile */
+        padding-right: 64px;
     }
 
     .financial-calendar .fc-topbar h1 {
@@ -2289,5 +2283,1948 @@ table tr:hover { background: var(--table-row-hover); }
     .financial-calendar * {
         animation: none !important;
         transition: none !important;
+    }
+}
+
+/* ============================================================
+   FORCE DATE-NUMBER VISIBILITY
+   (fixes black-on-black dates in dark mode)
+   ============================================================ */
+
+/* Light mode */
+.financial-calendar .fc-grid .fc-day-number,
+.financial-calendar .fc-day .fc-day-number,
+.financial-calendar .fc-day-number {
+    color: var(--text-primary) !important;
+    -webkit-text-fill-color: var(--text-primary) !important;
+    opacity: 1 !important;
+}
+
+.financial-calendar .fc-day.today .fc-day-number {
+    color: var(--on-accent) !important;
+    -webkit-text-fill-color: var(--on-accent) !important;
+    background: var(--accent) !important;
+}
+
+.financial-calendar .fc-day.outside .fc-day-number {
+    color: var(--text-muted) !important;
+    -webkit-text-fill-color: var(--text-muted) !important;
+    opacity: .7 !important;
+}
+
+/* Dark mode — covers html[data-theme], body[data-theme], and wrapper */
+[data-theme="dark"] .financial-calendar .fc-grid .fc-day-number,
+[data-theme="dark"] .financial-calendar .fc-day .fc-day-number,
+[data-theme="dark"] .financial-calendar .fc-day-number,
+html[data-theme="dark"] .financial-calendar .fc-grid .fc-day-number,
+html[data-theme="dark"] .financial-calendar .fc-day .fc-day-number,
+html[data-theme="dark"] .financial-calendar .fc-day-number,
+body[data-theme="dark"] .financial-calendar .fc-grid .fc-day-number,
+body[data-theme="dark"] .financial-calendar .fc-day .fc-day-number,
+body[data-theme="dark"] .financial-calendar .fc-day-number {
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
+    opacity: 1 !important;
+}
+
+/* Dark mode — today keeps black number on white circle */
+[data-theme="dark"] .financial-calendar .fc-day.today .fc-day-number,
+html[data-theme="dark"] .financial-calendar .fc-day.today .fc-day-number,
+body[data-theme="dark"] .financial-calendar .fc-day.today .fc-day-number {
+    background: #ffffff !important;
+    color: #000000 !important;
+    -webkit-text-fill-color: #000000 !important;
+}
+
+/* Dark mode — outside-month dates muted but readable */
+[data-theme="dark"] .financial-calendar .fc-day.outside .fc-day-number,
+html[data-theme="dark"] .financial-calendar .fc-day.outside .fc-day-number,
+body[data-theme="dark"] .financial-calendar .fc-day.outside .fc-day-number {
+    color: #a3a3a3 !important;
+    -webkit-text-fill-color: #a3a3a3 !important;
+    opacity: 1 !important;
+}
+
+/* Dark mode — safety net for any nested child of a day cell */
+[data-theme="dark"] .financial-calendar .fc-day > *,
+html[data-theme="dark"] .financial-calendar .fc-day > *,
+body[data-theme="dark"] .financial-calendar .fc-day > * {
+    color: #ffffff !important;
+}
+
+/* Dark mode — but keep "today" child text black on white */
+[data-theme="dark"] .financial-calendar .fc-day.today > *,
+html[data-theme="dark"] .financial-calendar .fc-day.today > *,
+body[data-theme="dark"] .financial-calendar .fc-day.today > * {
+    color: #000000 !important;
+    -webkit-text-fill-color: #000000 !important;
+}
+
+/* =========================================================
+   ExpenseX — Financial Overview
+   Matches style.css theme variables.
+   Dark mode responds to html[data-theme="dark"] OR
+   body[data-theme="dark"] OR any ancestor [data-theme="dark"].
+   ========================================================= */
+
+/* ---------- Page root ---------- */
+
+.financial-overview-page {
+    --fx-green: #059669;
+    --fx-red: #e11d48;
+    --fx-amber: #d97706;
+    --fx-purple: #7c3aed;
+    --fx-slate: #64748b;
+    --fx-cyan: #0891b2;
+
+    display: flex;
+    min-height: 100vh;
+    color: var(--text-primary);
+    background: var(--bg-grad-1);
+    min-width: 0;
+}
+
+.financial-overview-page *,
+.financial-overview-page *::before,
+.financial-overview-page *::after {
+    box-sizing: border-box;
+}
+
+.financial-overview-page button,
+.financial-overview-page input,
+.financial-overview-page select,
+.financial-overview-page textarea {
+    font-family: inherit;
+}
+
+/* =========================================================
+   SIDEBAR
+========================================================= */
+
+.financial-overview-page .sidebar {
+    position: relative;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    width: 260px;
+    min-width: 260px;
+    min-height: 100vh;
+    padding: 28px 18px;
+    background: var(--card-bg);
+    border-right: 1px solid var(--card-border);
+    box-shadow: 2px 0 12px var(--card-shadow-soft);
+    transition: background-color .3s ease, border-color .3s ease;
+    overflow-y: auto;
+    scrollbar-width: thin;
+}
+
+.financial-overview-page .sidebar-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 30px;
+    padding: 0 4px;
+}
+
+.financial-overview-page .brand-logo {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    color: #fff;
+    font-size: 20px;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.financial-overview-page .brand-copy { min-width: 0; }
+
+.financial-overview-page .brand-copy h2 {
+    margin: 0;
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--text-primary);
+    white-space: nowrap;
+}
+
+.financial-overview-page .brand-copy span {
+    display: block;
+    margin-top: 2px;
+    color: var(--text-muted);
+    font-size: 11px;
+    white-space: nowrap;
+}
+
+.financial-overview-page .sidebar-close {
+    display: none;
+    margin-left: auto;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border: 1px solid var(--card-border);
+    border-radius: 10px;
+    background: var(--card-bg);
+    color: var(--text-primary);
+    font-size: 20px;
+    line-height: 1;
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+}
+
+.financial-overview-page .sidebar-section { flex: 1; }
+
+.financial-overview-page .sidebar-label {
+    display: block;
+    margin: 0 0 12px 12px;
+    color: var(--text-muted);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.3px;
+    text-transform: uppercase;
+}
+
+.financial-overview-page .sidebar-nav { display: grid; gap: 4px; }
+
+.financial-overview-page .nav-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 44px;
+    padding: 11px 12px;
+    border-radius: 10px;
+    border-left: 3px solid transparent;
+    text-decoration: none;
+    color: var(--text-secondary);
+    font-size: 13px;
+    font-weight: 500;
+    transition: background .2s ease, color .2s ease, border-color .2s ease;
+}
+
+.financial-overview-page .nav-link:hover {
+    background: var(--accent-soft-bg);
+    color: var(--accent);
+    border-left-color: var(--accent);
+}
+
+.financial-overview-page .nav-link.active {
+    background: var(--accent-soft-bg);
+    color: var(--accent);
+    border-left-color: var(--accent);
+    font-weight: 600;
+}
+
+.financial-overview-page .nav-icon {
+    width: 20px;
+    text-align: center;
+    font-size: 15px;
+    flex-shrink: 0;
+}
+
+.financial-overview-page .sidebar-bottom {
+    margin-top: auto;
+    padding-top: 18px;
+    border-top: 1px solid var(--card-border);
+}
+
+.financial-overview-page .sidebar-help {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    margin-bottom: 12px;
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    background: var(--input-bg);
+}
+
+.financial-overview-page .help-icon {
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--accent-soft-bg);
+    color: var(--accent);
+    font-weight: 700;
+    font-size: 14px;
+    flex-shrink: 0;
+}
+
+.financial-overview-page .sidebar-help strong {
+    display: block;
+    font-size: 12px;
+    color: var(--text-primary);
+}
+
+.financial-overview-page .sidebar-help span {
+    display: block;
+    margin-top: 3px;
+    font-size: 11px;
+    color: var(--text-muted);
+}
+
+/* =========================================================
+   TOPBAR
+========================================================= */
+
+.financial-overview-page .main {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.financial-overview-page .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    min-height: 72px;
+    padding: 14px 28px;
+    background: var(--card-bg);
+    border-bottom: 1px solid var(--card-border);
+    transition: background-color .3s ease, border-color .3s ease;
+}
+
+.financial-overview-page .topbar-left,
+.financial-overview-page .topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-width: 0;
+}
+
+.financial-overview-page .menu-toggle {
+    display: none;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border: 1px solid var(--card-border);
+    border-radius: 10px;
+    background: var(--card-bg);
+    color: var(--text-primary);
+    font-size: 18px;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.financial-overview-page .breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    color: var(--text-muted);
+    min-width: 0;
+}
+
+.financial-overview-page .breadcrumb strong {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.financial-overview-page .breadcrumb-separator { opacity: .5; }
+
+.financial-overview-page .current-date {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-muted);
+    font-size: 13px;
+}
+
+.financial-overview-page .date-icon { font-size: 14px; }
+
+/* =========================================================
+   THEME TOGGLE (Financial Overview)
+   Uses the same look as every other page (global .theme-toggle:
+   circle + emoji). Only the positioning differs: it sits inline
+   in the topbar instead of floating fixed in the corner.
+========================================================= */
+
+.financial-overview-page .theme-toggle {
+    position: static;
+    top: auto;
+    right: auto;
+    flex-shrink: 0;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    font-size: 18px;
+    text-indent: 0;
+}
+
+@media (max-width: 600px) {
+    .financial-overview-page .theme-toggle {
+        width: 40px;
+        height: 40px;
+        font-size: 16px;
+    }
+}
+
+/* Profile avatar */
+.financial-overview-page .profile-avatar {
+    display: grid;
+    place-items: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    color: #fff;
+    font-weight: 700;
+    font-size: 14px;
+    text-decoration: none;
+    flex-shrink: 0;
+    transition: .2s;
+}
+
+.financial-overview-page .profile-avatar:hover {
+    transform: scale(1.06);
+    box-shadow: 0 8px 20px var(--card-shadow-hover);
+}
+
+/* =========================================================
+   CONTENT SHELL
+========================================================= */
+
+.financial-overview-page .content {
+    flex: 1;
+    width: 100%;
+    max-width: 1500px;
+    margin: 0 auto;
+    padding: 28px 30px 40px;
+    min-width: 0;
+}
+
+.financial-overview-page .page-heading {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-bottom: 26px;
+}
+
+.financial-overview-page .page-heading-copy { min-width: 0; }
+
+.financial-overview-page .eyebrow {
+    display: inline-block;
+    color: var(--accent);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+}
+
+.financial-overview-page .page-heading h1 {
+    margin: 8px 0 8px;
+    font-size: clamp(24px, 3vw, 32px);
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1.2;
+}
+
+.financial-overview-page .page-heading p {
+    margin: 0;
+    max-width: 640px;
+    color: var(--text-muted);
+    font-size: 13px;
+    line-height: 1.7;
+}
+
+.financial-overview-page .page-actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.financial-overview-page .period-select {
+    min-height: 42px;
+    padding: 10px 14px;
+    border: 1.5px solid var(--input-border);
+    border-radius: 10px;
+    background: var(--input-bg);
+    color: var(--text-primary);
+    font-size: 13px;
+    font-weight: 500;
+    outline: none;
+    cursor: pointer;
+    transition: .2s;
+}
+
+.financial-overview-page .period-select:hover {
+    border-color: var(--input-border-hover);
+}
+
+.financial-overview-page .period-select:focus {
+    border-color: var(--accent);
+    background: var(--input-bg-focus);
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, .12);
+}
+
+.financial-overview-page .primary-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 42px;
+    padding: 10px 18px;
+    border: none;
+    border-radius: 10px;
+    background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 6px 16px rgba(37, 99, 235, .25);
+    transition: .25s;
+}
+
+.financial-overview-page .primary-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 24px rgba(37, 99, 235, .35);
+}
+
+.financial-overview-page .primary-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 4px 10px rgba(37, 99, 235, .25);
+}
+
+.financial-overview-page .secondary-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-height: 38px;
+    padding: 9px 16px;
+    border: 1.5px solid var(--input-border-hover);
+    border-radius: 10px;
+    background: var(--card-bg);
+    color: var(--accent);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: .25s;
+}
+
+.financial-overview-page .secondary-btn:hover {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 18px rgba(37, 99, 235, .25);
+}
+
+/* =========================================================
+   SUMMARY CARDS
+========================================================= */
+
+.financial-overview-page .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 18px;
+    margin-bottom: 22px;
+}
+
+.financial-overview-page .summary-card {
+    min-width: 0;
+    padding: 20px 22px;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 16px;
+    box-shadow: 0 8px 24px var(--card-shadow-soft);
+    transition: transform .3s, box-shadow .3s, background-color .3s, border-color .3s;
+}
+
+.financial-overview-page .summary-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 16px 36px var(--card-shadow-hover);
+}
+
+.financial-overview-page .summary-card-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.financial-overview-page .summary-label {
+    color: var(--text-muted);
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.financial-overview-page .summary-icon {
+    display: grid;
+    place-items: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 11px;
+    font-size: 16px;
+    flex-shrink: 0;
+}
+
+.financial-overview-page .balance-icon {
+    background: var(--accent-soft-bg);
+    color: var(--accent);
+}
+
+.financial-overview-page .income-icon {
+    background: var(--success-soft-bg);
+    color: var(--success);
+}
+
+.financial-overview-page .expense-icon {
+    background: var(--danger-soft-bg);
+    color: var(--danger);
+}
+
+.financial-overview-page .savings-icon {
+    background: #f3e8ff;
+    color: #9333ea;
+}
+
+.financial-overview-page .summary-card h2 {
+    margin: 16px 0 8px;
+    font-size: clamp(20px, 2vw, 26px);
+    font-weight: 700;
+    color: var(--text-primary);
+    overflow-wrap: anywhere;
+}
+
+.financial-overview-page .summary-footnote {
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 11px;
+    line-height: 1.6;
+}
+
+.financial-overview-page .progress-track,
+.financial-overview-page .budget-progress-track {
+    height: 7px;
+    margin: 12px 0;
+    border-radius: 20px;
+    background: var(--input-border);
+    overflow: hidden;
+}
+
+.financial-overview-page #savingsProgress {
+    display: block;
+    height: 100%;
+    width: 0;
+    border-radius: inherit;
+    background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    transition: width .5s ease;
+}
+
+/* =========================================================
+   PANELS + GRIDS
+========================================================= */
+
+.financial-overview-page .content-grid,
+.financial-overview-page .lower-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.6fr) minmax(280px, 1fr);
+    gap: 20px;
+    margin-bottom: 22px;
+}
+
+.financial-overview-page .panel {
+    min-width: 0;
+    padding: 22px;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 16px;
+    box-shadow: 0 8px 24px var(--card-shadow-soft);
+    color: var(--text-primary);
+    transition: background-color .3s ease, border-color .3s ease;
+}
+
+.financial-overview-page .panel-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-bottom: 20px;
+}
+
+.financial-overview-page .panel-header h2 {
+    margin: 0 0 5px;
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.financial-overview-page .panel-header p {
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+.financial-overview-page .panel-menu-icon {
+    color: var(--text-muted);
+    font-size: 18px;
+    line-height: 1;
+    cursor: default;
+    user-select: none;
+}
+
+.financial-overview-page .chart-legend {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+}
+
+.financial-overview-page .legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--text-muted);
+    font-size: 11px;
+    font-weight: 500;
+}
+
+.financial-overview-page .legend-dot {
+    display: inline-block;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.financial-overview-page .income-dot { background: var(--success); }
+.financial-overview-page .expense-dot { background: var(--danger); }
+
+.financial-overview-page .cashflow-chart-container {
+    position: relative;
+    width: 100%;
+    min-width: 0;
+    min-height: 220px;
+}
+
+.financial-overview-page .cashflow-chart-container canvas {
+    display: block;
+    width: 100% !important;
+    max-width: 100%;
+    height: auto !important;
+    background: transparent;
+}
+
+.financial-overview-page .cashflow-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    margin-top: 18px;
+    padding-top: 16px;
+    border-top: 1px solid var(--table-border);
+    flex-wrap: wrap;
+}
+
+.financial-overview-page .muted-label {
+    display: block;
+    color: var(--text-muted);
+    font-size: 11px;
+    margin-bottom: 5px;
+}
+
+.financial-overview-page .cashflow-footer strong {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.financial-overview-page .chart-note {
+    color: var(--text-muted);
+    font-size: 11px;
+    font-style: italic;
+}
+
+/* =========================================================
+   DONUT
+========================================================= */
+
+.financial-overview-page .donut-wrapper {
+    display: grid;
+    place-items: center;
+    padding: 4px 0 18px;
+}
+
+.financial-overview-page .donut-chart {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 190px;
+    max-width: 100%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: var(--input-border);
+    transition: background .4s ease;
+}
+
+.financial-overview-page .donut-center {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 66%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: var(--card-bg);
+    text-align: center;
+    padding: 10px;
+    transition: background-color .3s ease;
+}
+
+.financial-overview-page .donut-center span {
+    color: var(--text-muted);
+    font-size: 10px;
+    font-weight: 500;
+}
+
+.financial-overview-page .donut-center strong {
+    margin-top: 5px;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-primary);
+    overflow-wrap: anywhere;
+}
+
+.financial-overview-page .category-legend {
+    display: grid;
+    gap: 10px;
+    margin-bottom: 4px;
+    color: var(--text-secondary);
+}
+
+.financial-overview-page .category-item {
+    display: grid;
+    grid-template-columns: 14px 1fr auto;
+    align-items: center;
+    gap: 10px;
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.financial-overview-page .cat-dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+}
+
+.financial-overview-page .category-item strong {
+    color: var(--text-primary);
+    font-weight: 700;
+}
+
+.financial-overview-page .category-insight {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--table-border);
+}
+
+.financial-overview-page .category-insight span {
+    color: var(--text-muted);
+    font-size: 11px;
+}
+
+.financial-overview-page .category-insight strong {
+    color: var(--text-primary);
+    font-size: 14px;
+    font-weight: 600;
+}
+
+/* =========================================================
+   BUDGET
+========================================================= */
+
+.financial-overview-page .budget-overview {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 18px;
+    flex-wrap: wrap;
+}
+
+.financial-overview-page .budget-overview-amount { min-width: 0; }
+
+.financial-overview-page .budget-overview-amount span {
+    display: block;
+    margin-bottom: 6px;
+    color: var(--text-muted);
+    font-size: 11px;
+}
+
+.financial-overview-page .budget-overview-amount strong {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-primary);
+    overflow-wrap: anywhere;
+}
+
+.financial-overview-page .budget-progress-container { margin-bottom: 18px; }
+
+.financial-overview-page #budgetProgress {
+    display: block;
+    height: 100%;
+    width: 0;
+    border-radius: inherit;
+    background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    transition: width .5s ease;
+}
+
+.financial-overview-page .budget-progress-labels {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    color: var(--text-muted);
+    font-size: 11px;
+}
+
+.financial-overview-page .budget-list {
+    display: grid;
+    gap: 0;
+    color: var(--text-secondary);
+}
+
+.financial-overview-page .budget-item {
+    padding: 10px 0;
+    border-bottom: 1px solid var(--table-border);
+}
+
+.financial-overview-page .budget-item:last-child { border-bottom: 0; }
+
+.financial-overview-page .budget-item-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 8px;
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.financial-overview-page .budget-item-top strong {
+    color: var(--text-primary);
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.financial-overview-page .budget-item-top small {
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+.financial-overview-page .budget-emoji {
+    margin-right: 6px;
+    font-style: normal;
+}
+
+.financial-overview-page .budget-item-track {
+    height: 6px;
+    border-radius: 20px;
+    background: var(--input-border);
+    overflow: hidden;
+}
+
+.financial-overview-page .budget-item-track > span {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    transition: width .5s ease;
+}
+
+/* =========================================================
+   GOALS
+========================================================= */
+
+.financial-overview-page .goal-list {
+    display: grid;
+    gap: 12px;
+    color: var(--text-secondary);
+}
+
+.financial-overview-page .goal-row {
+    display: grid;
+    grid-template-columns: 40px 1fr auto;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    background: var(--input-bg);
+    transition: border-color .2s;
+}
+
+.financial-overview-page .goal-row:hover {
+    border-color: var(--input-border-hover);
+}
+
+.financial-overview-page .goal-icon {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 11px;
+    background: var(--accent-soft-bg);
+    color: var(--accent);
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.financial-overview-page .goal-main { min-width: 0; }
+
+.financial-overview-page .goal-title-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 4px;
+}
+
+.financial-overview-page .goal-title-row strong {
+    color: var(--text-primary);
+    font-size: 13px;
+    font-weight: 600;
+    overflow-wrap: anywhere;
+}
+
+.financial-overview-page .goal-percent {
+    color: var(--accent);
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.financial-overview-page .goal-amounts {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 8px;
+    color: var(--text-muted);
+    font-size: 11px;
+}
+
+.financial-overview-page .goal-track {
+    height: 6px;
+    border-radius: 20px;
+    background: var(--input-border);
+    overflow: hidden;
+}
+
+.financial-overview-page .goal-track > span {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    transition: width .5s ease;
+}
+
+/* =========================================================
+   TRANSACTIONS
+========================================================= */
+
+.financial-overview-page .transactions-panel { margin-bottom: 22px; }
+
+.financial-overview-page .table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.financial-overview-page .transactions-table {
+    width: 100%;
+    min-width: 640px;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+.financial-overview-page .transactions-table th {
+    padding: 12px 14px;
+    color: var(--text-muted);
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    border-bottom: 2px solid var(--table-border);
+    white-space: nowrap;
+}
+
+.financial-overview-page .transactions-table td {
+    padding: 14px;
+    color: var(--text-secondary);
+    font-size: 13px;
+    border-bottom: 1px solid var(--table-border);
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+.financial-overview-page .transactions-table tbody tr { transition: background .2s; }
+.financial-overview-page .transactions-table tbody tr:hover { background: var(--table-row-hover); }
+.financial-overview-page .transactions-table tbody tr:last-child td { border-bottom: 0; }
+
+.financial-overview-page .align-right { text-align: right; }
+
+.financial-overview-page .transaction-name {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+    white-space: normal;
+}
+
+.financial-overview-page .transaction-icon {
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 9px;
+    background: var(--accent-soft-bg);
+    color: var(--accent);
+    font-size: 13px;
+    flex-shrink: 0;
+}
+
+.financial-overview-page .transaction-name small {
+    display: block;
+    margin-top: 2px;
+    color: var(--text-muted);
+    font-size: 10px;
+}
+
+.financial-overview-page .category-pill {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: var(--accent-soft-bg);
+    border: 1px solid var(--accent-soft-border);
+    color: var(--accent);
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.financial-overview-page .amount-income { color: var(--success); font-weight: 700; }
+.financial-overview-page .amount-expense { color: var(--danger); font-weight: 700; }
+
+.financial-overview-page .text-link {
+    color: var(--accent);
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: .2s;
+}
+
+.financial-overview-page .text-link:hover {
+    color: var(--accent-2);
+    text-decoration: underline;
+}
+
+.financial-overview-page .demo-disclaimer {
+    margin: 14px 0 0;
+    color: var(--text-muted);
+    font-size: 11px;
+    line-height: 1.6;
+}
+
+/* =========================================================
+   BILLS
+========================================================= */
+
+.financial-overview-page .bills-panel { margin-bottom: 22px; }
+
+.financial-overview-page .bill-list {
+    display: grid;
+    gap: 12px;
+    color: var(--text-secondary);
+}
+
+.financial-overview-page .bill-row {
+    display: grid;
+    grid-template-columns: 52px 1fr auto auto;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    background: var(--input-bg);
+    transition: border-color .2s;
+}
+
+.financial-overview-page .bill-row:hover { border-color: var(--input-border-hover); }
+
+.financial-overview-page .bill-date {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: var(--accent-soft-bg);
+    color: var(--accent);
+    line-height: 1.1;
+}
+
+.financial-overview-page .bill-date strong { font-size: 16px; font-weight: 700; }
+.financial-overview-page .bill-date span {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+}
+
+.financial-overview-page .bill-copy { min-width: 0; }
+
+.financial-overview-page .bill-copy strong {
+    display: block;
+    color: var(--text-primary);
+    font-size: 13px;
+    font-weight: 600;
+    overflow-wrap: anywhere;
+}
+
+.financial-overview-page .bill-copy span {
+    display: block;
+    margin-top: 3px;
+    color: var(--text-muted);
+    font-size: 11px;
+}
+
+.financial-overview-page .bill-amount {
+    color: var(--text-primary);
+    font-size: 13px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.financial-overview-page .bills-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    margin-top: 18px;
+    padding-top: 16px;
+    border-top: 1px solid var(--table-border);
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.financial-overview-page .bills-footer strong {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+/* =========================================================
+   ICON BUTTONS (delete)
+========================================================= */
+
+.financial-overview-page .icon-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    border-radius: 9px;
+    border: 1.5px solid var(--input-border);
+    background: var(--card-bg);
+    color: var(--text-muted);
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1;
+    cursor: pointer;
+    transition: .2s ease;
+    flex-shrink: 0;
+}
+
+.financial-overview-page .icon-btn:hover { transform: translateY(-1px); }
+
+.financial-overview-page .icon-btn.danger {
+    color: var(--danger);
+    border-color: var(--danger-soft-border);
+    background: var(--danger-soft-bg);
+}
+
+.financial-overview-page .icon-btn.danger:hover {
+    background: var(--danger);
+    border-color: var(--danger);
+    color: #fff;
+    box-shadow: 0 6px 14px rgba(225, 29, 72, .3);
+}
+
+/* =========================================================
+   EMPTY STATES
+========================================================= */
+
+.financial-overview-page .empty-state,
+.financial-overview-page .category-legend .empty-state,
+.financial-overview-page .goal-list .empty-state,
+.financial-overview-page .bill-list .empty-state,
+.financial-overview-page .transactions-table .empty-state {
+    padding: 22px 14px;
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 12px;
+    line-height: 1.6;
+    border: 1px dashed var(--card-border);
+    border-radius: 12px;
+    background: var(--input-bg);
+    white-space: normal;
+}
+
+.financial-overview-page .transactions-table .empty-state {
+    border: 0;
+    background: transparent;
+    padding: 34px 14px;
+}
+
+/* =========================================================
+   FOOTER
+========================================================= */
+
+.financial-overview-page .page-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 10px 0 20px;
+    color: var(--text-muted);
+    font-size: 11px;
+}
+
+/* =========================================================
+   MODALS
+========================================================= */
+
+.financial-overview-page dialog.modal {
+    width: min(520px, calc(100% - 28px));
+    max-width: 520px;
+    max-height: 90vh;
+    overflow-y: auto;
+    margin: auto;
+    padding: 0;
+    border: 1px solid var(--card-border);
+    border-radius: 18px;
+    background: var(--card-bg);
+    color: var(--text-primary);
+    box-shadow: 0 20px 80px rgba(0, 0, 0, .2);
+}
+
+.financial-overview-page dialog.modal::backdrop {
+    background: rgba(0, 0, 0, .5);
+    backdrop-filter: blur(4px);
+}
+
+.financial-overview-page .modal-form { padding: 26px; }
+
+.financial-overview-page .modal-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 22px;
+}
+
+.financial-overview-page .modal-header h2 {
+    margin: 0 0 6px;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.financial-overview-page .modal-header p {
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.financial-overview-page .modal-close {
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 24px;
+    line-height: 1;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: .2s;
+}
+
+.financial-overview-page .modal-close:hover {
+    background: var(--danger-soft-bg);
+    color: var(--danger);
+}
+
+.financial-overview-page .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    min-width: 0;
+    margin-bottom: 16px;
+}
+
+.financial-overview-page .form-group label {
+    color: var(--text-secondary);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.financial-overview-page .form-group input,
+.financial-overview-page .form-group select {
+    width: 100%;
+    min-height: 42px;
+    padding: 11px 13px;
+    border: 1.5px solid var(--input-border);
+    border-radius: 10px;
+    background: var(--input-bg);
+    color: var(--text-primary);
+    font-size: 13px;
+    outline: none;
+    transition: .2s;
+}
+
+.financial-overview-page .form-group input:hover,
+.financial-overview-page .form-group select:hover {
+    border-color: var(--input-border-hover);
+}
+
+.financial-overview-page .form-group input:focus,
+.financial-overview-page .form-group select:focus {
+    border-color: var(--accent);
+    background: var(--input-bg-focus);
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, .12);
+}
+
+.financial-overview-page .form-group input::placeholder {
+    color: var(--text-placeholder);
+}
+
+.financial-overview-page .form-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.financial-overview-page .modal-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 22px;
+    padding-top: 18px;
+    border-top: 1px solid var(--table-border);
+}
+
+/* =========================================================
+   TOAST
+========================================================= */
+
+.financial-overview-page .toast {
+    position: fixed;
+    right: 24px;
+    bottom: 24px;
+    z-index: 9999;
+    max-width: calc(100vw - 48px);
+    padding: 13px 20px;
+    border-radius: 12px;
+    background: var(--text-primary);
+    color: var(--card-bg);
+    font-size: 13px;
+    font-weight: 500;
+    box-shadow: 0 12px 32px rgba(15, 23, 42, .2);
+    opacity: 0;
+    transform: translateY(12px);
+    pointer-events: none;
+    transition: opacity .3s ease, transform .3s ease;
+}
+
+.financial-overview-page .toast.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* =========================================================
+   UTILITIES
+========================================================= */
+
+.financial-overview-page .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+.financial-overview-page button:focus-visible,
+.financial-overview-page a:focus-visible,
+.financial-overview-page input:focus-visible,
+.financial-overview-page select:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+}
+
+/* =========================================================
+   DARK THEME OVERRIDES
+   Matches html[data-theme], body[data-theme], or any
+   ancestor with data-theme="dark".
+========================================================= */
+
+html[data-theme="dark"] .financial-overview-page,
+body[data-theme="dark"] .financial-overview-page,
+[data-theme="dark"] .financial-overview-page {
+    color: var(--text-primary);
+    background: var(--bg-grad-1);
+}
+
+html[data-theme="dark"] .financial-overview-page h1,
+html[data-theme="dark"] .financial-overview-page h2,
+html[data-theme="dark"] .financial-overview-page h3,
+html[data-theme="dark"] .financial-overview-page strong,
+body[data-theme="dark"] .financial-overview-page h1,
+body[data-theme="dark"] .financial-overview-page h2,
+body[data-theme="dark"] .financial-overview-page h3,
+body[data-theme="dark"] .financial-overview-page strong,
+[data-theme="dark"] .financial-overview-page h1,
+[data-theme="dark"] .financial-overview-page h2,
+[data-theme="dark"] .financial-overview-page h3,
+[data-theme="dark"] .financial-overview-page strong {
+    color: var(--text-primary);
+}
+
+html[data-theme="dark"] .financial-overview-page .summary-label,
+html[data-theme="dark"] .financial-overview-page .summary-footnote,
+html[data-theme="dark"] .financial-overview-page .muted-label,
+html[data-theme="dark"] .financial-overview-page .chart-note,
+html[data-theme="dark"] .financial-overview-page .panel-header p,
+html[data-theme="dark"] .financial-overview-page .page-heading p,
+html[data-theme="dark"] .financial-overview-page .breadcrumb,
+html[data-theme="dark"] .financial-overview-page .current-date,
+html[data-theme="dark"] .financial-overview-page .sidebar-help span,
+html[data-theme="dark"] .financial-overview-page .demo-disclaimer,
+html[data-theme="dark"] .financial-overview-page .page-footer,
+html[data-theme="dark"] .financial-overview-page .budget-progress-labels,
+html[data-theme="dark"] .financial-overview-page .budget-overview-amount span,
+html[data-theme="dark"] .financial-overview-page .donut-center span,
+html[data-theme="dark"] .financial-overview-page .category-insight span,
+html[data-theme="dark"] .financial-overview-page .legend-item,
+html[data-theme="dark"] .financial-overview-page .bills-footer,
+html[data-theme="dark"] .financial-overview-page .transactions-table th,
+html[data-theme="dark"] .financial-overview-page .goal-amounts,
+html[data-theme="dark"] .financial-overview-page .bill-copy span,
+body[data-theme="dark"] .financial-overview-page .summary-label,
+body[data-theme="dark"] .financial-overview-page .summary-footnote,
+body[data-theme="dark"] .financial-overview-page .muted-label,
+body[data-theme="dark"] .financial-overview-page .chart-note,
+body[data-theme="dark"] .financial-overview-page .panel-header p,
+body[data-theme="dark"] .financial-overview-page .page-heading p,
+body[data-theme="dark"] .financial-overview-page .breadcrumb,
+body[data-theme="dark"] .financial-overview-page .current-date,
+body[data-theme="dark"] .financial-overview-page .sidebar-help span,
+body[data-theme="dark"] .financial-overview-page .demo-disclaimer,
+body[data-theme="dark"] .financial-overview-page .page-footer,
+body[data-theme="dark"] .financial-overview-page .budget-progress-labels,
+body[data-theme="dark"] .financial-overview-page .budget-overview-amount span,
+body[data-theme="dark"] .financial-overview-page .donut-center span,
+body[data-theme="dark"] .financial-overview-page .category-insight span,
+body[data-theme="dark"] .financial-overview-page .legend-item,
+body[data-theme="dark"] .financial-overview-page .bills-footer,
+body[data-theme="dark"] .financial-overview-page .transactions-table th,
+body[data-theme="dark"] .financial-overview-page .goal-amounts,
+body[data-theme="dark"] .financial-overview-page .bill-copy span,
+[data-theme="dark"] .financial-overview-page .summary-label,
+[data-theme="dark"] .financial-overview-page .summary-footnote,
+[data-theme="dark"] .financial-overview-page .muted-label,
+[data-theme="dark"] .financial-overview-page .chart-note,
+[data-theme="dark"] .financial-overview-page .panel-header p,
+[data-theme="dark"] .financial-overview-page .page-heading p,
+[data-theme="dark"] .financial-overview-page .breadcrumb,
+[data-theme="dark"] .financial-overview-page .current-date,
+[data-theme="dark"] .financial-overview-page .sidebar-help span,
+[data-theme="dark"] .financial-overview-page .demo-disclaimer,
+[data-theme="dark"] .financial-overview-page .page-footer,
+[data-theme="dark"] .financial-overview-page .budget-progress-labels,
+[data-theme="dark"] .financial-overview-page .budget-overview-amount span,
+[data-theme="dark"] .financial-overview-page .donut-center span,
+[data-theme="dark"] .financial-overview-page .category-insight span,
+[data-theme="dark"] .financial-overview-page .legend-item,
+[data-theme="dark"] .financial-overview-page .bills-footer,
+[data-theme="dark"] .financial-overview-page .transactions-table th,
+[data-theme="dark"] .financial-overview-page .goal-amounts,
+[data-theme="dark"] .financial-overview-page .bill-copy span {
+    color: var(--text-muted) !important;
+}
+
+html[data-theme="dark"] .financial-overview-page .transactions-table td,
+html[data-theme="dark"] .financial-overview-page .budget-list,
+html[data-theme="dark"] .financial-overview-page .goal-list,
+html[data-theme="dark"] .financial-overview-page .bill-list,
+html[data-theme="dark"] .financial-overview-page .category-legend,
+body[data-theme="dark"] .financial-overview-page .transactions-table td,
+body[data-theme="dark"] .financial-overview-page .budget-list,
+body[data-theme="dark"] .financial-overview-page .goal-list,
+body[data-theme="dark"] .financial-overview-page .bill-list,
+body[data-theme="dark"] .financial-overview-page .category-legend,
+[data-theme="dark"] .financial-overview-page .transactions-table td,
+[data-theme="dark"] .financial-overview-page .budget-list,
+[data-theme="dark"] .financial-overview-page .goal-list,
+[data-theme="dark"] .financial-overview-page .bill-list,
+[data-theme="dark"] .financial-overview-page .category-legend {
+    color: var(--text-secondary) !important;
+}
+
+html[data-theme="dark"] .financial-overview-page .eyebrow,
+html[data-theme="dark"] .financial-overview-page .text-link,
+html[data-theme="dark"] .financial-overview-page .nav-link.active,
+html[data-theme="dark"] .financial-overview-page .nav-link:hover,
+body[data-theme="dark"] .financial-overview-page .eyebrow,
+body[data-theme="dark"] .financial-overview-page .text-link,
+body[data-theme="dark"] .financial-overview-page .nav-link.active,
+body[data-theme="dark"] .financial-overview-page .nav-link:hover,
+[data-theme="dark"] .financial-overview-page .eyebrow,
+[data-theme="dark"] .financial-overview-page .text-link,
+[data-theme="dark"] .financial-overview-page .nav-link.active,
+[data-theme="dark"] .financial-overview-page .nav-link:hover {
+    color: var(--accent) !important;
+}
+
+html[data-theme="dark"] .financial-overview-page .brand-logo,
+html[data-theme="dark"] .financial-overview-page .profile-avatar,
+body[data-theme="dark"] .financial-overview-page .brand-logo,
+body[data-theme="dark"] .financial-overview-page .profile-avatar,
+[data-theme="dark"] .financial-overview-page .brand-logo,
+[data-theme="dark"] .financial-overview-page .profile-avatar {
+    background: var(--accent);
+    color: var(--on-accent);
+}
+
+html[data-theme="dark"] .financial-overview-page .primary-btn,
+body[data-theme="dark"] .financial-overview-page .primary-btn,
+[data-theme="dark"] .financial-overview-page .primary-btn {
+    background: var(--accent);
+    color: var(--on-accent);
+    box-shadow: none;
+}
+
+html[data-theme="dark"] .financial-overview-page .primary-btn:hover,
+body[data-theme="dark"] .financial-overview-page .primary-btn:hover,
+[data-theme="dark"] .financial-overview-page .primary-btn:hover {
+    background: #e5e5e5;
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, .15);
+}
+
+html[data-theme="dark"] .financial-overview-page .secondary-btn,
+body[data-theme="dark"] .financial-overview-page .secondary-btn,
+[data-theme="dark"] .financial-overview-page .secondary-btn {
+    background: var(--card-bg);
+    color: var(--text-primary);
+    border-color: var(--input-border);
+}
+
+html[data-theme="dark"] .financial-overview-page .secondary-btn:hover,
+body[data-theme="dark"] .financial-overview-page .secondary-btn:hover,
+[data-theme="dark"] .financial-overview-page .secondary-btn:hover {
+    background: var(--accent);
+    color: var(--on-accent);
+    border-color: var(--accent);
+    box-shadow: none;
+}
+
+html[data-theme="dark"] .financial-overview-page .summary-card:hover,
+body[data-theme="dark"] .financial-overview-page .summary-card:hover,
+[data-theme="dark"] .financial-overview-page .summary-card:hover {
+    box-shadow: none;
+    border-color: #333;
+}
+
+html[data-theme="dark"] .financial-overview-page .savings-icon,
+body[data-theme="dark"] .financial-overview-page .savings-icon,
+[data-theme="dark"] .financial-overview-page .savings-icon {
+    background: #1f1533;
+    color: #c4b5fd;
+}
+
+html[data-theme="dark"] .financial-overview-page .donut-center,
+body[data-theme="dark"] .financial-overview-page .donut-center,
+[data-theme="dark"] .financial-overview-page .donut-center {
+    background: var(--card-bg);
+    color: var(--text-primary);
+}
+
+html[data-theme="dark"] .financial-overview-page .donut-center strong,
+body[data-theme="dark"] .financial-overview-page .donut-center strong,
+[data-theme="dark"] .financial-overview-page .donut-center strong {
+    color: var(--text-primary);
+}
+
+html[data-theme="dark"] .financial-overview-page input,
+html[data-theme="dark"] .financial-overview-page select,
+html[data-theme="dark"] .financial-overview-page .period-select,
+body[data-theme="dark"] .financial-overview-page input,
+body[data-theme="dark"] .financial-overview-page select,
+body[data-theme="dark"] .financial-overview-page .period-select,
+[data-theme="dark"] .financial-overview-page input,
+[data-theme="dark"] .financial-overview-page select,
+[data-theme="dark"] .financial-overview-page .period-select {
+    background: var(--input-bg);
+    color: var(--text-primary);
+    border-color: var(--input-border);
+}
+
+html[data-theme="dark"] .financial-overview-page input::placeholder,
+body[data-theme="dark"] .financial-overview-page input::placeholder,
+[data-theme="dark"] .financial-overview-page input::placeholder {
+    color: var(--text-placeholder);
+}
+
+html[data-theme="dark"] .financial-overview-page dialog.modal,
+body[data-theme="dark"] .financial-overview-page dialog.modal,
+[data-theme="dark"] .financial-overview-page dialog.modal {
+    background: var(--card-bg);
+    color: var(--text-primary);
+    border-color: var(--card-border);
+    box-shadow: 0 20px 80px rgba(0, 0, 0, .7);
+}
+
+html[data-theme="dark"] .financial-overview-page .modal-header h2,
+body[data-theme="dark"] .financial-overview-page .modal-header h2,
+[data-theme="dark"] .financial-overview-page .modal-header h2 {
+    color: var(--text-primary);
+}
+
+html[data-theme="dark"] .financial-overview-page .modal-header p,
+body[data-theme="dark"] .financial-overview-page .modal-header p,
+[data-theme="dark"] .financial-overview-page .modal-header p {
+    color: var(--text-muted);
+}
+
+html[data-theme="dark"] .financial-overview-page .form-group label,
+body[data-theme="dark"] .financial-overview-page .form-group label,
+[data-theme="dark"] .financial-overview-page .form-group label {
+    color: var(--text-secondary);
+}
+
+html[data-theme="dark"] .financial-overview-page .transactions-table tbody tr:hover,
+body[data-theme="dark"] .financial-overview-page .transactions-table tbody tr:hover,
+[data-theme="dark"] .financial-overview-page .transactions-table tbody tr:hover {
+    background: var(--table-row-hover);
+}
+
+html[data-theme="dark"] .financial-overview-page .toast,
+body[data-theme="dark"] .financial-overview-page .toast,
+[data-theme="dark"] .financial-overview-page .toast {
+    background: #fff;
+    color: #000;
+}
+
+html[data-theme="dark"] .financial-overview-page .goal-row,
+html[data-theme="dark"] .financial-overview-page .bill-row,
+body[data-theme="dark"] .financial-overview-page .goal-row,
+body[data-theme="dark"] .financial-overview-page .bill-row,
+[data-theme="dark"] .financial-overview-page .goal-row,
+[data-theme="dark"] .financial-overview-page .bill-row {
+    background: var(--input-bg);
+    border-color: var(--card-border);
+}
+
+html[data-theme="dark"] .financial-overview-page .goal-icon,
+html[data-theme="dark"] .financial-overview-page .bill-date,
+html[data-theme="dark"] .financial-overview-page .transaction-icon,
+body[data-theme="dark"] .financial-overview-page .goal-icon,
+body[data-theme="dark"] .financial-overview-page .bill-date,
+body[data-theme="dark"] .financial-overview-page .transaction-icon,
+[data-theme="dark"] .financial-overview-page .goal-icon,
+[data-theme="dark"] .financial-overview-page .bill-date,
+[data-theme="dark"] .financial-overview-page .transaction-icon {
+    background: var(--accent-soft-bg);
+    color: var(--accent);
+}
+
+html[data-theme="dark"] .financial-overview-page .icon-btn,
+body[data-theme="dark"] .financial-overview-page .icon-btn,
+[data-theme="dark"] .financial-overview-page .icon-btn {
+    background: var(--card-bg);
+    border-color: var(--input-border);
+    color: var(--text-muted);
+}
+
+html[data-theme="dark"] .financial-overview-page .icon-btn.danger,
+body[data-theme="dark"] .financial-overview-page .icon-btn.danger,
+[data-theme="dark"] .financial-overview-page .icon-btn.danger {
+    background: var(--danger-soft-bg);
+    border-color: var(--danger-soft-border);
+    color: var(--danger);
+}
+
+html[data-theme="dark"] .financial-overview-page .icon-btn.danger:hover,
+body[data-theme="dark"] .financial-overview-page .icon-btn.danger:hover,
+[data-theme="dark"] .financial-overview-page .icon-btn.danger:hover {
+    background: var(--danger);
+    color: #000;
+}
+
+html[data-theme="dark"] .financial-overview-page .empty-state,
+body[data-theme="dark"] .financial-overview-page .empty-state,
+[data-theme="dark"] .financial-overview-page .empty-state {
+    background: var(--input-bg);
+    border-color: var(--card-border);
+    color: var(--text-muted);
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 1100px) {
+    .financial-overview-page .summary-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .financial-overview-page .content-grid,
+    .financial-overview-page .lower-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+@media (max-width: 900px) {
+    .financial-overview-page .sidebar {
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        width: 270px;
+        min-width: 0;
+        min-height: 100vh;
+        transform: translateX(-105%);
+        transition: transform .28s ease;
+        box-shadow: none;
+    }
+
+    .financial-overview-page .sidebar.open {
+        transform: translateX(0);
+        box-shadow: 12px 0 40px rgba(0, 0, 0, .18);
+    }
+
+    .financial-overview-page .menu-toggle { display: inline-flex; }
+    .financial-overview-page .sidebar-close { display: inline-flex; }
+
+    .financial-overview-page .content { padding: 22px 20px 36px; }
+
+    .financial-overview-page .page-heading {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .financial-overview-page .page-actions { width: 100%; }
+
+    .financial-overview-page .period-select {
+        flex: 1;
+        min-width: 0;
+    }
+}
+
+@media (max-width: 640px) {
+    .financial-overview-page .topbar {
+        padding: 12px 14px;
+        min-height: 64px;
+    }
+
+    .financial-overview-page .current-date { display: none; }
+    .financial-overview-page .breadcrumb { font-size: 12px; }
+    .financial-overview-page .content { padding: 16px 14px 30px; }
+    .financial-overview-page .page-heading { margin-bottom: 20px; }
+    .financial-overview-page .page-heading h1 { font-size: 23px; }
+
+    .financial-overview-page .summary-grid {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 12px;
+    }
+
+    .financial-overview-page .summary-card,
+    .financial-overview-page .panel {
+        padding: 16px;
+        border-radius: 14px;
+    }
+
+    .financial-overview-page .summary-card h2 { font-size: 20px; }
+    .financial-overview-page .donut-chart { width: 160px; }
+    .financial-overview-page .donut-center strong { font-size: 16px; }
+
+    .financial-overview-page .form-row {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 0;
+    }
+
+    .financial-overview-page .modal-form { padding: 20px; }
+
+    .financial-overview-page .modal-actions { flex-direction: column-reverse; }
+
+    .financial-overview-page .modal-actions .primary-btn,
+    .financial-overview-page .modal-actions .secondary-btn { width: 100%; }
+
+    .financial-overview-page .page-footer {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .financial-overview-page .bills-footer {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .financial-overview-page .toast {
+        right: 14px;
+        bottom: 14px;
+        left: 14px;
+        max-width: none;
+    }
+
+    .financial-overview-page .bill-row {
+        grid-template-columns: 44px 1fr auto;
+        row-gap: 8px;
+    }
+
+    .financial-overview-page .bill-row .icon-btn {
+        grid-column: 1 / -1;
+        width: 100%;
+        height: 34px;
+    }
+
+    .financial-overview-page .goal-row { grid-template-columns: 36px 1fr auto; }
+    .financial-overview-page .goal-icon { width: 36px; height: 36px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .financial-overview-page *,
+    .financial-overview-page *::before,
+    .financial-overview-page *::after {
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
     }
 }
