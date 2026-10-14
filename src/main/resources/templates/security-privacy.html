@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ExpenseX | Security &amp; Privacy</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+          rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+
+<body>
+<div class="background"></div>
+
+<button type="button" class="theme-toggle" id="themeToggle"
+        aria-label="Toggle theme" title="Toggle theme">◐</button>
+
+<main class="security-page">
+    <div class="security-container">
+
+        <header class="security-topbar">
+            <a class="back-to-profile" th:href="@{/profile}">
+                ← Back to Profile
+            </a>
+        </header>
+
+        <section class="security-heading">
+            <h1>Security &amp; Privacy</h1>
+            <p>Manage your account security, understand your privacy options,
+                and protect access to your ExpenseX account.</p>
+        </section>
+
+        <section class="security-section">
+            <h2>Password &amp; Authentication</h2>
+            <p>Keep your account secure with strong authentication practices.</p>
+
+            <div class="security-option">
+                <div class="security-option-info">
+                    <h3>Change Password</h3>
+                    <p>Update your password to help protect your account.</p>
+                </div>
+                <a class="btn-secondary" th:href="@{/profile}"
+                   style="width:auto;padding:10px 16px">
+                    Manage Password
+                </a>
+            </div>
+
+            <div class="security-option">
+                <div class="security-option-info">
+                    <h3>Two-Factor Authentication</h3>
+                    <p>Add an extra verification step when signing in.</p>
+                </div>
+                <span class="pill warn">Not configured</span>
+            </div>
+        </section>
+
+        <section class="security-section">
+            <h2>Session Security</h2>
+            <p>Review how your account sessions should be managed.</p>
+
+            <div class="security-option">
+                <div class="security-option-info">
+                    <h3>Sign Out</h3>
+                    <p>End your current ExpenseX session on this browser.</p>
+                </div>
+                <button type="button" class="btn-secondary"
+                        id="logoutCurrentBtn"
+                        style="width:auto;padding:10px 16px">
+                    Sign Out
+                </button>
+            </div>
+
+            <div class="security-option">
+                <div class="security-option-info">
+                    <h3>Sign Out Everywhere</h3>
+                    <p>Invalidate all active sessions on every device.</p>
+                </div>
+                <span class="pill warn">Backend support required</span>
+            </div>
+        </section>
+
+        <section class="security-section">
+            <h2>Privacy Preferences</h2>
+            <p>Choose your preferences for optional data collection.</p>
+
+            <div class="security-option">
+                <div class="security-option-info">
+                    <h3>Optional Usage Analytics</h3>
+                    <p>Allow optional usage analytics if the application supports it.</p>
+                </div>
+                <input type="checkbox" id="usageAnalytics">
+            </div>
+
+            <div class="security-option">
+                <div class="security-option-info">
+                    <h3>Personalized Insights</h3>
+                    <p>Allow financial insights based on your recorded transactions.</p>
+                </div>
+                <input type="checkbox" id="personalizedInsights" checked>
+            </div>
+
+            <div id="privacyMessage" class="security-message"
+                 role="status" aria-live="polite"></div>
+
+            <div class="settings-actions">
+                <button type="button" class="btn-primary" id="savePrivacyBtn">
+                    Save Privacy Preferences
+                </button>
+            </div>
+        </section>
+
+        <section class="danger-zone">
+            <h2>Danger Zone</h2>
+            <p>Account deletion is permanent and may remove your account and
+                associated financial records. Confirm the consequences before proceeding.</p>
+
+            <button type="button" class="delete-account-btn" id="deleteAccountInfoBtn">
+                Account Deletion Information
+            </button>
+
+            <div id="deleteAccountMessage" class="security-message"
+                 role="status" aria-live="polite"></div>
+        </section>
+
+    </div>
+</main>
+
+<script th:src="@{/js/script.js}"></script>
+<script>
+    (() => {
+        const privacyKey = "expensex-privacy-preferences";
+        const usageAnalytics = document.getElementById("usageAnalytics");
+        const personalizedInsights = document.getElementById("personalizedInsights");
+        const message = document.getElementById("privacyMessage");
+        const deletionMessage = document.getElementById("deleteAccountMessage");
+
+        function showMessage(element, text, type) {
+            element.textContent = text;
+            element.className = "security-message " + type;
+        }
+
+        try {
+            const saved = JSON.parse(localStorage.getItem(privacyKey) || "{}");
+
+            usageAnalytics.checked = saved.usageAnalytics === true;
+            personalizedInsights.checked =
+                saved.personalizedInsights !== false;
+        } catch (error) {
+            usageAnalytics.checked = false;
+            personalizedInsights.checked = true;
+        }
+
+        document.getElementById("savePrivacyBtn").addEventListener("click", () => {
+            try {
+                localStorage.setItem(privacyKey, JSON.stringify({
+                    usageAnalytics: usageAnalytics.checked,
+                    personalizedInsights: personalizedInsights.checked
+                }));
+
+                showMessage(
+                    message,
+                    "Privacy preferences saved in this browser. Backend enforcement is not configured yet.",
+                    "success"
+                );
+            } catch (error) {
+                showMessage(message, "Could not save privacy preferences.", "error");
+            }
+        });
+
+        document.getElementById("logoutCurrentBtn").addEventListener("click", () => {
+            if (typeof window.logout === "function") {
+                window.logout();
+            } else {
+                localStorage.removeItem("token");
+                window.location.replace("/login");
+            }
+        });
+
+        document.getElementById("deleteAccountInfoBtn").addEventListener("click", () => {
+            showMessage(
+                deletionMessage,
+                "To delete your account, use the account deletion option on your Profile page. Review the consequences before confirming deletion.",
+                "error"
+            );
+        });
+    })();
+</script>
+</body>
+</html>

@@ -21,30 +21,28 @@
 
     <aside class="sidebar">
 
-        <h2>Expense Tracker</h2>
+        <h2>ExpenseX</h2>
 
         <ul>
-
             <li>
                 <a th:href="@{/dashboard}">🏠 Dashboard</a>
             </li>
 
             <li>
-                <a th:href="@{/add-expense}">📉 Report &amp Analytics</a>
+                <a th:href="@{/analytics}">📊 Report &amp; Analytics</a>
             </li>
 
             <li>
-                <a th:href="@{/analytics}">🔐 Security &amp; Privacy</a>
+                <a th:href="@{/security-privacy}">🔐 Security &amp; Privacy</a>
             </li>
 
             <li>
-                <a th:href="@{/profile}">⚙️ Settings</a>
+                <a th:href="@{/settings}">⚙️ Settings</a>
             </li>
 
             <li>
-                <a href="#" onclick="logout()">🚪 Logout</a>
+                <a href="#" onclick="logout(); return false;">🚪 Logout</a>
             </li>
-
         </ul>
 
     </aside>
@@ -184,6 +182,8 @@
 
         </div>
 
+        <div th:replace="~{fragments/footer :: footer}"></div>
+
     </main>
 
 </div>
@@ -210,202 +210,108 @@
         return d.toLocaleDateString("en-IN", { year: "numeric", month: "long", day: "numeric" });
     }
 
-    async function loadProfile(){
-
-        const email = JSON.parse(atob(token.split(".")[1])).sub;
-
-        const res = await fetch("/api/users/email/" + encodeURIComponent(email), {
-            headers: { Authorization: "Bearer " + token }
-        });
-
-        if(!res.ok){
-            return;
-        }
-
-        const user = await res.json();
-        currentUserId = user.id;
-
-        document.getElementById("avatarInitials").textContent = initials(user.firstName, user.lastName);
-        document.getElementById("profileName").textContent = (user.firstName || "") + " " + (user.lastName || "");
-        document.getElementById("profileEmail").textContent = user.email;
-
-        const pill = document.getElementById("verifiedPill");
-        if(user.emailVerified){
-            pill.textContent = "✓ Email Verified";
-            pill.className = "status-pill verified";
-        } else {
-            pill.textContent = "Email Not Verified";
-            pill.className = "status-pill unverified";
-        }
-
-        document.getElementById("memberSince").textContent = formatDate(user.createdAt);
-        document.getElementById("accountStatus").textContent = user.active ? "Active" : "Inactive";
-        document.getElementById("phoneDisplay").textContent = user.phoneNumber || "Not set";
-
-        document.getElementById("firstName").value = user.firstName || "";
-        document.getElementById("lastName").value = user.lastName || "";
-        document.getElementById("email").value = user.email || "";
-        document.getElementById("phoneNumber").value = user.phoneNumber || "";
-    }
-
-    document.getElementById("profileForm").addEventListener("submit", async (e) => {
-
-        e.preventDefault();
-
-        const msg = document.getElementById("formMsg");
-        msg.className = "form-msg";
-        msg.textContent = "";
-
-        const payload = {
-            firstName: document.getElementById("firstName").value.trim(),
-            lastName: document.getElementById("lastName").value.trim(),
-            phoneNumber: document.getElementById("phoneNumber").value.trim()
-        };
-
+    async function loadProfile() {
         try {
-
-            const res = await fetch("/api/users/" + currentUserId + "/profile", {
-                method: "PUT",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: "Bearer " + token
-                },
-                body: JSON.stringify(payload)
-            });
-
-            if(!res.ok){
-                throw new Error("Update failed");
-            }
-
-            msg.textContent = "Profile updated successfully.";
-            msg.className = "form-msg success";
-
-            loadProfile();
-
-        } catch(err){
-            msg.textContent = "Could not update profile. Please try again.";
-            msg.className = "form-msg error";
-        }
-    });
-
-    function logout(){
-        localStorage.removeItem("token");
-        window.location="/login";
-    }
-
-    loadProfile();
-
-    async function changePassword() {
-        const currentPassword = document.getElementById("currentPassword").value;
-        const newPassword = document.getElementById("newPassword").value;
-        const confirmPassword = document.getElementById("confirmNewPassword").value;
-
-        if (!currentPassword || !newPassword || !confirmPassword) {
-            alert("Please fill in all password fields.");
-            return;
-        }
-
-        try {
-            const response = await fetch("/api/users/change-password", {
-                method: "PUT",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": "Bearer " + token
-                },
-                body: JSON.stringify({
-                    currentPassword,
-                    newPassword,
-                    confirmPassword
-                })
-            });
-
-            const data = await response.json();
-
-            if (response.ok && data.success) {
-                alert(data.message || "Password changed successfully.");
-                document.getElementById("currentPassword").value = "";
-                document.getElementById("newPassword").value = "";
-                document.getElementById("confirmNewPassword").value = "";
-            } else {
-                alert(data.message || "Failed to change password.");
-            }
-        } catch (error) {
-            console.error("Change password error:", error);
-            alert("Unable to change your password. Please try again.");
-        }
-    }
-
-    async function deleteAccount() {
-
-        const firstConfirm = confirm(
-            "Are you sure you want to permanently delete your ExpenseX account?"
-        );
-
-        if (!firstConfirm) {
-            return;
-        }
-
-        const secondConfirm = confirm(
-            "WARNING!\n\n" +
-            "This will permanently delete your account and associated data.\n\n" +
-            "This action cannot be undone.\n\n" +
-            "Do you really want to continue?"
-        );
-
-        if (!secondConfirm) {
-            return;
-        }
-
-        if (!token) {
-            window.location.href = "/login";
-            return;
-        }
-
-        try {
-
-            const response = await fetch("/api/users/account", {
-
-                method: "DELETE",
-
-                headers: {
-                    "Authorization": "Bearer " + token
-                }
-
-            });
-
-            if (response.ok) {
-
-                // Remove authentication token
-                localStorage.removeItem("token");
-
-                alert(
-                    "Your ExpenseX account has been permanently deleted."
-                );
-
+            if (!token) {
                 window.location.href = "/login";
-
-            } else {
-
-                const message = await response.text();
-
-                alert(
-                    message || "Unable to delete your account."
-                );
+                return;
             }
 
-        } catch (error) {
+            const tokenPayload = token.split(".")[1];
 
-            console.error("Account deletion error:", error);
+            if (!tokenPayload) {
+                throw new Error("Invalid authentication token.");
+            }
 
-            alert(
-                "Unable to connect to the server. Please try again."
+            // JWT payloads use Base64URL encoding.
+            const base64 = tokenPayload
+                .replace(/-/g, "+")
+                .replace(/_/g, "/");
+
+            const decodedPayload = atob(
+                base64.padEnd(Math.ceil(base64.length / 4) * 4, "=")
             );
+
+            const email = JSON.parse(decodedPayload).sub;
+
+            if (!email) {
+                throw new Error("Email not found in authentication token.");
+            }
+
+            const response = await fetch(
+                "/api/users/email/" + encodeURIComponent(email),
+                {
+                    headers: {
+                        "Authorization": "Bearer " + token
+                    }
+                }
+            );
+
+            if (response.status === 401 || response.status === 403) {
+                localStorage.removeItem("token");
+                window.location.href = "/login";
+                return;
+            }
+
+            if (!response.ok) {
+                throw new Error("Unable to load profile.");
+            }
+
+            const user = await response.json();
+
+            currentUserId = user.id;
+
+            document.getElementById("avatarInitials").textContent =
+                initials(user.firstName, user.lastName);
+
+            document.getElementById("profileName").textContent =
+                `${user.firstName || ""} ${user.lastName || ""}`.trim();
+
+            document.getElementById("profileEmail").textContent =
+                user.email || "";
+
+            const verifiedPill = document.getElementById("verifiedPill");
+
+            if (user.emailVerified) {
+                verifiedPill.textContent = "✓ Email Verified";
+                verifiedPill.className = "status-pill verified";
+            } else {
+                verifiedPill.textContent = "Email Not Verified";
+                verifiedPill.className = "status-pill unverified";
+            }
+
+            document.getElementById("memberSince").textContent =
+                formatDate(user.createdAt);
+
+            document.getElementById("accountStatus").textContent =
+                user.active ? "Active" : "Inactive";
+
+            document.getElementById("phoneDisplay").textContent =
+                user.phoneNumber || "Not set";
+
+            document.getElementById("firstName").value =
+                user.firstName || "";
+
+            document.getElementById("lastName").value =
+                user.lastName || "";
+
+            document.getElementById("email").value =
+                user.email || "";
+
+            document.getElementById("phoneNumber").value =
+                user.phoneNumber || "";
+
+        } catch (error) {
+            console.error("Profile loading error:", error);
+
+            document.getElementById("profileName").textContent =
+                "Unable to load profile";
+
+            document.getElementById("profileEmail").textContent =
+                "Please refresh the page or sign in again.";
         }
     }
-
 </script>
-
-<div th:replace="~{fragments/footer :: footer}"></div>
 
 </body>
 

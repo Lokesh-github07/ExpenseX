@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Income &amp; Budget | ExpenseX</title>
+
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/section.css}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+<div class="background"></div>
+
+<div class="dashboard">
+
+    <!-- ===== SECTION SIDEBAR ===== -->
+    <aside class="sidebar" id="appSidebar" aria-label="Income and budget navigation">
+        <div class="sidebar-brand-row">
+            <a class="sidebar-brand" th:href="@{/dashboard}" aria-label="ExpenseX Dashboard">
+                <span class="brand-icon" aria-hidden="true">💰</span>
+                <span class="brand-name">ExpenseX</span>
+            </a>
+            <button type="button" class="sidebar-toggle" id="sidebarToggle"
+                    aria-label="Collapse sidebar" aria-controls="appSidebar" aria-expanded="true">
+                <span aria-hidden="true">☰</span>
+            </button>
+        </div>
+
+        <nav class="sidebar-navigation" aria-label="Income and budget sections">
+            <ul class="sidebar-menu">
+                <li class="back-item">
+                    <a th:href="@{/dashboard}" title="Back to Dashboard">
+                        <span class="nav-icon" aria-hidden="true">⬅️</span>
+                        <span class="nav-label">Back to Dashboard</span>
+                    </a>
+                </li>
+
+                <li class="section-label"><span class="nav-label">Income &amp; Budget</span></li>
+
+                <li>
+                    <a href="#overview" data-view="overview" data-title="Income &amp; Budget Overview">
+                        <span class="nav-icon" aria-hidden="true">📈</span>
+                        <span class="nav-label">Overview</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#add-income" data-view="add-income" data-title="Add Income">
+                        <span class="nav-icon" aria-hidden="true">💵</span>
+                        <span class="nav-label">Add Income</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#history" data-view="history" data-title="Income History">
+                        <span class="nav-icon" aria-hidden="true">🕘</span>
+                        <span class="nav-label">Income History</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#budget" data-view="budget" data-title="Monthly Budget">
+                        <span class="nav-icon" aria-hidden="true">🎯</span>
+                        <span class="nav-label">Monthly Budget</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <div class="sidebar-profile" id="sidebarProfile">
+            <a class="profile-link" th:href="@{/profile}" title="My Profile">
+                <span class="profile-avatar" aria-hidden="true">👤</span>
+                <span class="profile-details">
+                    <span class="profile-name">My Profile</span>
+                    <span class="profile-caption">Account settings</span>
+                </span>
+            </a>
+            <button type="button" class="profile-logout" onclick="logout()" title="Log out">
+                <span aria-hidden="true">↪</span>
+                <span class="nav-label">Logout</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <main class="content">
+
+        <div class="content-topbar">
+            <button type="button" class="mobile-sidebar-toggle" id="mobileSidebarToggle"
+                    aria-label="Open navigation" aria-controls="appSidebar" aria-expanded="false">
+                <span aria-hidden="true">☰</span>
+            </button>
+            <h1 id="pageTitle">Income &amp; Budget Overview</h1>
+        </div>
+
+        <!-- OVERVIEW -->
+        <section class="view" id="overview">
+            <p class="view-intro">This month at a glance: what came in, what you planned to spend, and what you actually spent.</p>
+
+            <div class="cards four">
+                <div class="glass-card stat-card">
+                    <h3>Income this month</h3>
+                    <h2 class="positive" id="ovIncome">₹0.00</h2>
+                </div>
+                <div class="glass-card stat-card">
+                    <h3>Budget this month</h3>
+                    <h2 id="ovBudget">₹0.00</h2>
+                </div>
+                <div class="glass-card stat-card">
+                    <h3>Spent this month</h3>
+                    <h2 class="negative" id="ovSpent">₹0.00</h2>
+                </div>
+                <div class="glass-card stat-card">
+                    <h3>Left from income</h3>
+                    <h2 id="ovLeft">₹0.00</h2>
+                </div>
+            </div>
+
+            <div class="glass-card" id="ovBars"></div>
+        </section>
+
+        <!-- ADD INCOME -->
+        <section class="view" id="add-income">
+            <p class="view-intro">Log a salary or any other money you received.</p>
+
+            <div class="glass-card">
+                <form id="incomeForm" novalidate>
+                    <div class="form-grid">
+                        <div class="input-group">
+                            <label for="inSource">Source</label>
+                            <input type="text" id="inSource" name="source" maxlength="80" placeholder="e.g. Monthly salary" required>
+                        </div>
+                        <div class="input-group">
+                            <label for="inAmount">Amount (₹)</label>
+                            <input type="number" id="inAmount" name="amount" min="0.01" step="0.01" placeholder="0.00" required>
+                        </div>
+                        <div class="input-group">
+                            <label for="inType">Type</label>
+                            <select id="inType" name="type">
+                                <option>Salary</option>
+                                <option>Freelance</option>
+                                <option>Business</option>
+                                <option>Investment</option>
+                                <option>Gift</option>
+                                <option>Other</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label for="inDate">Date received</label>
+                            <input type="date" id="inDate" name="date" required>
+                        </div>
+                        <div class="input-group full">
+                            <label for="inNote">Note (optional)</label>
+                            <input type="text" id="inNote" name="note" maxlength="140">
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary btn-auto">Save income</button>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <!-- HISTORY -->
+        <section class="view" id="history">
+            <div class="glass-card table-card">
+                <div class="table-header">
+                    <h2>Income history</h2>
+                    <span class="muted" id="historyTotal"></span>
+                </div>
+                <div class="table-scroll">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>Source</th>
+                            <th>Type</th>
+                            <th>Amount</th>
+                            <th>Date</th>
+                            <th>Action</th>
+                        </tr>
+                        </thead>
+                        <tbody id="incomeBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- BUDGET -->
+        <section class="view" id="budget">
+            <p class="view-intro">Set a monthly limit for each category. Spending is read from your expenses for the current month.</p>
+
+            <div class="glass-card card-gap">
+                <form id="budgetForm" novalidate>
+                    <div class="form-grid">
+                        <div class="input-group">
+                            <label for="bdCategory">Category</label>
+                            <input type="text" id="bdCategory" maxlength="40" placeholder="Must match your expense category" required>
+                        </div>
+                        <div class="input-group">
+                            <label for="bdLimit">Monthly limit (₹)</label>
+                            <input type="number" id="bdLimit" min="1" step="0.01" placeholder="0.00" required>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary btn-auto">Set budget</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="glass-card" id="budgetList"></div>
+        </section>
+
+    </main>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<script th:src="@{/js/script.js}"></script>
+<script>
+    (function () {
+        const { Store, api, money, esc, uid, today, formatDate, isThisMonth, toast, initViews } = window.ExpenseX;
+
+        let expenses = [];
+        initViews("overview");
+
+        // ---------- Data ----------
+        async function loadExpenses() {
+            try {
+                const res = await api("/api/expenses");
+                if (res.ok) expenses = await res.json();
+            } catch (err) {
+                console.error("Error loading expenses:", err);
+            }
+            renderAll();
+        }
+
+        function monthExpenses() {
+            return (expenses || []).filter(function (e) { return isThisMonth(e.expenseDate); });
+        }
+
+        function spentByCategory() {
+            const map = {};
+            monthExpenses().forEach(function (e) {
+                const key = String(e.categoryName || "Uncategorized").trim().toLowerCase();
+                map[key] = (map[key] || 0) + Number(e.amount || 0);
+            });
+            return map;
+        }
+
+        function barClass(pct) {
+            return pct >= 100 ? "danger" : pct >= 80 ? "warn" : "ok";
+        }
+
+        function barsHtml(budgets, spent) {
+            return budgets.map(function (b) {
+                const used = spent[b.category.toLowerCase()] || 0;
+                const pct = b.limit ? (used / b.limit) * 100 : 0;
+                const left = b.limit - used;
+                return '<div class="bar-row">' +
+                    '<div class="bar-head"><span>' + esc(b.category) + '</span>' +
+                    '<span>' + money(used) + ' of ' + money(b.limit) + ' · ' +
+                    (left >= 0 ? money(left) + ' left' : money(-left) + ' over') + '</span></div>' +
+                    '<div class="progress"><div class="progress-bar ' + barClass(pct) + '" style="width:' + Math.min(pct, 100).toFixed(1) + '%"></div></div>' +
+                    '</div>';
+            }).join("");
+        }
+
+        // ---------- Render ----------
+        function renderAll() {
+            const incomes = Store.load("incomes", []);
+            const budgets = Store.load("budgets", []);
+            const spent = spentByCategory();
+
+            const incomeMonth = incomes.filter(function (i) { return isThisMonth(i.date); })
+                .reduce(function (s, i) { return s + Number(i.amount || 0); }, 0);
+            const budgetTotal = budgets.reduce(function (s, b) { return s + b.limit; }, 0);
+            const spentTotal = monthExpenses().reduce(function (s, e) { return s + Number(e.amount || 0); }, 0);
+            const left = incomeMonth - spentTotal;
+
+            document.getElementById("ovIncome").textContent = money(incomeMonth);
+            document.getElementById("ovBudget").textContent = money(budgetTotal);
+            document.getElementById("ovSpent").textContent = money(spentTotal);
+            const leftEl = document.getElementById("ovLeft");
+            leftEl.textContent = money(left);
+            leftEl.className = left >= 0 ? "positive" : "negative";
+
+            const empty = '<p class="muted">No budgets yet. Open “Monthly Budget” to set your first limit.</p>';
+            document.getElementById("ovBars").innerHTML = budgets.length ? barsHtml(budgets, spent) : empty;
+
+            // Income history
+            const body = document.getElementById("incomeBody");
+            const sorted = incomes.slice().sort(function (a, b) { return String(b.date).localeCompare(String(a.date)); });
+
+            document.getElementById("historyTotal").textContent =
+                "Total: " + money(incomes.reduce(function (s, i) { return s + Number(i.amount || 0); }, 0));
+
+            body.innerHTML = sorted.length ? sorted.map(function (i) {
+                return '<tr><td>' + esc(i.source) + '</td>' +
+                    '<td><span class="pill">' + esc(i.type || "Other") + '</span></td>' +
+                    '<td class="amount-income">+' + money(i.amount) + '</td>' +
+                    '<td>' + formatDate(i.date) + '</td>' +
+                    '<td><div class="row-actions"><button type="button" class="icon-btn danger" data-del-income="' + esc(i.id) + '" aria-label="Delete income">🗑️</button></div></td></tr>';
+            }).join("") : '<tr><td colspan="5" class="empty-cell">No income recorded yet.</td></tr>';
+
+            // Budget list (with remove buttons)
+            const list = document.getElementById("budgetList");
+            list.innerHTML = budgets.length
+                ? '<h2 style="color:var(--text-primary);font-size:19px;">Your budgets</h2>' +
+                budgets.map(function (b) {
+                    const used = spent[b.category.toLowerCase()] || 0;
+                    const pct = b.limit ? (used / b.limit) * 100 : 0;
+                    return '<div class="bar-row">' +
+                        '<div class="bar-head"><span>' + esc(b.category) + '</span>' +
+                        '<span>' + money(used) + ' / ' + money(b.limit) + ' ' +
+                        '<button type="button" class="icon-btn danger" data-del-budget="' + esc(b.category) + '" aria-label="Remove budget">✕</button></span></div>' +
+                        '<div class="progress"><div class="progress-bar ' + barClass(pct) + '" style="width:' + Math.min(pct, 100).toFixed(1) + '%"></div></div></div>';
+                }).join("")
+                : empty;
+        }
+
+        // ---------- Add income ----------
+        const incomeForm = document.getElementById("incomeForm");
+        document.getElementById("inDate").value = today();
+
+        incomeForm.addEventListener("submit", function (event) {
+            event.preventDefault();
+            const f = new FormData(incomeForm);
+            const source = String(f.get("source") || "").trim();
+            const amount = Number(f.get("amount"));
+
+            if (!source || !(amount > 0) || !f.get("date")) {
+                toast("Enter a source, an amount above 0, and a date.", true);
+                return;
+            }
+
+            const list = Store.load("incomes", []);
+            list.push({
+                id: uid(), source: source, amount: amount, type: f.get("type"),
+                date: f.get("date"), note: String(f.get("note") || "").trim()
+            });
+            Store.save("incomes", list);
+
+            incomeForm.reset();
+            document.getElementById("inDate").value = today();
+            toast("Income saved.");
+            renderAll();
+        });
+
+        // ---------- Delete income / budget ----------
+        document.addEventListener("click", function (event) {
+            const incBtn = event.target.closest("[data-del-income]");
+            const bdBtn = event.target.closest("[data-del-budget]");
+
+            if (incBtn) {
+                if (!confirm("Delete this income entry?")) return;
+                const id = incBtn.dataset.delIncome;
+                Store.save("incomes", Store.load("incomes", []).filter(function (i) { return String(i.id) !== id; }));
+                toast("Income deleted.");
+                renderAll();
+            }
+
+            if (bdBtn) {
+                const cat = bdBtn.dataset.delBudget;
+                Store.save("budgets", Store.load("budgets", []).filter(function (b) { return b.category !== cat; }));
+                toast("Budget removed.");
+                renderAll();
+            }
+        });
+
+        // ---------- Set budget ----------
+        document.getElementById("budgetForm").addEventListener("submit", function (event) {
+            event.preventDefault();
+            const catInput = document.getElementById("bdCategory");
+            const limitInput = document.getElementById("bdLimit");
+            const category = catInput.value.trim();
+            const limit = Number(limitInput.value);
+
+            if (!category || !(limit > 0)) {
+                toast("Enter a category and a limit above 0.", true);
+                return;
+            }
+
+            const budgets = Store.load("budgets", []).filter(function (b) {
+                return b.category.toLowerCase() !== category.toLowerCase();
+            });
+            budgets.push({ category: category, limit: limit });
+            Store.save("budgets", budgets);
+
+            catInput.value = "";
+            limitInput.value = "";
+            toast("Budget saved for " + category + ".");
+            renderAll();
+        });
+
+        renderAll();
+        loadExpenses();
+    })();
+</script>
+
+</body>
+</html>

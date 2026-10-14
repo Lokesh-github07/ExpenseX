@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transactions &amp; Expenses | ExpenseX</title>
+
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/section.css}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+<div class="background"></div>
+
+<div class="dashboard">
+
+    <!-- ===== SECTION SIDEBAR ===== -->
+    <aside class="sidebar" id="appSidebar" aria-label="Transactions navigation">
+        <div class="sidebar-brand-row">
+            <a class="sidebar-brand" th:href="@{/dashboard}" aria-label="ExpenseX Dashboard">
+                <span class="brand-icon" aria-hidden="true">💰</span>
+                <span class="brand-name">ExpenseX</span>
+            </a>
+            <button type="button" class="sidebar-toggle" id="sidebarToggle"
+                    aria-label="Collapse sidebar" aria-controls="appSidebar" aria-expanded="true">
+                <span aria-hidden="true">☰</span>
+            </button>
+        </div>
+
+        <nav class="sidebar-navigation" aria-label="Transactions sections">
+            <ul class="sidebar-menu">
+                <li class="back-item">
+                    <a th:href="@{/dashboard}" title="Back to Dashboard">
+                        <span class="nav-icon" aria-hidden="true">⬅️</span>
+                        <span class="nav-label">Back to Dashboard</span>
+                    </a>
+                </li>
+
+                <li class="section-label"><span class="nav-label">Transactions &amp; Expenses</span></li>
+
+                <li>
+                    <a href="#all" data-view="all" data-title="All Transactions">
+                        <span class="nav-icon" aria-hidden="true">📋</span>
+                        <span class="nav-label">All Transactions</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#new" data-view="new" data-title="New Transaction">
+                        <span class="nav-icon" aria-hidden="true">➕</span>
+                        <span class="nav-label">New Transaction</span>
+                    </a>
+                </li>
+                <li>
+                    <!-- Opens your existing Add Expense page -->
+                    <a th:href="@{/add-expense}" title="Add Expense">
+                        <span class="nav-icon" aria-hidden="true">🧾</span>
+                        <span class="nav-label">Add Expense</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#categories" data-view="categories" data-title="Category Summary">
+                        <span class="nav-icon" aria-hidden="true">🗂️</span>
+                        <span class="nav-label">Category Summary</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#export" data-view="export" data-title="Export Data">
+                        <span class="nav-icon" aria-hidden="true">⬇️</span>
+                        <span class="nav-label">Export Data</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <div class="sidebar-profile" id="sidebarProfile">
+            <a class="profile-link" th:href="@{/profile}" title="My Profile">
+                <span class="profile-avatar" aria-hidden="true">👤</span>
+                <span class="profile-details">
+                    <span class="profile-name">My Profile</span>
+                    <span class="profile-caption">Account settings</span>
+                </span>
+            </a>
+            <button type="button" class="profile-logout" onclick="logout()" title="Log out">
+                <span aria-hidden="true">↪</span>
+                <span class="nav-label">Logout</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <main class="content">
+
+        <div class="content-topbar">
+            <button type="button" class="mobile-sidebar-toggle" id="mobileSidebarToggle"
+                    aria-label="Open navigation" aria-controls="appSidebar" aria-expanded="false">
+                <span aria-hidden="true">☰</span>
+            </button>
+            <h1 id="pageTitle">All Transactions</h1>
+        </div>
+
+        <!-- ALL TRANSACTIONS -->
+        <section class="view" id="all">
+            <div class="cards four">
+                <div class="glass-card stat-card">
+                    <h3>Income</h3>
+                    <h2 class="positive" id="sumIncome">₹0.00</h2>
+                </div>
+                <div class="glass-card stat-card">
+                    <h3>Expenses</h3>
+                    <h2 class="negative" id="sumExpense">₹0.00</h2>
+                </div>
+                <div class="glass-card stat-card">
+                    <h3>Net</h3>
+                    <h2 id="sumNet">₹0.00</h2>
+                </div>
+            </div>
+
+            <div class="glass-card table-card">
+                <div class="table-header">
+                    <h2>Transactions</h2>
+                    <a class="btn-primary" href="#new" data-view="new" data-title="New Transaction">New Transaction</a>
+                </div>
+
+                <div class="toolbar">
+                    <div class="input-group">
+                        <label for="searchBox">Search</label>
+                        <input type="search" id="searchBox" placeholder="Title or category">
+                    </div>
+                    <div class="input-group">
+                        <label for="typeFilter">Type</label>
+                        <select id="typeFilter">
+                            <option value="all">All</option>
+                            <option value="expense">Expenses</option>
+                            <option value="income">Income</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="table-scroll">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Type</th>
+                            <th>Category</th>
+                            <th>Amount</th>
+                            <th>Date</th>
+                            <th>Action</th>
+                        </tr>
+                        </thead>
+                        <tbody id="txBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- NEW TRANSACTION -->
+        <section class="view" id="new">
+            <p class="view-intro">Record money coming in or going out. Expenses are saved to your account;
+                income also appears in Income &amp; Budget.</p>
+
+            <div class="glass-card">
+                <form id="txForm" novalidate>
+                    <div class="form-grid">
+                        <div class="input-group">
+                            <label for="txType">Type</label>
+                            <select id="txType" name="type">
+                                <option value="expense">Expense</option>
+                                <option value="income">Income</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label for="txTitle">Title</label>
+                            <input type="text" id="txTitle" name="title" maxlength="80" placeholder="e.g. Groceries" required>
+                        </div>
+                        <div class="input-group">
+                            <label for="txAmount">Amount (₹)</label>
+                            <input type="number" id="txAmount" name="amount" min="0.01" step="0.01" placeholder="0.00" required>
+                        </div>
+                        <div class="input-group">
+                            <label for="txCategory">Category</label>
+                            <input type="text" id="txCategory" name="category" maxlength="40" list="categoryList" placeholder="e.g. Food">
+                            <datalist id="categoryList"></datalist>
+                        </div>
+                        <div class="input-group">
+                            <label for="txDate">Date</label>
+                            <input type="date" id="txDate" name="date" required>
+                        </div>
+                        <div class="input-group full">
+                            <label for="txNote">Description (optional)</label>
+                            <textarea id="txNote" name="note" rows="3" maxlength="255" placeholder="Anything worth remembering"></textarea>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary btn-auto" id="txSubmit">Save transaction</button>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <!-- CATEGORY SUMMARY -->
+        <section class="view" id="categories">
+            <p class="view-intro">Where your money goes, based on all recorded expenses.</p>
+            <div class="glass-card" id="categoryBars"></div>
+        </section>
+
+        <!-- EXPORT -->
+        <section class="view" id="export">
+            <p class="view-intro">Download your transactions to open in Excel or Google Sheets.</p>
+            <div class="glass-card">
+                <h2 style="color:var(--text-primary);margin-bottom:8px;">Export to CSV</h2>
+                <p class="muted" id="exportInfo">0 transactions ready.</p>
+                <div class="form-actions">
+                    <button type="button" class="btn-primary btn-auto" id="exportBtn">Download CSV</button>
+                    <a class="btn-secondary" th:href="@{/analytics}">Open Reports &amp; Analysis</a>
+                </div>
+            </div>
+        </section>
+
+    </main>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<script th:src="@{/js/script.js}"></script>
+<script th:src="@{/js/section.js}"></script>
+<script>
+    (function () {
+        const { Store, api, money, esc, uid, today, formatDate, toast, initViews } = window.ExpenseX;
+
+        let expenses = [];
+        const showView = initViews("all");
+
+        // ---------- Data ----------
+        async function loadExpenses() {
+            try {
+                const res = await api("/api/expenses");
+                if (res.ok) expenses = await res.json();
+                else console.error("Failed to load expenses:", res.status);
+            } catch (err) {
+                console.error("Error loading expenses:", err);
+            }
+            render();
+        }
+
+        function allRows() {
+            const exp = (expenses || []).map(function (e) {
+                return {
+                    kind: "expense", id: e.id, title: e.title || "",
+                    category: e.categoryName || "Uncategorized",
+                    amount: Number(e.amount || 0), date: e.expenseDate || ""
+                };
+            });
+            const inc = Store.load("incomes", []).map(function (i) {
+                return {
+                    kind: "income", id: i.id, title: i.source || "",
+                    category: i.type || "Income",
+                    amount: Number(i.amount || 0), date: i.date || ""
+                };
+            });
+            return exp.concat(inc).sort(function (a, b) {
+                return String(b.date).localeCompare(String(a.date));
+            });
+        }
+
+        // ---------- Render ----------
+        function render() {
+            const rows = allRows();
+            const q = document.getElementById("searchBox").value.trim().toLowerCase();
+            const type = document.getElementById("typeFilter").value;
+
+            const filtered = rows.filter(function (r) {
+                const okType = type === "all" || r.kind === type;
+                const okText = !q || (r.title + " " + r.category).toLowerCase().indexOf(q) !== -1;
+                return okType && okText;
+            });
+
+            const body = document.getElementById("txBody");
+
+            if (!filtered.length) {
+                body.innerHTML = '<tr><td colspan="6" class="empty-cell">No transactions found. Add one with “New Transaction”.</td></tr>';
+            } else {
+                body.innerHTML = filtered.map(function (r) {
+                    const isInc = r.kind === "income";
+                    const edit = isInc ? "" :
+                        '<a class="icon-btn" href="/edit-expense?id=' + encodeURIComponent(r.id) + '" title="Edit">✏️</a>';
+                    return '<tr>' +
+                        '<td>' + esc(r.title) + '</td>' +
+                        '<td><span class="pill ' + (isInc ? "ok" : "danger") + '">' + (isInc ? "Income" : "Expense") + '</span></td>' +
+                        '<td>' + esc(r.category) + '</td>' +
+                        '<td class="' + (isInc ? "amount-income" : "amount-expense") + '">' + (isInc ? "+" : "-") + money(r.amount) + '</td>' +
+                        '<td>' + formatDate(r.date) + '</td>' +
+                        '<td><div class="row-actions">' + edit +
+                        '<button type="button" class="icon-btn danger" data-del="' + esc(r.kind) + ':' + esc(r.id) + '" title="Delete" aria-label="Delete transaction">🗑️</button>' +
+                        '</div></td></tr>';
+                }).join("");
+            }
+
+            // Stats (all data, not filtered)
+            const income = rows.filter(function (r) { return r.kind === "income"; })
+                .reduce(function (s, r) { return s + r.amount; }, 0);
+            const expense = rows.filter(function (r) { return r.kind === "expense"; })
+                .reduce(function (s, r) { return s + r.amount; }, 0);
+            const net = income - expense;
+
+            document.getElementById("sumIncome").textContent = money(income);
+            document.getElementById("sumExpense").textContent = money(expense);
+            const netEl = document.getElementById("sumNet");
+            netEl.textContent = money(net);
+            netEl.className = net >= 0 ? "positive" : "negative";
+
+            renderCategories(rows);
+            document.getElementById("exportInfo").textContent =
+                rows.length + (rows.length === 1 ? " transaction" : " transactions") + " ready to export.";
+        }
+
+        function renderCategories(rows) {
+            const totals = {};
+            let sum = 0;
+
+            rows.filter(function (r) { return r.kind === "expense"; }).forEach(function (r) {
+                totals[r.category] = (totals[r.category] || 0) + r.amount;
+                sum += r.amount;
+            });
+
+            const box = document.getElementById("categoryBars");
+            const keys = Object.keys(totals).sort(function (a, b) { return totals[b] - totals[a]; });
+
+            if (!keys.length) {
+                box.innerHTML = '<p class="muted">No expenses yet. Add one to see your breakdown.</p>';
+                return;
+            }
+
+            box.innerHTML = keys.map(function (k) {
+                const pct = sum ? (totals[k] / sum) * 100 : 0;
+                return '<div class="bar-row">' +
+                    '<div class="bar-head"><span>' + esc(k) + '</span><span>' + money(totals[k]) + ' · ' + pct.toFixed(1) + '%</span></div>' +
+                    '<div class="progress"><div class="progress-bar" style="width:' + pct.toFixed(1) + '%"></div></div></div>';
+            }).join("");
+        }
+
+        // ---------- Delete ----------
+        document.getElementById("txBody").addEventListener("click", async function (event) {
+            const btn = event.target.closest("[data-del]");
+            if (!btn) return;
+
+            const parts = btn.dataset.del.split(":");
+            const kind = parts[0];
+            const id = parts.slice(1).join(":");
+
+            if (!confirm("Delete this transaction?")) return;
+
+            if (kind === "income") {
+                Store.save("incomes", Store.load("incomes", []).filter(function (i) { return String(i.id) !== id; }));
+                toast("Transaction deleted.");
+                render();
+                return;
+            }
+
+            btn.disabled = true;
+            try {
+                const res = await api("/api/expenses/" + encodeURIComponent(id), { method: "DELETE" });
+                if (!res.ok) throw new Error("status " + res.status);
+                toast("Transaction deleted.");
+                await loadExpenses();
+            } catch (err) {
+                console.error(err);
+                btn.disabled = false;
+                toast("Could not delete the transaction. Try again.", true);
+            }
+        });
+
+        // ---------- Categories and current user (same logic as Add Expense) ----------
+        let currentUserId = null;
+        let existingCategories = [];
+
+        function emailFromToken() {
+            const part = String(localStorage.getItem("token")).split(".")[1]
+                .replace(/-/g, "+").replace(/_/g, "/");
+            return JSON.parse(atob(part)).sub;
+        }
+
+        async function loadCategories() {
+            try {
+                const res = await api("/api/categories");
+                if (!res.ok) return;
+                existingCategories = await res.json();
+
+                const list = document.getElementById("categoryList");
+                list.innerHTML = "";
+                existingCategories.forEach(function (cat) {
+                    const opt = document.createElement("option");
+                    opt.value = cat.name;
+                    list.appendChild(opt);
+                });
+            } catch (err) {
+                console.error("Error loading categories:", err);
+            }
+        }
+
+        async function loadCurrentUser() {
+            try {
+                const res = await api("/api/users/email/" + encodeURIComponent(emailFromToken()));
+                if (res.ok) currentUserId = (await res.json()).id;
+            } catch (err) {
+                console.error("Error loading user:", err);
+            }
+        }
+
+        // Reuse an existing category (case-insensitive) or create a new one
+        async function resolveCategoryId(name) {
+            const trimmed = name.trim();
+            const match = existingCategories.find(function (c) {
+                return c.name.toLowerCase() === trimmed.toLowerCase();
+            });
+            if (match) return match.id;
+
+            const res = await api("/api/categories", {
+                method: "POST",
+                body: JSON.stringify({ name: trimmed })
+            });
+            if (!res.ok) throw new Error("Unable to create category.");
+
+            const created = await res.json();
+            existingCategories.push(created);
+            return created.id;
+        }
+
+        // ---------- New transaction ----------
+        const form = document.getElementById("txForm");
+        document.getElementById("txDate").value = today();
+
+        form.addEventListener("submit", async function (event) {
+            event.preventDefault();
+
+            const f = new FormData(form);
+            const type = f.get("type");
+            const title = String(f.get("title") || "").trim();
+            const amount = Number(f.get("amount"));
+            const category = String(f.get("category") || "").trim();
+            const date = f.get("date");
+            const note = String(f.get("note") || "").trim();
+
+            if (!title || !(amount > 0) || !date) {
+                toast("Enter a title, an amount above 0, and a date.", true);
+                return;
+            }
+
+            if (type === "income") {
+                const list = Store.load("incomes", []);
+                list.push({ id: uid(), source: title, amount: amount, date: date, type: category || "Other", note: note });
+                Store.save("incomes", list);
+            } else {
+                if (!category) {
+                    toast("Enter a category for the expense.", true);
+                    return;
+                }
+                if (currentUserId === null) {
+                    toast("Still loading your account details. Try again in a second.", true);
+                    return;
+                }
+
+                const submit = document.getElementById("txSubmit");
+                submit.disabled = true;
+
+                try {
+                    const categoryId = await resolveCategoryId(category);
+
+                    const res = await api("/api/expenses", {
+                        method: "POST",
+                        body: JSON.stringify({
+                            title: title,
+                            amount: amount,
+                            categoryId: categoryId,
+                            expenseDate: date,
+                            description: note,
+                            userId: currentUserId
+                        })
+                    });
+
+                    if (!res.ok) {
+                        let message = "Unable to add expense.";
+                        try {
+                            const errBody = await res.json();
+                            message = errBody.message || Object.values(errBody).join(" ");
+                        } catch (parseErr) { /* response was not JSON */ }
+                        throw new Error(message);
+                    }
+                } catch (err) {
+                    console.error("Add expense failed:", err);
+                    submit.disabled = false;
+                    toast(err.message || "Could not save the expense.", true);
+                    return;
+                }
+                submit.disabled = false;
+            }
+
+            form.reset();
+            document.getElementById("txDate").value = today();
+            toast("Transaction saved.");
+            await loadExpenses();
+            showView("all");
+        });
+
+        // ---------- Export ----------
+        document.getElementById("exportBtn").addEventListener("click", function () {
+            const rows = allRows();
+            if (!rows.length) { toast("Nothing to export yet.", true); return; }
+
+            const cell = function (v) { return '"' + String(v == null ? "" : v).replace(/"/g, '""') + '"'; };
+            const header = ["Title", "Type", "Category", "Amount", "Date"].join(",");
+            const body = rows.map(function (r) {
+                return [cell(r.title), r.kind, cell(r.category), r.amount.toFixed(2), r.date].join(",");
+            });
+            const lines = [header].concat(body);
+
+            const blob = new Blob(["\uFEFF" + lines.join("\n")], { type: "text/csv;charset=utf-8;" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "expensex-transactions.csv";
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            URL.revokeObjectURL(url);
+            toast("CSV downloaded.");
+        });
+
+        document.getElementById("searchBox").addEventListener("input", render);
+        document.getElementById("typeFilter").addEventListener("change", render);
+
+        loadExpenses();
+        loadCategories();
+        loadCurrentUser();
+    })();
+</script>
+
+</body>
+</html>

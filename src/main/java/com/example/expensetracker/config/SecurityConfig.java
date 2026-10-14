@@ -71,11 +71,17 @@ public class SecurityConfig {
                                 "/forgot-password",
                                 "/reset-password",
                                 "/dashboard",
+                                "/transactions",
                                 "/add-expense",
                                 "/edit-expense",
                                 "/profile",
                                 "/analytics",
                                 "/financial-calendar",
+                                "/salary",
+                                "/bills",
+                                "/savings",
+                                "/settings",
+                                "/security-privacy",
 
                                 // Static Resources
                                 "/css/**",

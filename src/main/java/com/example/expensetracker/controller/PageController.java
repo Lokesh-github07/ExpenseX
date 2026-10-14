@@ -35,9 +35,7 @@ public class PageController {
     }
 
     @GetMapping("/add-expense")
-    public String addExpense() {
-        return "add-expense";
-    }
+    public String addExpense() {return "add-expense";}
 
     @GetMapping("/edit-expense")
     public String editExpense() {
@@ -56,6 +54,24 @@ public class PageController {
 
     @GetMapping("/financial-calendar")
     public String financialCalendar() {return "financial-calendar";}
+
+    @GetMapping("/transactions")
+    public String transactions() {return "transactions";}
+
+    @GetMapping("/salary")
+    public String salary() {return "salary";}
+
+    @GetMapping("/savings")
+    public String savings() {return "savings";}
+
+    @GetMapping("/bills")
+    public String bills() {return "bills";}
+
+    @GetMapping("/settings")
+    public String settings() {return "settings";}
+
+    @GetMapping("/security-privacy")
+    public String securityPrivacy() {return "security-privacy";}
 
 }
 

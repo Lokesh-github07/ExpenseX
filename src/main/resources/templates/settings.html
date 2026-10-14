@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ExpenseX | Settings</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+          rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+
+<body>
+<div class="background"></div>
+
+<button type="button" class="theme-toggle" id="themeToggle"
+        aria-label="Toggle theme" title="Toggle theme">◐</button>
+
+<main class="settings-page">
+    <div class="settings-container">
+
+        <header class="settings-topbar">
+            <a class="back-to-profile" th:href="@{/profile}">
+                ← Back to Profile
+            </a>
+        </header>
+
+        <section class="settings-heading">
+            <h1>Settings</h1>
+            <p>Personalize your ExpenseX experience, manage your preferences,
+                and control how your financial information is displayed.</p>
+        </section>
+
+        <form id="settingsForm">
+
+            <section class="settings-section">
+                <h2>Appearance</h2>
+                <p>Customize the visual appearance of ExpenseX.</p>
+
+                <div class="settings-option">
+                    <div class="settings-option-info">
+                        <h3>Theme</h3>
+                        <p>Choose light or dark mode for the application.</p>
+                    </div>
+                    <select id="themePreference" name="theme">
+                        <option value="light">Light mode</option>
+                        <option value="dark">Dark mode</option>
+                    </select>
+                </div>
+            </section>
+
+            <section class="settings-section">
+                <h2>Regional Preferences</h2>
+                <p>Choose how financial amounts and dates are displayed.</p>
+
+                <div class="settings-option">
+                    <div class="settings-option-info">
+                        <h3>Currency</h3>
+                        <p>Display financial amounts in your preferred currency.</p>
+                    </div>
+                    <select id="currencyPreference" name="currency">
+                        <option value="INR">INR (₹)</option>
+                        <option value="USD">USD ($)</option>
+                        <option value="EUR">EUR (€)</option>
+                        <option value="GBP">GBP (£)</option>
+                    </select>
+                </div>
+
+                <div class="settings-option">
+                    <div class="settings-option-info">
+                        <h3>Date Format</h3>
+                        <p>Select your preferred date display format.</p>
+                    </div>
+                    <select id="datePreference" name="dateFormat">
+                        <option value="DD/MM/YYYY">DD/MM/YYYY</option>
+                        <option value="MM/DD/YYYY">MM/DD/YYYY</option>
+                        <option value="YYYY-MM-DD">YYYY-MM-DD</option>
+                    </select>
+                </div>
+            </section>
+
+            <section class="settings-section">
+                <h2>Notifications</h2>
+                <p>Choose which reminders you want to receive.</p>
+
+                <div class="settings-option">
+                    <div class="settings-option-info">
+                        <h3>Bill Reminders</h3>
+                        <p>Remind me about upcoming bill due dates.</p>
+                    </div>
+                    <input type="checkbox" id="billNotifications"
+                           name="billNotifications" checked>
+                </div>
+
+                <div class="settings-option">
+                    <div class="settings-option-info">
+                        <h3>Budget Alerts</h3>
+                        <p>Notify me when spending approaches my budget limit.</p>
+                    </div>
+                    <input type="checkbox" id="budgetNotifications"
+                           name="budgetNotifications" checked>
+                </div>
+
+                <div class="settings-option">
+                    <div class="settings-option-info">
+                        <h3>Financial Summaries</h3>
+                        <p>Enable monthly income and expense summaries.</p>
+                    </div>
+                    <input type="checkbox" id="summaryNotifications"
+                           name="summaryNotifications" checked>
+                </div>
+            </section>
+
+            <section class="settings-section">
+                <h2>Data Management</h2>
+                <p>Manage your personal financial records.</p>
+
+                <div class="settings-option">
+                    <div class="settings-option-info">
+                        <h3>Export Financial Data</h3>
+                        <p>Download a copy of your records when export support is available.</p>
+                    </div>
+                    <button type="button" class="btn-secondary"
+                            id="exportDataBtn" style="width:auto;padding:10px 16px">
+                        Export Data
+                    </button>
+                </div>
+            </section>
+
+            <div id="settingsMessage" class="settings-message"
+                 role="status" aria-live="polite"></div>
+
+            <div class="settings-actions">
+                <button type="button" class="btn-secondary" id="resetSettingsBtn">
+                    Reset
+                </button>
+                <button type="submit" class="btn-primary">
+                    Save Preferences
+                </button>
+            </div>
+
+        </form>
+    </div>
+</main>
+
+<script th:src="@{/js/script.js}"></script>
+<script>
+    (() => {
+        const form = document.getElementById("settingsForm");
+        const theme = document.getElementById("themePreference");
+        const message = document.getElementById("settingsMessage");
+        const storageKey = "expensex-preferences";
+
+        const defaults = {
+            theme: "light",
+            currency: "INR",
+            dateFormat: "DD/MM/YYYY",
+            billNotifications: true,
+            budgetNotifications: true,
+            summaryNotifications: true
+        };
+
+        function showMessage(text, type) {
+            message.textContent = text;
+            message.className = "settings-message " + type;
+        }
+
+        function loadSettings() {
+            let saved = {};
+
+            try {
+                saved = JSON.parse(localStorage.getItem(storageKey) || "{}");
+            } catch (error) {
+                saved = {};
+            }
+
+            const preferences = { ...defaults, ...saved };
+
+            theme.value = preferences.theme;
+            document.getElementById("currencyPreference").value =
+                preferences.currency;
+            document.getElementById("datePreference").value =
+                preferences.dateFormat;
+
+            document.getElementById("billNotifications").checked =
+                preferences.billNotifications;
+            document.getElementById("budgetNotifications").checked =
+                preferences.budgetNotifications;
+            document.getElementById("summaryNotifications").checked =
+                preferences.summaryNotifications;
+
+            if (window.ExpenseXTheme) {
+                theme.value = window.ExpenseXTheme.get();
+            }
+        }
+
+        theme.addEventListener("change", () => {
+            if (window.ExpenseXTheme) {
+                window.ExpenseXTheme.set(theme.value);
+            }
+        });
+
+        form.addEventListener("submit", event => {
+            event.preventDefault();
+
+            const preferences = {
+                theme: theme.value,
+                currency: document.getElementById("currencyPreference").value,
+                dateFormat: document.getElementById("datePreference").value,
+                billNotifications: document.getElementById("billNotifications").checked,
+                budgetNotifications: document.getElementById("budgetNotifications").checked,
+                summaryNotifications: document.getElementById("summaryNotifications").checked
+            };
+
+            try {
+                localStorage.setItem(storageKey, JSON.stringify(preferences));
+
+                if (window.ExpenseXTheme) {
+                    window.ExpenseXTheme.set(preferences.theme);
+                }
+
+                showMessage(
+                    "Preferences saved in this browser. Server-side synchronization is not configured yet.",
+                    "success"
+                );
+            } catch (error) {
+                showMessage("Could not save preferences in this browser.", "error");
+            }
+        });
+
+        document.getElementById("resetSettingsBtn").addEventListener("click", () => {
+            try {
+                localStorage.removeItem(storageKey);
+                loadSettings();
+
+                if (window.ExpenseXTheme) {
+                    window.ExpenseXTheme.set(defaults.theme);
+                }
+
+                showMessage("Preferences have been reset.", "success");
+            } catch (error) {
+                showMessage("Could not reset preferences.", "error");
+            }
+        });
+
+        document.getElementById("exportDataBtn").addEventListener("click", () => {
+            showMessage(
+                "Financial data export needs to be connected to your backend before it can be used.",
+                "error"
+            );
+        });
+
+        loadSettings();
+    })();
+</script>
+</body>
+</html>

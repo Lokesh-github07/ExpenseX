@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bills, Loans &amp; EMIs | ExpenseX</title>
+
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/section.css}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+<div class="background"></div>
+
+<div class="dashboard">
+
+    <!-- ===== SECTION SIDEBAR ===== -->
+    <aside class="sidebar" id="appSidebar" aria-label="Bills navigation">
+        <div class="sidebar-brand-row">
+            <a class="sidebar-brand" th:href="@{/dashboard}" aria-label="ExpenseX Dashboard">
+                <span class="brand-icon" aria-hidden="true">💰</span>
+                <span class="brand-name">ExpenseX</span>
+            </a>
+            <button type="button" class="sidebar-toggle" id="sidebarToggle"
+                    aria-label="Collapse sidebar" aria-controls="appSidebar" aria-expanded="true">
+                <span aria-hidden="true">☰</span>
+            </button>
+        </div>
+
+        <nav class="sidebar-navigation" aria-label="Bills sections">
+            <ul class="sidebar-menu">
+                <li class="back-item">
+                    <a th:href="@{/dashboard}" title="Back to Dashboard">
+                        <span class="nav-icon" aria-hidden="true">⬅️</span>
+                        <span class="nav-label">Back to Dashboard</span>
+                    </a>
+                </li>
+
+                <li class="section-label"><span class="nav-label">Bills, Loans &amp; EMIs</span></li>
+
+                <li>
+                    <a href="#overview" data-view="overview" data-title="Upcoming Bills">
+                        <span class="nav-icon" aria-hidden="true">🧾</span>
+                        <span class="nav-label">Upcoming Bills</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#add-bill" data-view="add-bill" data-title="Add Bill">
+                        <span class="nav-icon" aria-hidden="true">➕</span>
+                        <span class="nav-label">Add Bill</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#loans" data-view="loans" data-title="Loans &amp; EMIs">
+                        <span class="nav-icon" aria-hidden="true">🏦</span>
+                        <span class="nav-label">Loans &amp; EMIs</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#calculator" data-view="calculator" data-title="EMI Calculator">
+                        <span class="nav-icon" aria-hidden="true">🧮</span>
+                        <span class="nav-label">EMI Calculator</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <div class="sidebar-profile" id="sidebarProfile">
+            <a class="profile-link" th:href="@{/profile}" title="My Profile">
+                <span class="profile-avatar" aria-hidden="true">👤</span>
+                <span class="profile-details">
+                    <span class="profile-name">My Profile</span>
+                    <span class="profile-caption">Account settings</span>
+                </span>
+            </a>
+            <button type="button" class="profile-logout" onclick="logout()" title="Log out">
+                <span aria-hidden="true">↪</span>
+                <span class="nav-label">Logout</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <main class="content">
+
+        <div class="content-topbar">
+            <button type="button" class="mobile-sidebar-toggle" id="mobileSidebarToggle"
+                    aria-label="Open navigation" aria-controls="appSidebar" aria-expanded="false">
+                <span aria-hidden="true">☰</span>
+            </button>
+            <h1 id="pageTitle">Upcoming Bills</h1>
+        </div>
+
+        <!-- UPCOMING BILLS -->
+        <section class="view" id="overview">
+            <div class="cards four">
+                <div class="glass-card stat-card">
+                    <h3>Overdue</h3>
+                    <h2 class="negative" id="stOverdue">0</h2>
+                </div>
+                <div class="glass-card stat-card">
+                    <h3>Due in 7 days</h3>
+                    <h2 id="stSoon">0</h2>
+                </div>
+                <div class="glass-card stat-card">
+                    <h3>Unpaid bills total</h3>
+                    <h2 id="stPending">₹0.00</h2>
+                </div>
+                <div class="glass-card stat-card">
+                    <h3>Monthly EMIs</h3>
+                    <h2 id="stEmi">₹0.00</h2>
+                </div>
+            </div>
+
+            <div class="glass-card table-card">
+                <div class="table-header">
+                    <h2>Bills</h2>
+                    <a class="btn-primary" href="#add-bill" data-view="add-bill" data-title="Add Bill">Add Bill</a>
+                </div>
+                <div class="table-scroll">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>Bill</th>
+                            <th>Repeats</th>
+                            <th>Amount</th>
+                            <th>Due date</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                        </thead>
+                        <tbody id="billBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ADD BILL -->
+        <section class="view" id="add-bill">
+            <p class="view-intro">Add rent, electricity, subscriptions or any payment you do not want to miss.
+                Repeating bills move to their next due date when you mark them paid.</p>
+
+            <div class="glass-card">
+                <form id="billForm" novalidate>
+                    <div class="form-grid">
+                        <div class="input-group">
+                            <label for="bName">Bill name</label>
+                            <input type="text" id="bName" maxlength="60" placeholder="e.g. Electricity" required>
+                        </div>
+                        <div class="input-group">
+                            <label for="bAmount">Amount (₹)</label>
+                            <input type="number" id="bAmount" min="0.01" step="0.01" placeholder="0.00" required>
+                        </div>
+                        <div class="input-group">
+                            <label for="bDue">Due date</label>
+                            <input type="date" id="bDue" required>
+                        </div>
+                        <div class="input-group">
+                            <label for="bFreq">Repeats</label>
+                            <select id="bFreq">
+                                <option value="once">Does not repeat</option>
+                                <option value="monthly" selected>Every month</option>
+                                <option value="quarterly">Every 3 months</option>
+                                <option value="yearly">Every year</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary btn-auto">Save bill</button>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <!-- LOANS & EMIs -->
+        <section class="view" id="loans">
+            <p class="view-intro">Track each loan. The EMI and outstanding balance are worked out from the amount, rate and tenure.</p>
+
+            <div class="glass-card card-gap">
+                <form id="loanForm" novalidate>
+                    <div class="form-grid">
+                        <div class="input-group">
+                            <label for="lName">Loan name</label>
+                            <input type="text" id="lName" maxlength="60" placeholder="e.g. Home loan" required>
+                        </div>
+                        <div class="input-group">
+                            <label for="lPrincipal">Loan amount (₹)</label>
+                            <input type="number" id="lPrincipal" min="1" step="0.01" required>
+                        </div>
+                        <div class="input-group">
+                            <label for="lRate">Interest rate (% per year)</label>
+                            <input type="number" id="lRate" min="0" max="60" step="0.01" required>
+                        </div>
+                        <div class="input-group">
+                            <label for="lMonths">Tenure (months)</label>
+                            <input type="number" id="lMonths" min="1" max="600" step="1" required>
+                        </div>
+                        <div class="input-group">
+                            <label for="lStart">First EMI date</label>
+                            <input type="date" id="lStart" required>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary btn-auto">Save loan</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="glass-card table-card">
+                <div class="table-header"><h2>Your loans</h2></div>
+                <div class="table-scroll">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>Loan</th>
+                            <th>EMI</th>
+                            <th>Rate</th>
+                            <th>Progress</th>
+                            <th>Outstanding</th>
+                            <th>Action</th>
+                        </tr>
+                        </thead>
+                        <tbody id="loanBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- EMI CALCULATOR -->
+        <section class="view" id="calculator">
+            <p class="view-intro">Check what a loan would cost before you take it. Nothing here is saved.</p>
+
+            <div class="glass-card">
+                <div class="form-grid">
+                    <div class="input-group">
+                        <label for="cPrincipal">Loan amount (₹)</label>
+                        <input type="number" id="cPrincipal" min="1" value="500000">
+                    </div>
+                    <div class="input-group">
+                        <label for="cRate">Interest rate (% per year)</label>
+                        <input type="number" id="cRate" min="0" step="0.01" value="9.5">
+                    </div>
+                    <div class="input-group">
+                        <label for="cMonths">Tenure (months)</label>
+                        <input type="number" id="cMonths" min="1" value="60">
+                    </div>
+                </div>
+
+                <div class="calc-result">
+                    <div><span>Monthly EMI</span><strong id="cEmi">₹0.00</strong></div>
+                    <div><span>Total interest</span><strong id="cInterest">₹0.00</strong></div>
+                    <div><span>Total payment</span><strong id="cTotal">₹0.00</strong></div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<script th:src="@{/js/script.js}"></script>
+<script>
+    (function () {
+        const { Store, money, esc, uid, today, formatDate, toast, initViews } = window.ExpenseX;
+        const showView = initViews("overview");
+        const DAY = 86400000;
+
+        // ---------- Maths ----------
+        function emi(principal, annualRate, months) {
+            const r = annualRate / 12 / 100;
+            if (!months) return 0;
+            if (r === 0) return principal / months;
+            const f = Math.pow(1 + r, months);
+            return principal * r * f / (f - 1);
+        }
+
+        function balanceAfter(principal, annualRate, months, paid) {
+            const r = annualRate / 12 / 100;
+            if (paid >= months) return 0;
+            if (r === 0) return principal * (1 - paid / months);
+            const f = Math.pow(1 + r, months);
+            return principal * (f - Math.pow(1 + r, paid)) / (f - 1);
+        }
+
+        function paidInstallments(startIso, months) {
+            const s = new Date(startIso);
+            if (Number.isNaN(s.getTime())) return 0;
+            const now = new Date();
+            let n = (now.getFullYear() - s.getFullYear()) * 12 + (now.getMonth() - s.getMonth());
+            if (now.getDate() >= s.getDate()) n += 1;
+            return Math.max(0, Math.min(months, n));
+        }
+
+        function addMonths(iso, n) {
+            const d = new Date(iso + "T00:00:00");
+            const day = d.getDate();
+            d.setDate(1);
+            d.setMonth(d.getMonth() + n);
+            const last = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
+            d.setDate(Math.min(day, last));
+            d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+            return d.toISOString().slice(0, 10);
+        }
+
+        const STEP = { monthly: 1, quarterly: 3, yearly: 12 };
+        const FREQ_LABEL = { once: "Once", monthly: "Monthly", quarterly: "Quarterly", yearly: "Yearly" };
+
+        function daysUntil(iso) {
+            const due = new Date(iso + "T00:00:00").getTime();
+            const t = new Date(); t.setHours(0, 0, 0, 0);
+            return Math.round((due - t.getTime()) / DAY);
+        }
+
+        // ---------- Render ----------
+        function render() {
+            const bills = Store.load("bills", []);
+            const loans = Store.load("loans", []);
+
+            // Bills
+            const unpaid = bills.filter(function (b) { return !b.paid; });
+            const overdue = unpaid.filter(function (b) { return daysUntil(b.due) < 0; });
+            const soon = unpaid.filter(function (b) { const d = daysUntil(b.due); return d >= 0 && d <= 7; });
+
+            document.getElementById("stOverdue").textContent = overdue.length;
+            document.getElementById("stSoon").textContent = soon.length;
+            document.getElementById("stPending").textContent =
+                money(unpaid.reduce(function (s, b) { return s + b.amount; }, 0));
+
+            const sorted = bills.slice().sort(function (a, b) {
+                return (a.paid - b.paid) || String(a.due).localeCompare(String(b.due));
+            });
+
+            document.getElementById("billBody").innerHTML = sorted.length ? sorted.map(function (b) {
+                const d = daysUntil(b.due);
+                let pill = '<span class="pill">Upcoming</span>';
+                if (b.paid) pill = '<span class="pill ok">Paid</span>';
+                else if (d < 0) pill = '<span class="pill danger">Overdue by ' + (-d) + ' d</span>';
+                else if (d === 0) pill = '<span class="pill warn">Due today</span>';
+                else if (d <= 7) pill = '<span class="pill warn">Due in ' + d + ' d</span>';
+
+                return '<tr><td>' + esc(b.name) + '</td>' +
+                    '<td>' + FREQ_LABEL[b.freq] + '</td>' +
+                    '<td>' + money(b.amount) + '</td>' +
+                    '<td>' + formatDate(b.due) + '</td>' +
+                    '<td>' + pill + '</td>' +
+                    '<td><div class="row-actions">' +
+                    (b.paid ? "" : '<button type="button" class="icon-btn" data-pay="' + esc(b.id) + '">Mark paid</button>') +
+                    '<button type="button" class="icon-btn danger" data-del-bill="' + esc(b.id) + '" aria-label="Delete bill">🗑️</button>' +
+                    '</div></td></tr>';
+            }).join("") : '<tr><td colspan="6" class="empty-cell">No bills yet. Add your first bill.</td></tr>';
+
+            // Loans
+            let emiTotal = 0;
+            document.getElementById("loanBody").innerHTML = loans.length ? loans.map(function (l) {
+                const e = emi(l.principal, l.rate, l.months);
+                const paid = paidInstallments(l.start, l.months);
+                const out = balanceAfter(l.principal, l.rate, l.months, paid);
+                const pct = (paid / l.months) * 100;
+                if (paid < l.months) emiTotal += e;
+
+                return '<tr><td>' + esc(l.name) + '<br><span class="muted">' + money(l.principal) + ' · ' + l.months + ' months</span></td>' +
+                    '<td>' + money(e) + '</td>' +
+                    '<td>' + Number(l.rate).toFixed(2) + '%</td>' +
+                    '<td style="min-width:150px"><div class="progress"><div class="progress-bar ok" style="width:' + pct.toFixed(1) + '%"></div></div>' +
+                    '<span class="muted">' + paid + ' of ' + l.months + ' paid</span></td>' +
+                    '<td>' + money(out) + '</td>' +
+                    '<td><div class="row-actions"><button type="button" class="icon-btn danger" data-del-loan="' + esc(l.id) + '" aria-label="Delete loan">🗑️</button></div></td></tr>';
+            }).join("") : '<tr><td colspan="6" class="empty-cell">No loans added yet.</td></tr>';
+
+            document.getElementById("stEmi").textContent = money(emiTotal);
+        }
+
+        // ---------- Add bill ----------
+        const billForm = document.getElementById("billForm");
+        document.getElementById("bDue").value = today();
+
+        billForm.addEventListener("submit", function (event) {
+            event.preventDefault();
+            const name = document.getElementById("bName").value.trim();
+            const amount = Number(document.getElementById("bAmount").value);
+            const due = document.getElementById("bDue").value;
+            const freq = document.getElementById("bFreq").value;
+
+            if (!name || !(amount > 0) || !due) {
+                toast("Enter a name, an amount above 0, and a due date.", true);
+                return;
+            }
+
+            const bills = Store.load("bills", []);
+            bills.push({ id: uid(), name: name, amount: amount, due: due, freq: freq, paid: false });
+            Store.save("bills", bills);
+
+            billForm.reset();
+            document.getElementById("bDue").value = today();
+            toast("Bill saved.");
+            render();
+            showView("overview");
+        });
+
+        // ---------- Pay / delete bill, delete loan ----------
+        document.addEventListener("click", function (event) {
+            const pay = event.target.closest("[data-pay]");
+            const delBill = event.target.closest("[data-del-bill]");
+            const delLoan = event.target.closest("[data-del-loan]");
+
+            if (pay) {
+                const bills = Store.load("bills", []);
+                bills.forEach(function (b) {
+                    if (String(b.id) !== pay.dataset.pay) return;
+                    if (b.freq === "once") b.paid = true;
+                    else b.due = addMonths(b.due, STEP[b.freq]);
+                });
+                Store.save("bills", bills);
+                toast("Marked as paid.");
+                render();
+            }
+
+            if (delBill) {
+                if (!confirm("Delete this bill?")) return;
+                Store.save("bills", Store.load("bills", []).filter(function (b) { return String(b.id) !== delBill.dataset.delBill; }));
+                toast("Bill deleted.");
+                render();
+            }
+
+            if (delLoan) {
+                if (!confirm("Delete this loan?")) return;
+                Store.save("loans", Store.load("loans", []).filter(function (l) { return String(l.id) !== delLoan.dataset.delLoan; }));
+                toast("Loan deleted.");
+                render();
+            }
+        });
+
+        // ---------- Add loan ----------
+        const loanForm = document.getElementById("loanForm");
+
+        loanForm.addEventListener("submit", function (event) {
+            event.preventDefault();
+            const name = document.getElementById("lName").value.trim();
+            const principal = Number(document.getElementById("lPrincipal").value);
+            const rate = Number(document.getElementById("lRate").value);
+            const months = Math.round(Number(document.getElementById("lMonths").value));
+            const start = document.getElementById("lStart").value;
+
+            if (!name || !(principal > 0) || !(rate >= 0) || !(months >= 1) || !start) {
+                toast("Fill in every loan field with valid numbers.", true);
+                return;
+            }
+
+            const loans = Store.load("loans", []);
+            loans.push({ id: uid(), name: name, principal: principal, rate: rate, months: months, start: start });
+            Store.save("loans", loans);
+
+            loanForm.reset();
+            toast("Loan saved.");
+            render();
+        });
+
+        // ---------- Calculator ----------
+        function calc() {
+            const p = Number(document.getElementById("cPrincipal").value);
+            const r = Number(document.getElementById("cRate").value);
+            const n = Math.round(Number(document.getElementById("cMonths").value));
+            const ok = p > 0 && r >= 0 && n >= 1;
+            const e = ok ? emi(p, r, n) : 0;
+
+            document.getElementById("cEmi").textContent = money(e);
+            document.getElementById("cTotal").textContent = money(e * n);
+            document.getElementById("cInterest").textContent = money(Math.max(0, e * n - (ok ? p : 0)));
+        }
+
+        ["cPrincipal", "cRate", "cMonths"].forEach(function (id) {
+            document.getElementById(id).addEventListener("input", calc);
+        });
+
+        calc();
+        render();
+    })();
+</script>
+
+</body>
+</html>

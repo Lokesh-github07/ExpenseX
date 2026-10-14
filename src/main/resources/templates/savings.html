@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Savings &amp; CIBIL Score | ExpenseX</title>
+
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/section.css}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+<div class="background"></div>
+
+<div class="dashboard">
+
+    <!-- ===== SECTION SIDEBAR ===== -->
+    <aside class="sidebar" id="appSidebar" aria-label="Savings navigation">
+        <div class="sidebar-brand-row">
+            <a class="sidebar-brand" th:href="@{/dashboard}" aria-label="ExpenseX Dashboard">
+                <span class="brand-icon" aria-hidden="true">💰</span>
+                <span class="brand-name">ExpenseX</span>
+            </a>
+            <button type="button" class="sidebar-toggle" id="sidebarToggle"
+                    aria-label="Collapse sidebar" aria-controls="appSidebar" aria-expanded="true">
+                <span aria-hidden="true">☰</span>
+            </button>
+        </div>
+
+        <nav class="sidebar-navigation" aria-label="Savings sections">
+            <ul class="sidebar-menu">
+                <li class="back-item">
+                    <a th:href="@{/dashboard}" title="Back to Dashboard">
+                        <span class="nav-icon" aria-hidden="true">⬅️</span>
+                        <span class="nav-label">Back to Dashboard</span>
+                    </a>
+                </li>
+
+                <li class="section-label"><span class="nav-label">Savings &amp; CIBIL Score</span></li>
+
+                <li>
+                    <a href="#goals" data-view="goals" data-title="My Savings Goals">
+                        <span class="nav-icon" aria-hidden="true">🎯</span>
+                        <span class="nav-label">My Goals</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#new-goal" data-view="new-goal" data-title="New Savings Goal">
+                        <span class="nav-icon" aria-hidden="true">➕</span>
+                        <span class="nav-label">New Goal</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#cibil" data-view="cibil" data-title="CIBIL Score">
+                        <span class="nav-icon" aria-hidden="true">📊</span>
+                        <span class="nav-label">CIBIL Score</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#cibil-log" data-view="cibil-log" data-title="Update CIBIL Score">
+                        <span class="nav-icon" aria-hidden="true">✏️</span>
+                        <span class="nav-label">Update CIBIL Score</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <div class="sidebar-profile" id="sidebarProfile">
+            <a class="profile-link" th:href="@{/profile}" title="My Profile">
+                <span class="profile-avatar" aria-hidden="true">👤</span>
+                <span class="profile-details">
+                    <span class="profile-name">My Profile</span>
+                    <span class="profile-caption">Account settings</span>
+                </span>
+            </a>
+            <button type="button" class="profile-logout" onclick="logout()" title="Log out">
+                <span aria-hidden="true">↪</span>
+                <span class="nav-label">Logout</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <main class="content">
+
+        <div class="content-topbar">
+            <button type="button" class="mobile-sidebar-toggle" id="mobileSidebarToggle"
+                    aria-label="Open navigation" aria-controls="appSidebar" aria-expanded="false">
+                <span aria-hidden="true">☰</span>
+            </button>
+            <h1 id="pageTitle">My Savings Goals</h1>
+        </div>
+
+        <!-- GOALS -->
+        <section class="view" id="goals">
+            <div class="cards four">
+                <div class="glass-card stat-card">
+                    <h3>Total saved</h3>
+                    <h2 class="positive" id="gSaved">₹0.00</h2>
+                </div>
+                <div class="glass-card stat-card">
+                    <h3>Total target</h3>
+                    <h2 id="gTarget">₹0.00</h2>
+                </div>
+                <div class="glass-card stat-card">
+                    <h3>Goals reached</h3>
+                    <h2 id="gDone">0</h2>
+                </div>
+            </div>
+
+            <div class="grid-cards" id="goalGrid"></div>
+        </section>
+
+        <!-- NEW GOAL -->
+        <section class="view" id="new-goal">
+            <p class="view-intro">Name what you are saving for, set a target, and add money as you go.</p>
+
+            <div class="glass-card">
+                <form id="goalForm" novalidate>
+                    <div class="form-grid">
+                        <div class="input-group">
+                            <label for="gName">Goal name</label>
+                            <input type="text" id="gName" maxlength="60" placeholder="e.g. Emergency fund" required>
+                        </div>
+                        <div class="input-group">
+                            <label for="gTargetIn">Target amount (₹)</label>
+                            <input type="number" id="gTargetIn" min="1" step="0.01" required>
+                        </div>
+                        <div class="input-group">
+                            <label for="gSavedIn">Already saved (₹)</label>
+                            <input type="number" id="gSavedIn" min="0" step="0.01" value="0">
+                        </div>
+                        <div class="input-group">
+                            <label for="gDeadline">Target date</label>
+                            <input type="date" id="gDeadline" required>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary btn-auto">Create goal</button>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <!-- CIBIL SCORE -->
+        <section class="view" id="cibil">
+            <div class="glass-card card-gap" id="cibilCard"></div>
+
+            <div class="glass-card" id="tipsCard">
+                <h2 style="color:var(--text-primary);font-size:19px;">How to improve your score</h2>
+                <ul class="tip-list" id="tipList"></ul>
+            </div>
+        </section>
+
+        <!-- UPDATE CIBIL -->
+        <section class="view" id="cibil-log">
+            <p class="view-intro">Check your score on the official CIBIL site or your bank app, then record it here to follow your progress.
+                ExpenseX does not fetch it automatically.</p>
+
+            <div class="glass-card card-gap">
+                <form id="cibilForm" novalidate>
+                    <div class="form-grid">
+                        <div class="input-group">
+                            <label for="cScore">Score (300 to 900)</label>
+                            <input type="number" id="cScore" min="300" max="900" step="1" required>
+                        </div>
+                        <div class="input-group">
+                            <label for="cDate">Checked on</label>
+                            <input type="date" id="cDate" required>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary btn-auto">Save score</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="glass-card table-card">
+                <div class="table-header"><h2>Score history</h2></div>
+                <div class="table-scroll">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Score</th>
+                            <th>Rating</th>
+                            <th>Action</th>
+                        </tr>
+                        </thead>
+                        <tbody id="cibilBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+    </main>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<script th:src="@{/js/script.js}"></script>
+<script>
+    (function () {
+        const { Store, money, esc, uid, today, formatDate, toast, initViews } = window.ExpenseX;
+        const showView = initViews("goals");
+
+        // ---------- Goals ----------
+        function monthsLeft(deadline) {
+            const d = new Date(deadline + "T00:00:00");
+            const now = new Date();
+            const m = (d.getFullYear() - now.getFullYear()) * 12 + (d.getMonth() - now.getMonth());
+            return Math.max(1, m);
+        }
+
+        function renderGoals() {
+            const goals = Store.load("goals", []);
+            const saved = goals.reduce(function (s, g) { return s + g.saved; }, 0);
+            const target = goals.reduce(function (s, g) { return s + g.target; }, 0);
+            const done = goals.filter(function (g) { return g.saved >= g.target; }).length;
+
+            document.getElementById("gSaved").textContent = money(saved);
+            document.getElementById("gTarget").textContent = money(target);
+            document.getElementById("gDone").textContent = done;
+
+            const grid = document.getElementById("goalGrid");
+
+            if (!goals.length) {
+                grid.innerHTML = '<div class="glass-card"><p class="muted">No goals yet. Open “New Goal” to start your first one.</p></div>';
+                return;
+            }
+
+            grid.innerHTML = goals.map(function (g) {
+                const pct = Math.min(100, (g.saved / g.target) * 100);
+                const reached = g.saved >= g.target;
+                const remaining = Math.max(0, g.target - g.saved);
+                const perMonth = remaining / monthsLeft(g.deadline);
+                const meta = reached
+                    ? '<span class="pill ok">Goal reached</span>'
+                    : '<span class="muted">Save about ' + money(perMonth) + ' a month to finish by ' + formatDate(g.deadline) + '.</span>';
+
+                return '<div class="glass-card goal-card">' +
+                    '<div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start;">' +
+                    '<h3>' + esc(g.name) + '</h3>' +
+                    '<button type="button" class="icon-btn danger" data-del-goal="' + esc(g.id) + '" aria-label="Delete goal">🗑️</button></div>' +
+                    '<div class="goal-amounts"><span>' + money(g.saved) + '</span><span>' + money(g.target) + '</span></div>' +
+                    '<div class="progress"><div class="progress-bar ' + (reached ? "ok" : "") + '" style="width:' + pct.toFixed(1) + '%"></div></div>' +
+                    '<div class="goal-meta">' + meta + '</div>' +
+                    '<div class="goal-add">' +
+                    '<input type="number" min="1" step="0.01" placeholder="Amount to add" aria-label="Amount to add to ' + esc(g.name) + '" data-add-input="' + esc(g.id) + '">' +
+                    '<button type="button" class="icon-btn" data-add-goal="' + esc(g.id) + '">Add</button></div>' +
+                    '</div>';
+            }).join("");
+        }
+
+        document.getElementById("goalGrid").addEventListener("click", function (event) {
+            const add = event.target.closest("[data-add-goal]");
+            const del = event.target.closest("[data-del-goal]");
+
+            if (add) {
+                const id = add.dataset.addGoal;
+                const input = document.querySelector('[data-add-input="' + id + '"]');
+                const amount = Number(input.value);
+                if (!(amount > 0)) { toast("Enter an amount above 0.", true); return; }
+
+                const goals = Store.load("goals", []);
+                goals.forEach(function (g) { if (String(g.id) === id) g.saved += amount; });
+                Store.save("goals", goals);
+                toast("Added " + money(amount) + " to your goal.");
+                renderGoals();
+            }
+
+            if (del) {
+                if (!confirm("Delete this goal?")) return;
+                Store.save("goals", Store.load("goals", []).filter(function (g) { return String(g.id) !== del.dataset.delGoal; }));
+                toast("Goal deleted.");
+                renderGoals();
+            }
+        });
+
+        const goalForm = document.getElementById("goalForm");
+
+        goalForm.addEventListener("submit", function (event) {
+            event.preventDefault();
+            const name = document.getElementById("gName").value.trim();
+            const target = Number(document.getElementById("gTargetIn").value);
+            const saved = Number(document.getElementById("gSavedIn").value || 0);
+            const deadline = document.getElementById("gDeadline").value;
+
+            if (!name || !(target > 0) || saved < 0 || !deadline) {
+                toast("Enter a name, a target above 0, and a target date.", true);
+                return;
+            }
+
+            const goals = Store.load("goals", []);
+            goals.push({ id: uid(), name: name, target: target, saved: saved, deadline: deadline });
+            Store.save("goals", goals);
+
+            goalForm.reset();
+            document.getElementById("gSavedIn").value = 0;
+            toast("Goal created.");
+            renderGoals();
+            showView("goals");
+        });
+
+        // ---------- CIBIL ----------
+        function band(score) {
+            if (score >= 750) return { name: "Excellent", cls: "ok" };
+            if (score >= 650) return { name: "Good", cls: "ok" };
+            if (score >= 550) return { name: "Fair", cls: "warn" };
+            return { name: "Poor", cls: "danger" };
+        }
+
+        const TIPS = {
+            Excellent: [
+                "Keep paying every EMI and card bill on or before the due date.",
+                "Keep card usage under 30% of your limit.",
+                "Avoid closing your oldest card or loan account."
+            ],
+            Good: [
+                "Pay every bill on time. Even one late payment can pull the score down.",
+                "Lower your credit card usage below 30% of the limit.",
+                "Apply for new credit only when you need it."
+            ],
+            Fair: [
+                "Clear overdue amounts first, then keep every payment on time.",
+                "Pay card balances down and keep usage below 30% of the limit.",
+                "Check your credit report for mistakes and dispute them with the bureau."
+            ],
+            Poor: [
+                "Pay all overdue EMIs and card bills right away.",
+                "Avoid new loan or card applications for a few months.",
+                "Ask your lender about restructuring if you cannot keep up with EMIs.",
+                "Check your credit report for errors and dispute any you find."
+            ]
+        };
+
+        function renderCibil() {
+            const log = Store.load("cibil", []).slice().sort(function (a, b) { return String(a.date).localeCompare(String(b.date)); });
+            const card = document.getElementById("cibilCard");
+            const tips = document.getElementById("tipsCard");
+
+            // History table
+            document.getElementById("cibilBody").innerHTML = log.length
+                ? log.slice().reverse().map(function (e) {
+                    const b = band(e.score);
+                    return '<tr><td>' + formatDate(e.date) + '</td><td>' + e.score + '</td>' +
+                        '<td><span class="pill ' + b.cls + '">' + b.name + '</span></td>' +
+                        '<td><div class="row-actions"><button type="button" class="icon-btn danger" data-del-score="' + esc(e.id) + '" aria-label="Delete score">🗑️</button></div></td></tr>';
+                }).join("")
+                : '<tr><td colspan="4" class="empty-cell">No scores recorded yet.</td></tr>';
+
+            if (!log.length) {
+                card.innerHTML = '<p class="muted">You have not recorded a score yet. Open “Update CIBIL Score” to add your latest one.</p>';
+                tips.style.display = "none";
+                return;
+            }
+
+            tips.style.display = "";
+            const latest = log[log.length - 1];
+            const prev = log.length > 1 ? log[log.length - 2] : null;
+            const b = band(latest.score);
+            const pos = ((latest.score - 300) / 600) * 100;
+
+            let change = "";
+            if (prev) {
+                const diff = latest.score - prev.score;
+                change = diff === 0 ? "No change since the last check"
+                    : (diff > 0 ? "Up " : "Down ") + Math.abs(diff) + " points since the last check";
+            }
+
+            card.innerHTML =
+                '<div class="score-hero">' +
+                '<div class="score-number">' + latest.score + '<small>Checked on ' + formatDate(latest.date) + '</small></div>' +
+                '<div class="gauge">' +
+                '<p style="margin-bottom:14px;"><span class="pill ' + b.cls + '">' + b.name + '</span> <span class="muted">' + change + '</span></p>' +
+                '<div class="gauge-track"><div class="gauge-marker" style="left:' + pos.toFixed(1) + '%"></div></div>' +
+                '<div class="gauge-scale"><span>300</span><span>550</span><span>650</span><span>750</span><span>900</span></div>' +
+                '</div></div>';
+
+            document.getElementById("tipList").innerHTML =
+                TIPS[b.name].map(function (t) { return "<li>" + esc(t) + "</li>"; }).join("");
+        }
+
+        const cibilForm = document.getElementById("cibilForm");
+        document.getElementById("cDate").value = today();
+
+        cibilForm.addEventListener("submit", function (event) {
+            event.preventDefault();
+            const score = Math.round(Number(document.getElementById("cScore").value));
+            const date = document.getElementById("cDate").value;
+
+            if (!(score >= 300 && score <= 900) || !date) {
+                toast("Enter a score between 300 and 900 and a date.", true);
+                return;
+            }
+
+            const log = Store.load("cibil", []);
+            log.push({ id: uid(), score: score, date: date });
+            Store.save("cibil", log);
+
+            cibilForm.reset();
+            document.getElementById("cDate").value = today();
+            toast("Score saved.");
+            renderCibil();
+            showView("cibil");
+        });
+
+        document.getElementById("cibilBody").addEventListener("click", function (event) {
+            const del = event.target.closest("[data-del-score]");
+            if (!del) return;
+            if (!confirm("Delete this score entry?")) return;
+            Store.save("cibil", Store.load("cibil", []).filter(function (e) { return String(e.id) !== del.dataset.delScore; }));
+            toast("Score deleted.");
+            renderCibil();
+        });
+
+        renderGoals();
+        renderCibil();
+    })();
+</script>
+
+</body>
+</html>
