@@ -47,7 +47,9 @@ public class EmailServiceImpl implements EmailService {
         try {
 
             SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom(fromAddress);
+            if (fromAddress != null && !fromAddress.isBlank()) {
+                message.setFrom(fromAddress.trim());
+            }
             message.setTo(to);
             message.setSubject(subject);
             message.setText(body);
@@ -58,10 +60,13 @@ public class EmailServiceImpl implements EmailService {
 
             // Never let a broken mail server block registration/login -
             // just log it and let the OTP-in-logs fallback still be visible.
-            log.error("Failed to send email to {}: {}", to, e.getMessage());
+            log.error("Failed to send email to {}\n  Reason: {}\n  Fix: {}", to,
+                    com.example.expensetracker.config.MailStartupCheck.rootCause(e),
+                    com.example.expensetracker.config.MailStartupCheck.hint(e));
 
             System.out.println("=================================");
             System.out.println("EMAIL SEND FAILED - FALLING BACK TO CONSOLE");
+            System.out.println("Reason: " + com.example.expensetracker.config.MailStartupCheck.rootCause(e));
             System.out.println("To: " + to);
             System.out.println("Subject: " + subject);
             System.out.println("Body: " + body);
