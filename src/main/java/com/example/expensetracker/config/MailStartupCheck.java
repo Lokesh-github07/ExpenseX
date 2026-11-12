@@ -2,6 +2,7 @@ package com.example.expensetracker.config;
 
 import jakarta.mail.AuthenticationFailedException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.mail.MailAuthenticationException;
@@ -9,10 +10,11 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.stereotype.Component;
 
+import java.util.concurrent.CompletableFuture;
+
 /**
- * Tests the Gmail SMTP login once at startup and prints a clear verdict, so you
- * know immediately whether OTP emails can be delivered (and why not, if they can't).
- * Runs in the background - it never delays or blocks application startup.
+ * Performs a non-blocking SMTP login check after the application starts.
+ * It never logs the SMTP password or its length.
  */
 @Slf4j
 @Component
@@ -20,54 +22,87 @@ public class MailStartupCheck {
 
     private final JavaMailSender mailSender;
 
+    @Value("${mail.enabled:true}")
+    private boolean mailEnabled;
+
     public MailStartupCheck(JavaMailSender mailSender) {
         this.mailSender = mailSender;
     }
 
     @EventListener(ApplicationReadyEvent.class)
     public void check() {
-        if (!(mailSender instanceof JavaMailSenderImpl sender)) {
+        if (!mailEnabled) {
+            log.info("Email delivery is disabled (MAIL_ENABLED=false). OTP messages use the configured development behavior.");
             return;
         }
-        new Thread(() -> {
-            String who = sender.getUsername() + " @ " + sender.getHost() + ":" + sender.getPort()
-                    + " (password length " + (sender.getPassword() == null ? 0 : sender.getPassword().length()) + ")";
+
+        if (!(mailSender instanceof JavaMailSenderImpl sender)) {
+            log.warn("SMTP startup check skipped: configured JavaMailSender is not JavaMailSenderImpl.");
+            return;
+        }
+
+        String username = sender.getUsername();
+        String password = sender.getPassword();
+
+        if (username == null || username.isBlank() || password == null || password.isBlank()) {
+            log.error("MAIL CHECK FAILED: SMTP credentials are missing. Set MAIL_USERNAME and MAIL_APP_PASSWORD.");
+            return;
+        }
+
+        CompletableFuture.runAsync(() -> {
+            String destination = sender.getHost() + ":" + sender.getPort();
             try {
                 sender.testConnection();
-                log.info("MAIL CHECK OK - SMTP login succeeded for {}. OTP emails will be delivered.", who);
+                log.info("MAIL CHECK OK - SMTP authentication succeeded for {} at {}. OTP email delivery is ready.",
+                        safeAddress(username), destination);
             } catch (Exception e) {
-                log.error("MAIL CHECK FAILED for {}\n  Reason: {}\n  Fix: {}", who, rootCause(e), hint(e));
+                log.error("MAIL CHECK FAILED for {} at {}. Reason: {}. Fix: {}",
+                        safeAddress(username), destination, rootCause(e), hint(e));
             }
-        }, "mail-startup-check").start();
+        });
+    }
+
+    private static String safeAddress(String address) {
+        int at = address.indexOf('@');
+        if (at <= 1) return "***";
+        return address.substring(0, 1) + "***" + address.substring(at);
     }
 
     public static String rootCause(Throwable t) {
         StringBuilder sb = new StringBuilder();
-        Throwable cur = t;
-        while (cur != null) {
+        Throwable current = t;
+        while (current != null) {
             if (sb.length() > 0) sb.append(" -> ");
-            sb.append(cur.getClass().getSimpleName()).append(": ").append(cur.getMessage());
-            cur = cur.getCause() == cur ? null : cur.getCause();
+            sb.append(current.getClass().getSimpleName());
+            String message = current.getMessage();
+            if (message != null && !message.isBlank()) {
+                // Do not print credentials if a provider unexpectedly includes them in an exception.
+                sb.append(": ").append(message.replaceAll("(?i)(password|passcode)=?\\s*[^\\s,;]+", "$1=[REDACTED]"));
+            }
+            Throwable next = current.getCause();
+            if (next == current) break;
+            current = next;
         }
         return sb.toString();
     }
 
     public static String hint(Throwable t) {
-        for (Throwable c = t; c != null; c = c.getCause()) {
-            String m = String.valueOf(c.getMessage());
-            if (c instanceof AuthenticationFailedException || c instanceof MailAuthenticationException
-                    || m.contains("535") || m.contains("Username and Password not accepted")) {
-                return "Gmail rejected the login. Make sure 2-Step Verification is ON for the account, "
-                        + "then create a NEW App Password (myaccount.google.com/apppasswords) and put it in MAIL_APP_PASSWORD.";
+        for (Throwable current = t; current != null; current = current.getCause()) {
+            String message = String.valueOf(current.getMessage());
+            if (current instanceof AuthenticationFailedException
+                    || current instanceof MailAuthenticationException
+                    || message.contains("535")
+                    || message.contains("Username and Password not accepted")) {
+                return "Gmail rejected SMTP authentication. Confirm 2-Step Verification is enabled, generate a NEW App Password for this exact Gmail account at https://myaccount.google.com/apppasswords, then update MAIL_APP_PASSWORD and restart the application. A code change cannot override Gmail's credential rejection.";
             }
-            if (m.contains("PKIX") || m.contains("SSLHandshake") || m.contains("certificate")) {
-                return "TLS was intercepted (antivirus 'mail shield' / proxy). Turn off email/SSL scanning in your antivirus.";
+            if (message.contains("PKIX") || message.contains("SSLHandshake") || message.contains("certificate")) {
+                return "TLS certificate validation failed. Check antivirus email/SSL scanning, proxy, and system certificates.";
             }
-            if (m.contains("timed out") || m.contains("Couldn't connect") || m.contains("Connection refused")
-                    || m.contains("UnknownHost")) {
-                return "Cannot reach smtp.gmail.com:587. Check internet/VPN/firewall; some networks block port 587.";
+            if (message.contains("timed out") || message.contains("Couldn't connect")
+                    || message.contains("Connection refused") || message.contains("UnknownHost")) {
+                return "Cannot reach smtp.gmail.com:587. Check internet, VPN, firewall, and whether the network blocks SMTP port 587.";
             }
         }
-        return "See the reason above.";
+        return "Check SMTP host, port, TLS settings, and Gmail App Password.";
     }
 }

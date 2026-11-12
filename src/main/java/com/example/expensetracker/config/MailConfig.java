@@ -7,12 +7,11 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 
 /**
- * Cleans the SMTP credentials before they are used.
+ * Normalizes SMTP credentials loaded from environment variables or .env.
  *
- * Why: a .env file saved with Windows (CRLF) line endings leaves a hidden
- * "\r" at the end of MAIL_USERNAME / MAIL_APP_PASSWORD. Gmail then rejects the
- * login, the mail is never sent, and the OTP only shows up in the console.
- * Gmail app passwords are also often pasted with spaces ("abcd efgh ijkl mnop").
+ * Gmail App Passwords are often copied with visual spaces. Windows-created
+ * .env files can also contain carriage returns. Neither should be sent to SMTP.
+ * This processor changes only the in-memory mail sender credentials.
  */
 @Slf4j
 @Configuration
@@ -24,18 +23,28 @@ public class MailConfig {
             @Override
             public Object postProcessBeforeInitialization(Object bean, String beanName) {
                 if (bean instanceof JavaMailSenderImpl sender) {
-                    if (sender.getUsername() != null) {
-                        sender.setUsername(sender.getUsername().trim());
-                    }
-                    if (sender.getPassword() != null) {
-                        // App passwords never contain whitespace
-                        sender.setPassword(sender.getPassword().replaceAll("\\s+", ""));
+                    String username = sender.getUsername();
+                    if (username != null) {
+                        sender.setUsername(username.trim());
                     }
 
-                    String user = sender.getUsername();
-                    if (user == null || user.isBlank() || user.startsWith("${")) {
-                        log.warn("MAIL_USERNAME is not set - OTP emails cannot be sent. "
-                                + "Define MAIL_USERNAME and MAIL_APP_PASSWORD in the run environment.");
+                    String password = sender.getPassword();
+                    if (password != null) {
+                        // Google displays App Passwords in groups; whitespace is not part of it.
+                        sender.setPassword(password.replaceAll("\\s+", ""));
+                    }
+
+                    String configuredUsername = sender.getUsername();
+                    String configuredPassword = sender.getPassword();
+
+                    if (configuredUsername == null || configuredUsername.isBlank()) {
+                        log.warn("MAIL_USERNAME is missing. Configure the Gmail address used to send OTP emails.");
+                    }
+                    if (configuredPassword == null || configuredPassword.isBlank()) {
+                        log.warn("MAIL_APP_PASSWORD is missing. Configure a Gmail App Password; never use the normal account password.");
+                    } else if (configuredPassword.length() != 16) {
+                        log.warn("MAIL_APP_PASSWORD has {} characters after whitespace cleanup. "
+                                + "A Google App Password normally has 16 characters.", configuredPassword.length());
                     }
                 }
                 return bean;

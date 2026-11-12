@@ -1,5 +1,7 @@
 package com.example.expensetracker.service.impl;
 
+import com.example.expensetracker.config.MailStartupCheck;
+import com.example.expensetracker.exception.EmailDeliveryException;
 import com.example.expensetracker.service.EmailService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,8 +18,13 @@ public class EmailServiceImpl implements EmailService {
     // When false (default), emails just print to the console instead of being
     // sent - useful for local dev without SMTP credentials. Set MAIL_ENABLED=true
     // and provide MAIL_USERNAME / MAIL_APP_PASSWORD to send real emails.
-    @Value("${mail.enabled:false}")
+    @Value("${mail.enabled:true}")
     private boolean mailEnabled;
+
+    // DEV ONLY - if a real send fails, print the mail to the console instead of
+    // failing the request. Default false: failures must be visible.
+    @Value("${mail.console-fallback:false}")
+    private boolean consoleFallback;
 
     @Value("${spring.mail.username:}")
     private String fromAddress;
@@ -44,6 +51,13 @@ public class EmailServiceImpl implements EmailService {
             return;
         }
 
+        // Fail clearly when real delivery is enabled but credentials were not loaded.
+        // This avoids reporting a successful OTP operation when SMTP is not configured.
+        if (fromAddress == null || fromAddress.isBlank()) {
+            throw new EmailDeliveryException(
+                    "Email delivery is enabled, but MAIL_USERNAME is not configured.", null);
+        }
+
         try {
 
             SimpleMailMessage message = new SimpleMailMessage();
@@ -56,21 +70,29 @@ public class EmailServiceImpl implements EmailService {
 
             mailSender.send(message);
 
+            log.info("Email '{}' sent to {}", subject, to);
+
         } catch (Exception e) {
 
-            // Never let a broken mail server block registration/login -
-            // just log it and let the OTP-in-logs fallback still be visible.
+            // Log the real reason + a how-to-fix hint (never the OTP itself).
             log.error("Failed to send email to {}\n  Reason: {}\n  Fix: {}", to,
-                    com.example.expensetracker.config.MailStartupCheck.rootCause(e),
-                    com.example.expensetracker.config.MailStartupCheck.hint(e));
+                    MailStartupCheck.rootCause(e),
+                    MailStartupCheck.hint(e));
 
-            System.out.println("=================================");
-            System.out.println("EMAIL SEND FAILED - FALLING BACK TO CONSOLE");
-            System.out.println("Reason: " + com.example.expensetracker.config.MailStartupCheck.rootCause(e));
-            System.out.println("To: " + to);
-            System.out.println("Subject: " + subject);
-            System.out.println("Body: " + body);
-            System.out.println("=================================");
+            if (consoleFallback) {
+                System.out.println("=================================");
+                System.out.println("EMAIL SEND FAILED - DEV CONSOLE FALLBACK");
+                System.out.println("To: " + to);
+                System.out.println("Subject: " + subject);
+                System.out.println("Body: " + body);
+                System.out.println("=================================");
+                return;
+            }
+
+            // Tell the caller the truth instead of pretending the mail went out.
+            throw new EmailDeliveryException(
+                    "We could not send the email right now. "
+                            + "Please try again in a moment or contact support.", e);
         }
     }
 
