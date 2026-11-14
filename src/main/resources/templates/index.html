@@ -3,6 +3,7 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 
 <head>
+    <link rel="icon" type="image/png" th:href="@{/images/favicon.png}">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -81,89 +82,7 @@
 <div class="dashboard">
 
     <!-- SIDEBAR: all navigation items remain visible; no popup menus -->
-    <aside class="sidebar" id="appSidebar" aria-label="Main navigation">
-        <div class="sidebar-brand-row">
-            <a class="sidebar-brand" th:href="@{/dashboard}" aria-label="ExpenseX Dashboard">
-                <span class="brand-icon" aria-hidden="true">💰</span>
-                <span class="brand-name">ExpenseX</span>
-            </a>
-            <button type="button" class="sidebar-toggle" id="sidebarToggle"
-                    aria-label="Collapse sidebar" aria-controls="appSidebar" aria-expanded="true">
-                <span aria-hidden="true">☰</span>
-            </button>
-        </div>
-
-        <nav class="sidebar-navigation" aria-label="ExpenseX sections">
-            <ul class="sidebar-menu">
-                <li>
-                    <a th:href="@{/dashboard}" class="active" aria-current="page" title="Dashboard">
-                        <span class="nav-icon" aria-hidden="true">🏠</span>
-                        <span class="nav-label">Dashboard</span>
-                    </a>
-                </li>
-                <li>
-                    <a th:href="@{/transactions}">
-                        <span class="nav-icon">💳</span>
-                        <span class="nav-label">Transactions &amp; Expenses</span>
-                    </a>
-                </li>
-
-                <li>
-                    <a th:href="@{/salary}">
-                        <span class="nav-icon">💵</span>
-                        <span class="nav-label">Income &amp; Budget</span>
-                    </a>
-                </li>
-
-                <li>
-                    <a th:href="@{/bills}">
-                        <span class="nav-icon">🧾</span>
-                        <span class="nav-label">Bills, Loans &amp; EMIs</span>
-                    </a>
-                </li>
-
-                <li>
-                    <a th:href="@{/savings}">
-                        <span class="nav-icon">🎯</span>
-                        <span class="nav-label">Savings &amp; CIBIL Score</span>
-                    </a>
-                </li>
-                <li>
-                    <a th:href="@{/ai-assistant}" title="AI Finance Assistant">
-                        <span class="nav-icon" aria-hidden="true">🤖</span>
-                        <span class="nav-label">AI Finance Assistant</span>
-                    </a>
-                </li>
-                <li>
-                    <a th:href="@{/analytics}" title="Reports & Analysis">
-                        <span class="nav-icon" aria-hidden="true">📊</span>
-                        <span class="nav-label">Reports &amp; Analysis</span>
-                    </a>
-                </li>
-                <li>
-                    <a th:href="@{/financial-calendar}" title="Financial Calendar">
-                        <span class="nav-icon" aria-hidden="true">📅</span>
-                        <span class="nav-label">Financial Calendar</span>
-                    </a>
-                </li>
-            </ul>
-        </nav>
-
-        <!-- Profile stays pinned at the bottom of the sidebar -->
-        <div class="sidebar-profile" id="sidebarProfile">
-            <a class="profile-link" th:href="@{/profile}" title="My Profile">
-                <span class="profile-avatar" aria-hidden="true">👤</span>
-                <span class="profile-details">
-                    <span class="profile-name">My Profile</span>
-                    <span class="profile-caption">Account settings</span>
-                </span>
-            </a>
-            <button type="button" class="profile-logout" onclick="logout()" title="Log out">
-                <span aria-hidden="true">↪</span>
-                <span class="nav-label">Logout</span>
-            </button>
-        </div>
-    </aside>
+    <aside th:replace="~{fragments/sidebar :: sidebar('dashboard')}"></aside>
 
     <!-- ================================
          MAIN CONTENT
@@ -267,17 +186,9 @@
 
 </div>
 
-
-<!-- Floating AI chatbot button -->
-<a class="chatbot-fab" id="chatbotFab" th:href="@{/ai-assistant}"
-   aria-label="Open AI Finance Assistant" title="Chat with AI Finance Assistant">
-    <span class="chatbot-fab-icon" aria-hidden="true">💬</span>
-    <span class="chatbot-fab-label">Ask ExpenseX AI</span>
-</a>
-
 <div th:replace="~{fragments/footer :: footer}"></div>
 
-
+<script th:src="@{/js/script.js}"></script>
 <script>
     // ============================================================
     // AUTHENTICATION
@@ -288,63 +199,6 @@
     if (!token) {
         window.location = "/login";
     }
-
-    // ============================================================
-    // SLIDING SIDEBAR
-    // CSS will control the animation and collapsed appearance.
-    // ============================================================
-    document.addEventListener("DOMContentLoaded", function initializeSidebar() {
-        const dashboard = document.querySelector(".dashboard");
-        const sidebar = document.getElementById("appSidebar");
-        const desktopToggle = document.getElementById("sidebarToggle");
-        const mobileToggle = document.getElementById("mobileSidebarToggle");
-
-        if (!dashboard || !sidebar) return;
-
-        function setSidebarCollapsed(collapsed) {
-            dashboard.classList.toggle("sidebar-collapsed", collapsed);
-            sidebar.classList.toggle("is-collapsed", collapsed);
-            if (desktopToggle) {
-                desktopToggle.setAttribute("aria-expanded", String(!collapsed));
-                desktopToggle.setAttribute("aria-label", collapsed ? "Expand sidebar" : "Collapse sidebar");
-            }
-        }
-
-        function setMobileSidebarOpen(open) {
-            sidebar.classList.toggle("is-mobile-open", open);
-            if (mobileToggle) {
-                mobileToggle.setAttribute("aria-expanded", String(open));
-                mobileToggle.setAttribute("aria-label", open ? "Close navigation" : "Open navigation");
-            }
-        }
-
-        if (desktopToggle) {
-            desktopToggle.addEventListener("click", function () {
-                setSidebarCollapsed(!dashboard.classList.contains("sidebar-collapsed"));
-            });
-        }
-
-        if (mobileToggle) {
-            mobileToggle.addEventListener("click", function () {
-                setMobileSidebarOpen(!sidebar.classList.contains("is-mobile-open"));
-            });
-        }
-
-        document.addEventListener("click", function (event) {
-            if (sidebar.classList.contains("is-mobile-open") &&
-                !sidebar.contains(event.target) &&
-                !(mobileToggle && mobileToggle.contains(event.target))) {
-                setMobileSidebarOpen(false);
-            }
-        });
-
-        document.addEventListener("keydown", function (event) {
-            if (event.key === "Escape") setMobileSidebarOpen(false);
-        });
-
-        // Start expanded on desktop; mobile visibility is handled by CSS.
-        setSidebarCollapsed(false);
-    });
 
     // ============================================================
     // LOAD EXPENSES
@@ -514,15 +368,6 @@
     }
 
     // ============================================================
-    // LOGOUT
-    // ============================================================
-
-    function logout() {
-        localStorage.removeItem("token");
-        window.location = "/login";
-    }
-
-    // ============================================================
     // ESCAPE HTML
     // ============================================================
 
@@ -538,6 +383,10 @@
     // ============================================================
     // CATEGORY PIE CHART
     // ============================================================
+
+    // Chart.js defaults for the permanent dark theme (readable labels).
+    Chart.defaults.color = "#b3b3b3";
+    Chart.defaults.borderColor = "#2a2a2a";
 
     let pieChartInstance = null;
 
@@ -621,8 +470,8 @@
             const amounts = breakdown.map(b => Number(b.amount || 0));
 
             const colors = [
-                "#4f46e5", "#06b6d4", "#f59e0b", "#ef4444", "#10b981",
-                "#8b5cf6", "#ec4899", "#84cc16", "#f97316", "#0ea5e9"
+                "#ff6a00", "#ffb02e", "#4ade80", "#60a5fa", "#c084fc",
+                "#f472b6", "#facc15", "#2dd4bf", "#fb7185", "#a3a3a3"
             ];
 
             if (pieChartInstance) {
@@ -639,7 +488,9 @@
                         data: amounts,
                         backgroundColor: labels.map(
                             (_, i) => colors[i % colors.length]
-                        )
+                        ),
+                        borderColor: "#151515",
+                        borderWidth: 2
                     }]
                 },
 

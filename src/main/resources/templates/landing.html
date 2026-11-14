@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#080808">
+    <meta name="description" content="ExpenseX is a personal finance management platform for tracking expenses, income and budgets.">
+    <link rel="icon" type="image/png" th:href="@{/images/favicon.png}">
+    <title>ExpenseX | Take Control of Your Money</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/landing.css}">
+</head>
+<body class="landing">
+
+<header class="l-nav">
+    <div class="wrap">
+        <a class="l-logo" href="#home" aria-label="ExpenseX home">ExpenseX<span>.</span></a>
+
+        <ul class="l-links" id="lLinks">
+            <li><a href="#home">Home</a></li>
+            <li><a href="#about">About</a></li>
+            <li><a href="#features">Features</a></li>
+            <li><a href="#technology">Technology</a></li>
+            <li><a href="#developer">Developer</a></li>
+        </ul>
+
+        <div class="l-actions">
+            <a class="l-btn ghost" th:href="@{/login}">Login</a>
+            <a class="l-btn primary" th:href="@{/register}">Register</a>
+            <button type="button" class="l-menu-btn" id="lMenuBtn" aria-label="Toggle menu" aria-controls="lLinks" aria-expanded="false">☰</button>
+        </div>
+    </div>
+</header>
+
+<main>
+    <section class="l-hero" id="home">
+        <div class="wrap">
+            <div class="l-banner" id="deletedBanner" role="status" hidden>
+                Your ExpenseX account has been permanently deleted.
+            </div>
+            <p class="l-eyebrow">Personal finance platform</p>
+            <h1>Take Control of Your Money. <em>Build a Better Financial Future.</em></h1>
+            <p>ExpenseX is a personal finance management platform designed to help you track expenses, manage income, organize budgets, monitor financial activities, and understand your financial habits.</p>
+            <div class="l-actions">
+                <a class="l-btn primary" th:href="@{/login}">LOGIN</a>
+                <a class="l-btn ghost" th:href="@{/register}">REGISTER</a>
+            </div>
+        </div>
+    </section>
+
+    <section class="l-section alt" id="about">
+        <div class="wrap">
+            <p class="l-eyebrow">About ExpenseX</p>
+            <h2>One place for your everyday money decisions</h2>
+            <p class="l-lead">ExpenseX is a full-stack personal finance application. It was built to show how a secure, database-backed web application can handle authentication, financial records, analytics and reporting end to end.</p>
+            <div class="l-grid">
+                <article class="l-card"><h3>The problem</h3><p>Spending is scattered across payments, notes and memory, which makes it hard to see where money goes or whether a budget is holding.</p></article>
+                <article class="l-card"><h3>The approach</h3><p>Record expenses against categories, view totals on a dashboard, and look at trends and reports instead of guessing.</p></article>
+                <article class="l-card"><h3>Your data, your account</h3><p>Every record belongs to your account and is reached only after you sign in with an emailed verification code.</p></article>
+            </div>
+        </div>
+    </section>
+
+    <section class="l-section" id="features">
+        <div class="wrap">
+            <p class="l-eyebrow">Features</p>
+            <h2>What ExpenseX does today</h2>
+            <p class="l-lead">Everything listed here exists in the application. Features marked Partial work, but not every part is backed by the server yet.</p>
+            <div class="l-grid">
+                <article class="l-card"><h3>Secure User Authentication</h3><p>Registration and sign-in secured with JWT access/refresh tokens and BCrypt-hashed passwords.</p><span class="l-tag ok">Implemented</span></article>
+                <article class="l-card"><h3>Email OTP Verification</h3><p>One-time codes emailed during registration, sign-in and password reset.</p><span class="l-tag ok">Implemented</span></article>
+                <article class="l-card"><h3>Expense Management</h3><p>Add, view, edit and delete expenses, stored in the database per user.</p><span class="l-tag ok">Implemented</span></article>
+                <article class="l-card"><h3>Category Management</h3><p>Create and manage expense categories through the API.</p><span class="l-tag ok">Implemented</span></article>
+                <article class="l-card"><h3>Financial Dashboard</h3><p>Balance, expense totals, recent expenses and a spending-by-category chart.</p><span class="l-tag ok">Implemented</span></article>
+                <article class="l-card"><h3>Financial Analytics</h3><p>Category breakdown, monthly trend and budget-vs-actual charts.</p><span class="l-tag ok">Implemented</span></article>
+                <article class="l-card"><h3>Financial Reports</h3><p>Download PDF and Excel reports.</p><span class="l-tag ok">Implemented</span></article>
+                <article class="l-card"><h3>Financial Calendar</h3><p>Calendar view of financial events and personal reminders.</p><span class="l-tag ok">Implemented</span></article>
+                <article class="l-card"><h3>Profile Management</h3><p>View and update your name and phone number.</p><span class="l-tag ok">Implemented</span></article>
+                <article class="l-card"><h3>Security &amp; Privacy</h3><p>Change password, sign out and delete your account. Privacy switches are browser-only.</p><span class="l-tag ok">Implemented</span></article>
+                <article class="l-card"><h3>Income Management</h3><p>Income entries are saved in your browser only; there is no server storage yet.</p><span class="l-tag partial">Partial</span></article>
+                <article class="l-card"><h3>Budget Management</h3><p>A budget API exists, but the Income &amp; Budget page currently saves in your browser.</p><span class="l-tag partial">Partial</span></article>
+                <article class="l-card"><h3>Bills, Loans &amp; EMIs</h3><p>Bill and loan tracking plus an EMI calculator, saved in your browser only.</p><span class="l-tag partial">Partial</span></article>
+                <article class="l-card"><h3>Savings &amp; CIBIL Tracking</h3><p>Savings goals and CIBIL score log, saved in your browser only.</p><span class="l-tag partial">Partial</span></article>
+            </div>
+            <p class="l-legend">Implemented = working and stored on the server. Partial = usable, but saved in your browser only.</p>
+        </div>
+    </section>
+
+    <section class="l-section alt" id="how">
+        <div class="wrap">
+            <p class="l-eyebrow">How it works</p>
+            <h2>From sign-up to reports</h2>
+            <ol class="l-flow">
+                <li>User Registration</li>
+                <li>Email OTP Verification</li>
+                <li>Secure Login</li>
+                <li>Financial Dashboard</li>
+                <li>Record Income and Expenses</li>
+                <li>Manage Budgets</li>
+                <li>Analyze Financial Activities</li>
+                <li>Generate Financial Reports</li>
+            </ol>
+        </div>
+    </section>
+
+    <section class="l-section" id="technology">
+        <div class="wrap l-tech">
+            <p class="l-eyebrow">Technology</p>
+            <h2>Built with</h2>
+            <p class="l-lead">The stack below is what the project is configured to use.</p>
+            <div class="l-grid">
+                <article class="l-card"><h3>Backend</h3><div class="l-chips"><span>Java 21</span><span>Spring Boot 3.5.4</span><span>Spring Security</span><span>Spring Data JPA</span><span>Hibernate</span></div></article>
+                <article class="l-card"><h3>Frontend</h3><div class="l-chips"><span>HTML5</span><span>CSS3</span><span>JavaScript</span><span>Thymeleaf</span><span>Chart.js</span></div></article>
+                <article class="l-card"><h3>Database</h3><div class="l-chips"><span>PostgreSQL</span></div></article>
+                <article class="l-card"><h3>Security</h3><div class="l-chips"><span>JWT</span><span>Access &amp; refresh tokens</span><span>BCrypt hashing</span><span>Email OTP</span></div></article>
+                <article class="l-card"><h3>Reports</h3><div class="l-chips"><span>Apache POI (Excel)</span><span>iText (PDF)</span></div></article>
+                <article class="l-card"><h3>Development &amp; deployment</h3><div class="l-chips"><span>Maven</span><span>Docker</span><span>Swagger / OpenAPI</span></div></article>
+            </div>
+        </div>
+    </section>
+
+    <section class="l-section alt" id="roadmap">
+        <div class="wrap">
+            <p class="l-eyebrow">Future scope</p>
+            <h2>Where ExpenseX is heading</h2>
+            <p class="l-lead">These are ideas under consideration. None of them is available yet.</p>
+            <div class="l-grid">
+                <article class="l-card"><h3>AI-powered Financial Assistant</h3><p>A conversational assistant for your finances.</p><span class="l-tag soon">Planned</span></article>
+                <article class="l-card"><h3>Intelligent Spending Analysis</h3><p>Automatic insights into where your money goes.</p><span class="l-tag soon">Planned</span></article>
+                <article class="l-card"><h3>Automated Expense Categorization</h3><p>Suggested categories for new transactions.</p><span class="l-tag soon">Planned</span></article>
+                <article class="l-card"><h3>Financial Predictions</h3><p>Forecasts based on your history.</p><span class="l-tag soon">Planned</span></article>
+                <article class="l-card"><h3>Advanced Financial Recommendations</h3><p>Personalized suggestions to improve your finances.</p><span class="l-tag soon">Planned</span></article>
+                <article class="l-card"><h3>Bank Transaction Integration</h3><p>Import transactions from your bank. A webhook for a future SMS app already exists.</p><span class="l-tag soon">Planned</span></article>
+                <article class="l-card"><h3>Mobile Application</h3><p>A companion app for Android.</p><span class="l-tag soon">Planned</span></article>
+                <article class="l-card"><h3>Enhanced Financial Calendar</h3><p>Richer events and reminders.</p><span class="l-tag soon">Planned</span></article>
+                <article class="l-card"><h3>Advanced Financial Planning</h3><p>Long-term goal and budget planning.</p><span class="l-tag soon">Planned</span></article>
+            </div>
+        </div>
+    </section>
+
+    <section class="l-section" id="developer">
+        <div class="wrap l-dev">
+            <p class="l-eyebrow">Developer</p>
+            <h2>About the project</h2>
+            <dl>
+                <dt>Developer</dt><dd>Lokesh (GitHub: Lokesh-github07)</dd>
+                <dt>Project</dt><dd>ExpenseX</dd>
+                <dt>Purpose</dt><dd>A practical full-stack application demonstrating backend development, authentication, database management, REST API design, reporting and containerization.</dd>
+                <dt>Technologies</dt><dd>Java 21, Spring Boot, Spring Security, PostgreSQL, Thymeleaf, JWT, Docker</dd>
+                <dt>Focus</dt><dd>Secure, well-structured backend services with a clean web interface.</dd>
+                <dt>Repository</dt><dd><a href="https://github.com/Lokesh-github07/ExpenseX" target="_blank" rel="noopener noreferrer">github.com/Lokesh-github07/ExpenseX</a></dd>
+            </dl>
+            <p class="l-legend">The project is a work in progress.</p>
+        </div>
+    </section>
+</main>
+
+<footer class="l-footer">
+    <div class="wrap">
+        <div class="cols">
+            <div>
+                <a class="l-logo" href="#home">ExpenseX<span>.</span></a>
+                <p style="margin-top:10px;max-width:320px;">A personal finance platform for tracking expenses, income and budgets.</p>
+            </div>
+            <div>
+                <h4>Explore</h4>
+                <ul>
+                    <li><a href="#about">About</a></li>
+                    <li><a href="#features">Features</a></li>
+                    <li><a href="#technology">Technology</a></li>
+                    <li><a href="#developer">Developer</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4>Account</h4>
+                <ul>
+                    <li><a th:href="@{/login}">Login</a></li>
+                    <li><a th:href="@{/register}">Register</a></li>
+                    <li><a th:href="@{/terms}">Terms</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4>Built with</h4>
+                <p>Java 21 · Spring Boot 3.5.4 · PostgreSQL · Thymeleaf</p>
+                <p style="margin-top:8px;">Developed by Lokesh-github07</p>
+            </div>
+        </div>
+        <p class="l-copy">&copy; <span id="lYear"></span> ExpenseX. All Rights Reserved.</p>
+    </div>
+</footer>
+
+<script>
+    (function () {
+        document.getElementById("lYear").textContent = new Date().getFullYear();
+
+        var btn = document.getElementById("lMenuBtn");
+        var links = document.getElementById("lLinks");
+        btn.addEventListener("click", function () {
+            var open = links.classList.toggle("open");
+            btn.setAttribute("aria-expanded", String(open));
+        });
+        links.addEventListener("click", function (e) {
+            if (e.target.tagName === "A") {
+                links.classList.remove("open");
+                btn.setAttribute("aria-expanded", "false");
+            }
+        });
+
+        if (new URLSearchParams(window.location.search).get("accountDeleted") === "1") {
+            document.getElementById("deletedBanner").hidden = false;
+        }
+    })();
+</script>
+</body>
+</html>

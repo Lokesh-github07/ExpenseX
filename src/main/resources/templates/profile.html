@@ -5,8 +5,9 @@
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" th:href="@{/images/favicon.png}">
 
-    <title>Profile - Expense Tracker</title>
+    <title>Profile | ExpenseX</title>
 
     <link rel="stylesheet" th:href="@{/css/style.css}">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -19,37 +20,17 @@
 
 <div class="dashboard">
 
-    <aside class="sidebar">
-
-        <h2>ExpenseX</h2>
-
-        <ul>
-            <li>
-                <a th:href="@{/dashboard}">🏠 Dashboard</a>
-            </li>
-
-            <li>
-                <a th:href="@{/analytics}">📊 Report &amp; Analytics</a>
-            </li>
-
-            <li>
-                <a th:href="@{/security-privacy}">🔐 Security &amp; Privacy</a>
-            </li>
-
-            <li>
-                <a th:href="@{/settings}">⚙️ Settings</a>
-            </li>
-
-            <li>
-                <a href="#" onclick="logout(); return false;">🚪 Logout</a>
-            </li>
-        </ul>
-
-    </aside>
+    <aside th:replace="~{fragments/sidebar :: sidebar('profile')}"></aside>
 
     <main class="content">
 
-        <h1>Profile</h1>
+        <div class="content-topbar">
+            <button type="button" class="mobile-sidebar-toggle" id="mobileSidebarToggle"
+                    aria-label="Open navigation" aria-controls="appSidebar" aria-expanded="false">
+                <span aria-hidden="true">☰</span>
+            </button>
+            <h1>Profile</h1>
+        </div>
 
         <div class="glass-card table-card">
 
@@ -99,25 +80,25 @@
                     <div class="row">
 
                         <div class="col">
-                            <label>First Name</label>
+                            <label for="firstName">First Name</label>
                             <input type="text" id="firstName" required>
                         </div>
 
                         <div class="col">
-                            <label>Last Name</label>
+                            <label for="lastName">Last Name</label>
                             <input type="text" id="lastName" required>
                         </div>
 
                     </div>
 
                     <div class="input-group">
-                        <label>Email</label>
+                        <label for="email">Email</label>
                         <input type="email" id="email" disabled
                                style="opacity:.7;cursor:not-allowed;">
                     </div>
 
                     <div class="input-group">
-                        <label>Phone Number</label>
+                        <label for="phoneNumber">Phone Number</label>
                         <input type="tel" id="phoneNumber" placeholder="e.g. +91 9876543210">
                     </div>
 
@@ -131,51 +112,31 @@
 
             </div>
 
-            <div class="settings-card">
-                <h3>Change Password</h3>
-                <p>Update the password used to log in to your ExpenseX account.</p>
+            <div class="glass-card table-card">
 
-                <input type="password" id="currentPassword" placeholder="Current password" />
-                <input type="password" id="newPassword" placeholder="New password" />
-                <input type="password" id="confirmNewPassword" placeholder="Confirm new password" />
-
-                <button class="change-password-btn" onclick="changePassword()">
-                    Update Password
-                </button>
-            </div>
-
-        </div>
-
-        <!-- ================================
-             Danger Zone
-        ================================= -->
-
-        <div class="glass-card danger-zone">
-
-            <div class="danger-header">
-                <h2>Danger Zone</h2>
-                <p>
-                    Permanently delete your ExpenseX account and all associated data.
-                    This action cannot be undone.
-                </p>
-            </div>
-
-            <div class="danger-content">
-
-                <div>
-                    <h3>Delete Account</h3>
-
-                    <p>
-                        Your profile, expenses, categories and other account data
-                        will be permanently removed.
-                    </p>
+                <div class="table-header">
+                    <h2>Account</h2>
                 </div>
 
-                <button
-                        type="button"
-                        class="delete-account-btn"
-                        onclick="deleteAccount()">
-                    🗑 Delete Account
+                <p style="margin:12px 0 18px;color:var(--text-secondary);font-size:14px;">
+                    Password, session and account-deletion controls are in
+                    Security &amp; Privacy.
+                </p>
+
+                <div class="profile-shortcuts">
+                    <a class="btn-secondary" th:href="@{/security-privacy}"
+                       style="width:auto;padding:10px 16px;">🔐 Security &amp; Privacy</a>
+                    <a class="btn-secondary" th:href="@{/settings}"
+                       style="width:auto;padding:10px 16px;">⚙️ Settings</a>
+                </div>
+
+                <h3 style="margin:28px 0 8px;font-size:15px;">Log out</h3>
+                <p style="margin-bottom:14px;color:var(--text-muted);font-size:13px;">
+                    End your session on this browser. You will need to sign in again.
+                </p>
+
+                <button type="button" class="btn-outline-danger" id="logoutBtn">
+                    ↪ Log out
                 </button>
 
             </div>
@@ -188,13 +149,11 @@
 
 </div>
 
+<script th:src="@{/js/script.js}"></script>
 <script>
 
+    // script.js already redirects to /login when there is no token.
     const token = localStorage.getItem("token");
-
-    if(!token){
-        window.location="/login";
-    }
 
     let currentUserId = null;
 
@@ -204,7 +163,7 @@
         return (a + b).toUpperCase() || "?";
     }
 
-    function formatDate(value){
+    function formatLongDate(value){
         if(!value) return "--";
         const d = new Date(value);
         return d.toLocaleDateString("en-IN", { year: "numeric", month: "long", day: "numeric" });
@@ -248,8 +207,7 @@
             );
 
             if (response.status === 401 || response.status === 403) {
-                localStorage.removeItem("token");
-                window.location.href = "/login";
+                logout();
                 return;
             }
 
@@ -281,7 +239,7 @@
             }
 
             document.getElementById("memberSince").textContent =
-                formatDate(user.createdAt);
+                formatLongDate(user.createdAt);
 
             document.getElementById("accountStatus").textContent =
                 user.active ? "Active" : "Inactive";
@@ -311,8 +269,61 @@
                 "Please refresh the page or sign in again.";
         }
     }
+
+    // Save profile - PUT /api/users/{id}/profile (unchanged API contract)
+    document.getElementById("profileForm").addEventListener("submit", async (e) => {
+
+        e.preventDefault();
+
+        const msg = document.getElementById("formMsg");
+        msg.className = "form-msg";
+        msg.textContent = "";
+
+        const payload = {
+            firstName: document.getElementById("firstName").value.trim(),
+            lastName: document.getElementById("lastName").value.trim(),
+            phoneNumber: document.getElementById("phoneNumber").value.trim()
+        };
+
+        try {
+
+            const res = await fetch("/api/users/" + currentUserId + "/profile", {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: "Bearer " + token
+                },
+                body: JSON.stringify(payload)
+            });
+
+            if(!res.ok){
+                throw new Error("Update failed");
+            }
+
+            msg.textContent = "Profile updated successfully.";
+            msg.className = "form-msg success";
+
+            loadProfile();
+
+            // Keep the name shown in the sidebar in sync.
+            if (window.ExpenseX && window.ExpenseX.refreshSidebarProfile) {
+                window.ExpenseX.refreshSidebarProfile();
+            }
+
+        } catch(err){
+            msg.textContent = "Could not update profile. Please try again.";
+            msg.className = "form-msg error";
+        }
+    });
+
+    // Logout: confirmation first, then the single logout() from script.js
+    document.getElementById("logoutBtn").addEventListener("click", function () {
+        confirmLogout();
+    });
+
+    loadProfile();
+
 </script>
 
 </body>
-
 </html>

@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ExpenseX | Security &amp; Privacy</title>
+    <link rel="icon" type="image/png" th:href="@{/images/favicon.png}">
+    <title>Security &amp; Privacy | ExpenseX</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
@@ -14,136 +15,252 @@
 <body>
 <div class="background"></div>
 
-<main class="security-page">
-    <div class="security-container">
+<div class="dashboard">
 
-        <header class="security-topbar">
-            <a class="back-to-profile" th:href="@{/profile}">
-                ← Back to Profile
-            </a>
-        </header>
+    <aside th:replace="~{fragments/sidebar :: sidebar('profile')}"></aside>
 
-        <section class="security-heading">
-            <h1>Security &amp; Privacy</h1>
-            <p>Manage your account security, understand your privacy options,
-                and protect access to your ExpenseX account.</p>
-        </section>
+    <main class="content">
 
-        <section class="security-section">
-            <h2>Password &amp; Authentication</h2>
-            <p>Keep your account secure with strong authentication practices.</p>
-
-            <div class="security-option">
-                <div class="security-option-info">
-                    <h3>Change Password</h3>
-                    <p>Update your password to help protect your account.</p>
-                </div>
-                <a class="btn-secondary" th:href="@{/profile}"
-                   style="width:auto;padding:10px 16px">
-                    Manage Password
-                </a>
-            </div>
-
-            <div class="security-option">
-                <div class="security-option-info">
-                    <h3>Two-Factor Authentication</h3>
-                    <p>Add an extra verification step when signing in.</p>
-                </div>
-                <span class="pill warn">Not configured</span>
-            </div>
-        </section>
-
-        <section class="security-section">
-            <h2>Session Security</h2>
-            <p>Review how your account sessions should be managed.</p>
-
-            <div class="security-option">
-                <div class="security-option-info">
-                    <h3>Sign Out</h3>
-                    <p>End your current ExpenseX session on this browser.</p>
-                </div>
-                <button type="button" class="btn-secondary"
-                        id="logoutCurrentBtn"
-                        style="width:auto;padding:10px 16px">
-                    Sign Out
-                </button>
-            </div>
-
-            <div class="security-option">
-                <div class="security-option-info">
-                    <h3>Sign Out Everywhere</h3>
-                    <p>Invalidate all active sessions on every device.</p>
-                </div>
-                <span class="pill warn">Backend support required</span>
-            </div>
-        </section>
-
-        <section class="security-section">
-            <h2>Privacy Preferences</h2>
-            <p>Choose your preferences for optional data collection.</p>
-
-            <div class="security-option">
-                <div class="security-option-info">
-                    <h3>Optional Usage Analytics</h3>
-                    <p>Allow optional usage analytics if the application supports it.</p>
-                </div>
-                <input type="checkbox" id="usageAnalytics">
-            </div>
-
-            <div class="security-option">
-                <div class="security-option-info">
-                    <h3>Personalized Insights</h3>
-                    <p>Allow financial insights based on your recorded transactions.</p>
-                </div>
-                <input type="checkbox" id="personalizedInsights" checked>
-            </div>
-
-            <div id="privacyMessage" class="security-message"
-                 role="status" aria-live="polite"></div>
-
-            <div class="settings-actions">
-                <button type="button" class="btn-primary" id="savePrivacyBtn">
-                    Save Privacy Preferences
-                </button>
-            </div>
-        </section>
-
-        <section class="danger-zone">
-            <h2>Danger Zone</h2>
-            <p>Account deletion is permanent and may remove your account and
-                associated financial records. Confirm the consequences before proceeding.</p>
-
-            <button type="button" class="delete-account-btn" id="deleteAccountInfoBtn">
-                Account Deletion Information
+        <div class="content-topbar">
+            <button type="button" class="mobile-sidebar-toggle" id="mobileSidebarToggle"
+                    aria-label="Open navigation" aria-controls="appSidebar" aria-expanded="false">
+                <span aria-hidden="true">☰</span>
             </button>
+            <h1>Security &amp; Privacy</h1>
+        </div>
 
-            <div id="deleteAccountMessage" class="security-message"
-                 role="status" aria-live="polite"></div>
-        </section>
+        <div class="security-container security-page">
 
-    </div>
-</main>
+            <header class="security-topbar">
+                <a class="back-to-profile" th:href="@{/profile}">← Back to Profile</a>
+            </header>
+
+            <section class="security-heading">
+                <p>Manage your password, your session and your account.
+                    Settings that only apply to this browser are labelled as such.</p>
+            </section>
+
+            <!-- ============ A. PASSWORD & AUTHENTICATION ============ -->
+            <section class="security-section" aria-labelledby="pwHeading">
+                <h2 id="pwHeading">Password &amp; Authentication</h2>
+                <p>Keep your account secure with a strong, unique password.</p>
+
+                <div class="security-option">
+                    <div class="security-option-info">
+                        <h3>Email verification code at sign-in</h3>
+                        <p>ExpenseX emails you a one-time code each time you sign in.</p>
+                    </div>
+                    <span class="pill ok">Enabled</span>
+                </div>
+
+                <form id="passwordForm" class="pw-form" novalidate>
+                    <h3>Change Password</h3>
+
+                    <input type="password" id="currentPassword" placeholder="Current password"
+                           autocomplete="current-password" aria-label="Current password">
+                    <input type="password" id="newPassword" placeholder="New password (at least 6 characters)"
+                           autocomplete="new-password" aria-label="New password">
+                    <input type="password" id="confirmNewPassword" placeholder="Confirm new password"
+                           autocomplete="new-password" aria-label="Confirm new password">
+
+                    <div>
+                        <button type="submit" class="btn-primary" id="updatePasswordBtn">
+                            Update Password
+                        </button>
+                    </div>
+
+                    <div id="passwordMessage" class="security-message"
+                         role="status" aria-live="polite"></div>
+                </form>
+            </section>
+
+            <!-- ============ B. SESSION SECURITY ============ -->
+            <section class="security-section" aria-labelledby="sessionHeading">
+                <h2 id="sessionHeading">Session Security</h2>
+                <p>Control how your account stays signed in.</p>
+
+                <div class="security-option">
+                    <div class="security-option-info">
+                        <h3>Sign out of this browser</h3>
+                        <p>Removes your sign-in from this browser and returns you to the Login page.</p>
+                    </div>
+                    <button type="button" class="btn-secondary" id="logoutCurrentBtn"
+                            style="width:auto;padding:10px 16px">
+                        Sign Out
+                    </button>
+                </div>
+
+                <div class="security-option">
+                    <div class="security-option-info">
+                        <h3>Sign out everywhere</h3>
+                        <p>Not available yet. Signing out only clears this browser. The server does not
+                            revoke sign-in tokens, so a token already copied to another device stays
+                            valid until it expires.</p>
+                    </div>
+                    <span class="pill warn">Not available</span>
+                </div>
+            </section>
+
+            <!-- ============ C. PRIVACY PREFERENCES ============ -->
+            <section class="security-section" aria-labelledby="privacyHeading">
+                <h2 id="privacyHeading">Privacy Preferences</h2>
+                <p>These switches are stored <strong>in this browser only</strong>. ExpenseX does not
+                    yet read them on the server, so they are not enforced by the backend.</p>
+
+                <div class="security-option">
+                    <div class="security-option-info">
+                        <h3>Optional Usage Analytics</h3>
+                        <p>Allow optional usage analytics if the application supports it.</p>
+                        <span class="scope-note">Browser-only · not enforced by the server</span>
+                    </div>
+                    <input type="checkbox" id="usageAnalytics" aria-label="Optional usage analytics">
+                </div>
+
+                <div class="security-option">
+                    <div class="security-option-info">
+                        <h3>Personalized Insights</h3>
+                        <p>Allow financial insights based on your recorded transactions.</p>
+                        <span class="scope-note">Browser-only · not enforced by the server</span>
+                    </div>
+                    <input type="checkbox" id="personalizedInsights" checked aria-label="Personalized insights">
+                </div>
+
+                <div id="privacyMessage" class="security-message"
+                     role="status" aria-live="polite"></div>
+
+                <div class="settings-actions">
+                    <button type="button" class="btn-primary" id="savePrivacyBtn">
+                        Save Privacy Preferences
+                    </button>
+                </div>
+            </section>
+
+            <!-- ============ D. DANGER ZONE ============ -->
+            <section class="danger-zone" aria-labelledby="dangerHeading">
+                <h2 id="dangerHeading">Danger Zone</h2>
+                <p>Deleting your account is <strong>permanent</strong>. Your profile, expenses,
+                    categories and the other data stored for your account on the server will be
+                    removed and cannot be recovered. Income, bills, loans and savings entries saved
+                    in this browser are cleared too.</p>
+
+                <button type="button" class="delete-account-btn" id="deleteAccountBtn">
+                    🗑 Delete My Account
+                </button>
+
+                <div id="deleteAccountMessage" class="security-message"
+                     role="status" aria-live="polite"></div>
+            </section>
+
+        </div>
+
+        <div th:replace="~{fragments/footer :: footer}"></div>
+
+    </main>
+</div>
 
 <script th:src="@{/js/script.js}"></script>
 <script>
     (() => {
+        "use strict";
+
+        function show(element, text, type) {
+            element.textContent = text;
+            element.className = "security-message " + (type || "");
+        }
+
+        // Parse the ApiResponse / error JSON without ever throwing.
+        async function readBody(response) {
+            try {
+                const text = await response.text();
+                try { return JSON.parse(text); } catch (e) { return { message: text }; }
+            } catch (e) {
+                return {};
+            }
+        }
+
+        /* ---------- A. Change password: PUT /api/users/change-password ---------- */
+        const passwordForm = document.getElementById("passwordForm");
+        const passwordMessage = document.getElementById("passwordMessage");
+        const updateBtn = document.getElementById("updatePasswordBtn");
+
+        passwordForm.addEventListener("submit", async (event) => {
+            event.preventDefault();
+
+            const currentPassword = document.getElementById("currentPassword").value;
+            const newPassword = document.getElementById("newPassword").value;
+            const confirmPassword = document.getElementById("confirmNewPassword").value;
+
+            if (!currentPassword || !newPassword || !confirmPassword) {
+                show(passwordMessage, "Please fill in all password fields.", "error");
+                return;
+            }
+
+            if (newPassword.length < 6) {
+                show(passwordMessage, "The new password must be at least 6 characters.", "error");
+                return;
+            }
+
+            if (newPassword !== confirmPassword) {
+                show(passwordMessage, "The new password and its confirmation do not match.", "error");
+                return;
+            }
+
+            if (newPassword === currentPassword) {
+                show(passwordMessage, "Choose a new password that is different from the current one.", "error");
+                return;
+            }
+
+            updateBtn.disabled = true;
+            updateBtn.textContent = "Updating...";
+            show(passwordMessage, "", "");
+
+            try {
+                const response = await fetch("/api/users/change-password", {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": "Bearer " + getToken()
+                    },
+                    body: JSON.stringify({ currentPassword, newPassword, confirmPassword })
+                });
+
+                if (response.status === 401) {
+                    logout();
+                    return;
+                }
+
+                const data = await readBody(response);
+
+                if (response.ok && data.success) {
+                    show(passwordMessage, data.message || "Password changed successfully.", "success");
+                    passwordForm.reset();
+                } else {
+                    show(passwordMessage, data.message || "Failed to change password.", "error");
+                }
+            } catch (error) {
+                console.error("Change password error:", error);
+                show(passwordMessage, "Unable to change your password. Please try again.", "error");
+            } finally {
+                updateBtn.disabled = false;
+                updateBtn.textContent = "Update Password";
+            }
+        });
+
+        /* ---------- B. Sign out: confirmation, then the single logout() ---------- */
+        document.getElementById("logoutCurrentBtn").addEventListener("click", () => {
+            confirmLogout();
+        });
+
+        /* ---------- C. Privacy preferences (browser-local) ---------- */
         const privacyKey = "expensex-privacy-preferences";
         const usageAnalytics = document.getElementById("usageAnalytics");
         const personalizedInsights = document.getElementById("personalizedInsights");
-        const message = document.getElementById("privacyMessage");
-        const deletionMessage = document.getElementById("deleteAccountMessage");
-
-        function showMessage(element, text, type) {
-            element.textContent = text;
-            element.className = "security-message " + type;
-        }
+        const privacyMessage = document.getElementById("privacyMessage");
 
         try {
             const saved = JSON.parse(localStorage.getItem(privacyKey) || "{}");
-
             usageAnalytics.checked = saved.usageAnalytics === true;
-            personalizedInsights.checked =
-                saved.personalizedInsights !== false;
+            personalizedInsights.checked = saved.personalizedInsights !== false;
         } catch (error) {
             usageAnalytics.checked = false;
             personalizedInsights.checked = true;
@@ -155,32 +272,105 @@
                     usageAnalytics: usageAnalytics.checked,
                     personalizedInsights: personalizedInsights.checked
                 }));
-
-                showMessage(
-                    message,
-                    "Privacy preferences saved in this browser. Backend enforcement is not configured yet.",
-                    "success"
-                );
+                show(privacyMessage,
+                    "Saved in this browser only. ExpenseX does not enforce these on the server yet.",
+                    "success");
             } catch (error) {
-                showMessage(message, "Could not save privacy preferences.", "error");
+                show(privacyMessage, "Could not save privacy preferences.", "error");
             }
         });
 
-        document.getElementById("logoutCurrentBtn").addEventListener("click", () => {
-            if (typeof window.logout === "function") {
-                window.logout();
-            } else {
-                localStorage.removeItem("token");
-                window.location.replace("/login");
-            }
-        });
+        /* ---------- D. Delete account: DELETE /api/users/account ---------- */
+        // Nothing here runs on page load. Deletion happens only after BOTH
+        // confirmations below, started by an explicit click.
+        const deleteBtn = document.getElementById("deleteAccountBtn");
+        const deleteMessage = document.getElementById("deleteAccountMessage");
 
-        document.getElementById("deleteAccountInfoBtn").addEventListener("click", () => {
-            showMessage(
-                deletionMessage,
-                "To delete your account, use the account deletion option on your Profile page. Review the consequences before confirming deletion.",
-                "error"
-            );
+        function tokenSubject() {
+            try {
+                const part = getToken().split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
+                return JSON.parse(atob(part.padEnd(Math.ceil(part.length / 4) * 4, "="))).sub || null;
+            } catch (e) {
+                return null;
+            }
+        }
+
+        function clearLocalAccountData(subject) {
+            try {
+                if (subject) {
+                    const prefix = "expensex:" + subject + ":";
+                    Object.keys(localStorage)
+                        .filter((key) => key.indexOf(prefix) === 0)
+                        .forEach((key) => localStorage.removeItem(key));
+                }
+            } catch (e) { /* ignore */ }
+
+            removeToken();
+
+            try {
+                localStorage.removeItem("refreshToken");
+                localStorage.removeItem("accessToken");
+                sessionStorage.clear();
+            } catch (e) { /* ignore */ }
+        }
+
+        deleteBtn.addEventListener("click", async () => {
+            show(deleteMessage, "", "");
+
+            const first = await ExpenseX.confirmDialog({
+                title: "Delete your account?",
+                message: "This permanently deletes your account and its data. This cannot be undone.",
+                confirmText: "Continue",
+                cancelText: "Keep my account",
+                danger: true
+            });
+            if (!first) { return; }
+
+            const second = await ExpenseX.confirmDialog({
+                title: "Final confirmation",
+                message: "Type DELETE to permanently delete your ExpenseX account.",
+                confirmText: "Delete account",
+                cancelText: "Cancel",
+                danger: true,
+                requireText: "DELETE"
+            });
+            if (!second) { return; }
+
+            const subject = tokenSubject();
+            deleteBtn.disabled = true;
+            deleteBtn.textContent = "Deleting...";
+
+            try {
+                const response = await fetch("/api/users/account", {
+                    method: "DELETE",
+                    headers: { "Authorization": "Bearer " + getToken() }
+                });
+
+                if (response.status === 401) {
+                    show(deleteMessage, "Your session has expired. Please sign in again.", "error");
+                    setTimeout(logout, 1500);
+                    return;
+                }
+
+                const data = await readBody(response);
+
+                if (response.ok && data.success !== false) {
+                    clearLocalAccountData(subject);
+                    show(deleteMessage,
+                        "Your ExpenseX account has been permanently deleted. Redirecting...",
+                        "success");
+                    setTimeout(() => window.location.replace("/?accountDeleted=1"), 2200);
+                    return;
+                }
+
+                show(deleteMessage, data.message || "Unable to delete your account.", "error");
+            } catch (error) {
+                console.error("Account deletion error:", error);
+                show(deleteMessage, "Unable to reach the server. Your account was not deleted.", "error");
+            }
+
+            deleteBtn.disabled = false;
+            deleteBtn.textContent = "🗑 Delete My Account";
         });
     })();
 </script>

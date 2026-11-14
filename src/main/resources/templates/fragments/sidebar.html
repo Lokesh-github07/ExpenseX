@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<!--
+    Shared ExpenseX sidebar. One copy for every signed-in page.
+
+    Usage:  <aside th:replace="~{fragments/sidebar :: sidebar('dashboard')}"></aside>
+
+    Valid values for "active":
+      dashboard | transactions | income | bills | savings | reports | calendar | profile
+    The profile section is pinned to the bottom. There is intentionally no
+    Logout button here - Logout lives on the Profile page.
+-->
+<aside class="sidebar" id="appSidebar" aria-label="Main navigation" th:fragment="sidebar(active)">
+
+    <div class="sidebar-brand-row">
+        <a class="sidebar-brand" th:href="@{/dashboard}" aria-label="ExpenseX Dashboard">
+            <span class="brand-icon" aria-hidden="true">💰</span>
+            <span class="brand-name">ExpenseX</span>
+        </a>
+        <button type="button" class="sidebar-toggle" id="sidebarToggle"
+                aria-label="Collapse sidebar" aria-controls="appSidebar" aria-expanded="true">
+            <span aria-hidden="true">☰</span>
+        </button>
+    </div>
+
+    <nav class="sidebar-navigation" aria-label="ExpenseX sections">
+        <ul class="sidebar-menu">
+            <li>
+                <a th:href="@{/dashboard}" th:classappend="${active == 'dashboard'} ? 'active'" title="Dashboard">
+                    <span class="nav-icon" aria-hidden="true">🏠</span>
+                    <span class="nav-label">Dashboard</span>
+                </a>
+            </li>
+            <li>
+                <a th:href="@{/transactions}" th:classappend="${active == 'transactions'} ? 'active'" title="Transactions &amp; Expenses">
+                    <span class="nav-icon" aria-hidden="true">💳</span>
+                    <span class="nav-label">Transactions &amp; Expenses</span>
+                </a>
+            </li>
+            <li>
+                <a th:href="@{/salary}" th:classappend="${active == 'income'} ? 'active'" title="Income &amp; Budget">
+                    <span class="nav-icon" aria-hidden="true">💵</span>
+                    <span class="nav-label">Income &amp; Budget</span>
+                </a>
+            </li>
+            <li>
+                <a th:href="@{/bills}" th:classappend="${active == 'bills'} ? 'active'" title="Bills, Loans &amp; EMIs">
+                    <span class="nav-icon" aria-hidden="true">🧾</span>
+                    <span class="nav-label">Bills, Loans &amp; EMIs</span>
+                </a>
+            </li>
+            <li>
+                <a th:href="@{/savings}" th:classappend="${active == 'savings'} ? 'active'" title="Savings &amp; CIBIL Score">
+                    <span class="nav-icon" aria-hidden="true">🎯</span>
+                    <span class="nav-label">Savings &amp; CIBIL Score</span>
+                </a>
+            </li>
+            <li>
+                <!-- Upcoming feature: not a link, no route, no fake functionality. -->
+                <span class="nav-soon" role="link" aria-disabled="true" tabindex="-1"
+                      title="AI Finance Assistant - coming soon">
+                    <span class="nav-icon" aria-hidden="true">🤖</span>
+                    <span class="nav-label soon-text">
+                        <span class="soon-title">AI Finance Assistant</span>
+                        <span class="soon-badge">Coming Soon</span>
+                    </span>
+                </span>
+            </li>
+            <li>
+                <a th:href="@{/analytics}" th:classappend="${active == 'reports'} ? 'active'" title="Reports &amp; Analysis">
+                    <span class="nav-icon" aria-hidden="true">📊</span>
+                    <span class="nav-label">Reports &amp; Analysis</span>
+                </a>
+            </li>
+            <li>
+                <a th:href="@{/financial-calendar}" th:classappend="${active == 'calendar'} ? 'active'" title="Financial Calendar">
+                    <span class="nav-icon" aria-hidden="true">📅</span>
+                    <span class="nav-label">Financial Calendar</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- Profile stays pinned at the bottom of the sidebar -->
+    <div class="sidebar-profile" id="sidebarProfile">
+        <a class="profile-link" th:href="@{/profile}" th:classappend="${active == 'profile'} ? 'active'" title="My Profile">
+            <span class="profile-avatar" id="sidebarProfileAvatar" aria-hidden="true">👤</span>
+            <span class="profile-details">
+                <span class="profile-name" id="sidebarProfileName">My Profile</span>
+                <span class="profile-caption">View profile</span>
+            </span>
+        </a>
+    </div>
+</aside>
+
+</body>
+</html>

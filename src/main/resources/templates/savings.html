@@ -2,12 +2,12 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 
 <head>
+    <link rel="icon" type="image/png" th:href="@{/images/favicon.png}">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Savings &amp; CIBIL Score | ExpenseX</title>
 
     <link rel="stylesheet" th:href="@{/css/style.css}">
-    <link rel="stylesheet" th:href="@{/css/section.css}">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 
@@ -17,71 +17,7 @@
 
 <div class="dashboard">
 
-    <!-- ===== SECTION SIDEBAR ===== -->
-    <aside class="sidebar" id="appSidebar" aria-label="Savings navigation">
-        <div class="sidebar-brand-row">
-            <a class="sidebar-brand" th:href="@{/dashboard}" aria-label="ExpenseX Dashboard">
-                <span class="brand-icon" aria-hidden="true">💰</span>
-                <span class="brand-name">ExpenseX</span>
-            </a>
-            <button type="button" class="sidebar-toggle" id="sidebarToggle"
-                    aria-label="Collapse sidebar" aria-controls="appSidebar" aria-expanded="true">
-                <span aria-hidden="true">☰</span>
-            </button>
-        </div>
-
-        <nav class="sidebar-navigation" aria-label="Savings sections">
-            <ul class="sidebar-menu">
-                <li class="back-item">
-                    <a th:href="@{/dashboard}" title="Back to Dashboard">
-                        <span class="nav-icon" aria-hidden="true">⬅️</span>
-                        <span class="nav-label">Back to Dashboard</span>
-                    </a>
-                </li>
-
-                <li class="section-label"><span class="nav-label">Savings &amp; CIBIL Score</span></li>
-
-                <li>
-                    <a href="#goals" data-view="goals" data-title="My Savings Goals">
-                        <span class="nav-icon" aria-hidden="true">🎯</span>
-                        <span class="nav-label">My Goals</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="#new-goal" data-view="new-goal" data-title="New Savings Goal">
-                        <span class="nav-icon" aria-hidden="true">➕</span>
-                        <span class="nav-label">New Goal</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="#cibil" data-view="cibil" data-title="CIBIL Score">
-                        <span class="nav-icon" aria-hidden="true">📊</span>
-                        <span class="nav-label">CIBIL Score</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="#cibil-log" data-view="cibil-log" data-title="Update CIBIL Score">
-                        <span class="nav-icon" aria-hidden="true">✏️</span>
-                        <span class="nav-label">Update CIBIL Score</span>
-                    </a>
-                </li>
-            </ul>
-        </nav>
-
-        <div class="sidebar-profile" id="sidebarProfile">
-            <a class="profile-link" th:href="@{/profile}" title="My Profile">
-                <span class="profile-avatar" aria-hidden="true">👤</span>
-                <span class="profile-details">
-                    <span class="profile-name">My Profile</span>
-                    <span class="profile-caption">Account settings</span>
-                </span>
-            </a>
-            <button type="button" class="profile-logout" onclick="logout()" title="Log out">
-                <span aria-hidden="true">↪</span>
-                <span class="nav-label">Logout</span>
-            </button>
-        </div>
-    </aside>
+    <aside th:replace="~{fragments/sidebar :: sidebar('savings')}"></aside>
 
     <!-- ===== MAIN CONTENT ===== -->
     <main class="content">
@@ -93,6 +29,13 @@
             </button>
             <h1 id="pageTitle">My Savings Goals</h1>
         </div>
+
+        <nav class="view-tabs" aria-label="Savings sections">
+            <a href="#goals" data-view="goals" data-title="My Savings Goals">My Goals</a>
+            <a href="#new-goal" data-view="new-goal" data-title="New Savings Goal">New Goal</a>
+            <a href="#cibil" data-view="cibil" data-title="CIBIL Score">CIBIL Score</a>
+            <a href="#cibil-log" data-view="cibil-log" data-title="Update CIBIL Score">Update CIBIL Score</a>
+        </nav>
 
         <!-- GOALS -->
         <section class="view" id="goals">

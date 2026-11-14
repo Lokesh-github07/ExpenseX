@@ -2,12 +2,12 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 
 <head>
+    <link rel="icon" type="image/png" th:href="@{/images/favicon.png}">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Transactions &amp; Expenses | ExpenseX</title>
 
     <link rel="stylesheet" th:href="@{/css/style.css}">
-    <link rel="stylesheet" th:href="@{/css/section.css}">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 
@@ -17,78 +17,7 @@
 
 <div class="dashboard">
 
-    <!-- ===== SECTION SIDEBAR ===== -->
-    <aside class="sidebar" id="appSidebar" aria-label="Transactions navigation">
-        <div class="sidebar-brand-row">
-            <a class="sidebar-brand" th:href="@{/dashboard}" aria-label="ExpenseX Dashboard">
-                <span class="brand-icon" aria-hidden="true">💰</span>
-                <span class="brand-name">ExpenseX</span>
-            </a>
-            <button type="button" class="sidebar-toggle" id="sidebarToggle"
-                    aria-label="Collapse sidebar" aria-controls="appSidebar" aria-expanded="true">
-                <span aria-hidden="true">☰</span>
-            </button>
-        </div>
-
-        <nav class="sidebar-navigation" aria-label="Transactions sections">
-            <ul class="sidebar-menu">
-                <li class="back-item">
-                    <a th:href="@{/dashboard}" title="Back to Dashboard">
-                        <span class="nav-icon" aria-hidden="true">⬅️</span>
-                        <span class="nav-label">Back to Dashboard</span>
-                    </a>
-                </li>
-
-                <li class="section-label"><span class="nav-label">Transactions &amp; Expenses</span></li>
-
-                <li>
-                    <a href="#all" data-view="all" data-title="All Transactions">
-                        <span class="nav-icon" aria-hidden="true">📋</span>
-                        <span class="nav-label">All Transactions</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="#new" data-view="new" data-title="New Transaction">
-                        <span class="nav-icon" aria-hidden="true">➕</span>
-                        <span class="nav-label">New Transaction</span>
-                    </a>
-                </li>
-                <li>
-                    <!-- Opens your existing Add Expense page -->
-                    <a th:href="@{/add-expense}" title="Add Expense">
-                        <span class="nav-icon" aria-hidden="true">🧾</span>
-                        <span class="nav-label">Add Expense</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="#categories" data-view="categories" data-title="Category Summary">
-                        <span class="nav-icon" aria-hidden="true">🗂️</span>
-                        <span class="nav-label">Category Summary</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="#export" data-view="export" data-title="Export Data">
-                        <span class="nav-icon" aria-hidden="true">⬇️</span>
-                        <span class="nav-label">Export Data</span>
-                    </a>
-                </li>
-            </ul>
-        </nav>
-
-        <div class="sidebar-profile" id="sidebarProfile">
-            <a class="profile-link" th:href="@{/profile}" title="My Profile">
-                <span class="profile-avatar" aria-hidden="true">👤</span>
-                <span class="profile-details">
-                    <span class="profile-name">My Profile</span>
-                    <span class="profile-caption">Account settings</span>
-                </span>
-            </a>
-            <button type="button" class="profile-logout" onclick="logout()" title="Log out">
-                <span aria-hidden="true">↪</span>
-                <span class="nav-label">Logout</span>
-            </button>
-        </div>
-    </aside>
+    <aside th:replace="~{fragments/sidebar :: sidebar('transactions')}"></aside>
 
     <!-- ===== MAIN CONTENT ===== -->
     <main class="content">
@@ -100,6 +29,14 @@
             </button>
             <h1 id="pageTitle">All Transactions</h1>
         </div>
+
+        <nav class="view-tabs" aria-label="Transactions sections">
+            <a href="#all" data-view="all" data-title="All Transactions">All Transactions</a>
+            <a href="#new" data-view="new" data-title="New Transaction">New Transaction</a>
+            <a href="#categories" data-view="categories" data-title="Category Summary">Category Summary</a>
+            <a href="#export" data-view="export" data-title="Export Data">Export Data</a>
+            <a th:href="@{/add-expense}">+ Add Expense</a>
+        </nav>
 
         <!-- ALL TRANSACTIONS -->
         <section class="view" id="all">

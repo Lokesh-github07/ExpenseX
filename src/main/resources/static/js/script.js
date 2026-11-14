@@ -1,106 +1,26 @@
 /* ==========================================
    ExpenseX - script.js
-   Shared theme, authentication, API helpers,
+   Shared authentication, API helpers,
    sidebar controls, and section-page helpers
    (Transactions, Income & Budget, Bills, Savings)
 ========================================== */
 
 /* ==========================================
-   GLOBAL THEME MANAGER
+   THEME
+   ExpenseX uses ONE permanent dark theme (see the
+   design tokens in css/style.css). There is no theme
+   switching and nothing is read from localStorage.
+   The only work here is removing keys that older
+   versions of the app saved in the browser.
 ========================================== */
 
 (function () {
-    const THEME_KEY = "expensex-theme";
-
     try {
-        const saved =
-            localStorage.getItem(THEME_KEY) ||
-            localStorage.getItem("theme") ||
-            "light";
-
-        document.documentElement.setAttribute(
-            "data-theme",
-            saved
-        );
+        localStorage.removeItem("expensex-theme");
+        localStorage.removeItem("theme");
     } catch (error) {
-        // Storage may be unavailable.
+        // Storage may be unavailable; nothing to clean up.
     }
-
-    window.ExpenseXTheme = {
-        key: THEME_KEY,
-
-        get: function () {
-            return document.documentElement.getAttribute(
-                "data-theme"
-            ) || "light";
-        },
-
-        set: function (theme) {
-            if (theme !== "light" && theme !== "dark") {
-                return;
-            }
-
-            document.documentElement.setAttribute(
-                "data-theme",
-                theme
-            );
-
-            document.documentElement.dataset.theme = theme;
-
-            if (document.body) {
-                document.body.setAttribute(
-                    "data-theme",
-                    theme
-                );
-            }
-
-            try {
-                localStorage.setItem(THEME_KEY, theme);
-            } catch (error) {
-                // Ignore storage errors.
-            }
-
-            const button =
-                document.getElementById("themeToggle");
-
-            if (button) {
-                button.setAttribute(
-                    "aria-label",
-                    "Switch to " +
-                    (theme === "dark" ? "light" : "dark") +
-                    " mode"
-                );
-            }
-
-            window.dispatchEvent(
-                new CustomEvent("expensex-theme-change", {
-                    detail: { theme: theme }
-                })
-            );
-        },
-
-        toggle: function () {
-            this.set(
-                this.get() === "dark" ? "light" : "dark"
-            );
-        }
-    };
-
-    document.addEventListener("DOMContentLoaded", function () {
-        const button =
-            document.getElementById("themeToggle");
-
-        if (!button || button.dataset.themeWired) {
-            return;
-        }
-
-        button.dataset.themeWired = "1";
-
-        button.addEventListener("click", function (event) {
-            event.preventDefault();
-            window.ExpenseXTheme.toggle();
-        });
-    });
 })();
 
 /* ==========================================
@@ -129,9 +49,23 @@ function isLoggedIn() {
     return getToken() !== null;
 }
 
+// The ONE logout implementation. It is also called automatically when the
+// API answers 401, so it must not ask for confirmation - use
+// confirmLogout() for buttons the user clicks.
 function logout() {
     removeToken();
-    window.location.href = "/login";
+
+    try {
+        // Older builds / future token storage - clear any auth leftovers.
+        localStorage.removeItem("refreshToken");
+        localStorage.removeItem("accessToken");
+        sessionStorage.clear();
+    } catch (error) {
+        // Storage may be unavailable.
+    }
+
+    // replace() keeps the protected page out of the Back-button history.
+    window.location.replace("/login");
 }
 
 /* ==========================================
@@ -268,7 +202,9 @@ const protectedPages = [
     "/transactions",
     "/salary",
     "/bills",
-    "/savings"
+    "/savings",
+    "/settings",
+    "/security-privacy"
 ];
 
 if (
@@ -277,6 +213,17 @@ if (
 ) {
     window.location.replace("/login");
 }
+
+// After logout the Back button can restore a cached protected page.
+window.addEventListener("pageshow", function (event) {
+    if (
+        event.persisted &&
+        protectedPages.includes(window.location.pathname) &&
+        !isLoggedIn()
+    ) {
+        window.location.replace("/login");
+    }
+});
 
 /* ==========================================
    SIDEBAR CONTROLS
@@ -623,3 +570,224 @@ document.addEventListener("DOMContentLoaded", function () {
 //
 // Keep the existing Chart.js configuration and webhook
 // URL logic from your dashboard HTML.
+
+/* ==========================================
+   CONFIRMATION DIALOG, LOGOUT CONFIRMATION
+   AND SIDEBAR PROFILE
+========================================== */
+
+(function () {
+    "use strict";
+
+    // confirmDialog({title, message, confirmText, cancelText, danger, requireText})
+    // resolves true only when the user explicitly confirms.
+    // requireText: the user must type this exact word to enable Confirm.
+    function confirmDialog(options) {
+        options = options || {};
+
+        return new Promise(function (resolve) {
+            const previouslyFocused = document.activeElement;
+            const overlay = document.createElement("div");
+            overlay.className = "delete-confirm";
+
+            const dialog = document.createElement("div");
+            dialog.className = "delete-dialog";
+            dialog.setAttribute("role", "alertdialog");
+            dialog.setAttribute("aria-modal", "true");
+            dialog.setAttribute("aria-labelledby", "xConfirmTitle");
+            dialog.setAttribute("aria-describedby", "xConfirmMessage");
+
+            const title = document.createElement("h3");
+            title.id = "xConfirmTitle";
+            title.textContent = options.title || "Are you sure?";
+
+            const message = document.createElement("p");
+            message.id = "xConfirmMessage";
+            message.textContent = options.message || "";
+
+            dialog.appendChild(title);
+            dialog.appendChild(message);
+
+            let input = null;
+
+            if (options.requireText) {
+                input = document.createElement("input");
+                input.type = "text";
+                input.autocomplete = "off";
+                input.className = "confirm-input";
+                input.setAttribute(
+                    "aria-label",
+                    "Type " + options.requireText + " to confirm"
+                );
+                input.placeholder = "Type " + options.requireText;
+                dialog.appendChild(input);
+            }
+
+            const actions = document.createElement("div");
+            actions.className = "delete-dialog-actions";
+
+            const cancel = document.createElement("button");
+            cancel.type = "button";
+            cancel.className = "btn-secondary";
+            cancel.textContent = options.cancelText || "Cancel";
+
+            const confirm = document.createElement("button");
+            confirm.type = "button";
+            confirm.className = options.danger ? "btn-danger" : "btn-primary";
+            confirm.textContent = options.confirmText || "Confirm";
+
+            if (input) {
+                confirm.disabled = true;
+                input.addEventListener("input", function () {
+                    confirm.disabled =
+                        input.value.trim() !== options.requireText;
+                });
+            }
+
+            actions.appendChild(cancel);
+            actions.appendChild(confirm);
+            dialog.appendChild(actions);
+            overlay.appendChild(dialog);
+            document.body.appendChild(overlay);
+
+            function close(result) {
+                document.removeEventListener("keydown", onKey, true);
+                overlay.remove();
+
+                if (previouslyFocused && previouslyFocused.focus) {
+                    previouslyFocused.focus();
+                }
+
+                resolve(result);
+            }
+
+            function onKey(event) {
+                if (event.key === "Escape") {
+                    event.preventDefault();
+                    close(false);
+                } else if (event.key === "Tab") {
+                    // Keep keyboard focus inside the dialog.
+                    const focusable = Array.prototype.slice.call(
+                        dialog.querySelectorAll("button, input")
+                    ).filter(function (el) { return !el.disabled; });
+
+                    if (!focusable.length) { return; }
+
+                    const first = focusable[0];
+                    const last = focusable[focusable.length - 1];
+
+                    if (event.shiftKey && document.activeElement === first) {
+                        event.preventDefault();
+                        last.focus();
+                    } else if (!event.shiftKey && document.activeElement === last) {
+                        event.preventDefault();
+                        first.focus();
+                    }
+                }
+            }
+
+            document.addEventListener("keydown", onKey, true);
+            overlay.addEventListener("mousedown", function (event) {
+                if (event.target === overlay) { close(false); }
+            });
+            cancel.addEventListener("click", function () { close(false); });
+            confirm.addEventListener("click", function () { close(true); });
+
+            (input || cancel).focus();
+        });
+    }
+
+    // Asks first, then runs the single logout() implementation.
+    function confirmLogout() {
+        return confirmDialog({
+            title: "Log out of ExpenseX?",
+            message: "You will need to sign in again to access your account.",
+            confirmText: "Log out",
+            cancelText: "Stay signed in",
+            danger: true
+        }).then(function (ok) {
+            if (ok) { logout(); }
+            return ok;
+        });
+    }
+
+    // ---- Sidebar profile: avatar initials + the user's real name ----
+    function tokenEmail() {
+        try {
+            const part = String(getToken()).split(".")[1]
+                .replace(/-/g, "+").replace(/_/g, "/");
+            return JSON.parse(atob(part.padEnd(Math.ceil(part.length / 4) * 4, "="))).sub || null;
+        } catch (e) {
+            return null;
+        }
+    }
+
+    function paintSidebarProfile(first, last) {
+        const nameEl = document.getElementById("sidebarProfileName");
+        const avatarEl = document.getElementById("sidebarProfileAvatar");
+        const full = ((first || "") + " " + (last || "")).trim();
+
+        if (nameEl && full) { nameEl.textContent = full; }
+
+        if (avatarEl && full) {
+            const a = (first || "").trim()[0] || "";
+            const b = (last || "").trim()[0] || "";
+            avatarEl.textContent = (a + b).toUpperCase() || "\u{1F464}";
+        }
+    }
+
+    async function refreshSidebarProfile() {
+        if (!document.getElementById("sidebarProfileName") || !isLoggedIn()) {
+            return;
+        }
+
+        const email = tokenEmail();
+        if (!email) { return; }
+
+        const cacheKey = "expensex:sidebar-name";
+
+        try {
+            const cached = JSON.parse(sessionStorage.getItem(cacheKey) || "null");
+            if (cached && cached.email === email) {
+                paintSidebarProfile(cached.first, cached.last);
+            }
+        } catch (e) { /* ignore */ }
+
+        try {
+            const response = await fetch(
+                "/api/users/email/" + encodeURIComponent(email),
+                { headers: { Authorization: "Bearer " + getToken() } }
+            );
+
+            // Never log out from a cosmetic lookup; the page itself handles auth.
+            if (!response.ok) { return; }
+
+            const user = await response.json();
+            paintSidebarProfile(user.firstName, user.lastName);
+
+            try {
+                sessionStorage.setItem(cacheKey, JSON.stringify({
+                    email: email,
+                    first: user.firstName || "",
+                    last: user.lastName || ""
+                }));
+            } catch (e) { /* ignore */ }
+        } catch (e) {
+            // Keep the generic "My Profile" label.
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        // Mark the active sidebar link for assistive technology.
+        document.querySelectorAll(".sidebar-menu a.active").forEach(function (a) {
+            a.setAttribute("aria-current", "page");
+        });
+
+        refreshSidebarProfile();
+    });
+
+    window.confirmLogout = confirmLogout;
+    window.ExpenseX = window.ExpenseX || {};
+    window.ExpenseX.confirmDialog = confirmDialog;
+    window.ExpenseX.refreshSidebarProfile = refreshSidebarProfile;
+})();

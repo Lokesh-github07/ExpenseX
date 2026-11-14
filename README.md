@@ -36,6 +36,23 @@ The application provides:
 - 🐳 Docker deployment
 - 📚 Swagger API documentation
 
+## 🖥️ Web Interface & Implementation Status
+
+- **Public pages:** `/` (landing page), `/login`, `/register`, `/forgot-password`, `/terms`.
+- **Theme:** a single permanent dark theme with an electric-orange accent (colors are CSS variables in `static/css/style.css`). There is no theme switching.
+- **Sidebar:** Dashboard, Transactions & Expenses, Income & Budget, Bills/Loans/EMIs, Savings & CIBIL, Reports & Analysis, Financial Calendar. The profile link is pinned at the bottom.
+- **Profile:** personal details and Logout. **Security & Privacy:** change password, sign out of this browser, privacy preferences and account deletion.
+
+| Area | Status |
+|---|---|
+| Authentication, email OTP, JWT, expenses, categories, dashboard, analytics, PDF/Excel reports, calendar, profile, password change, account deletion | Implemented (server-side) |
+| Income, Budget page, Bills, Loans & EMIs, Savings goals, CIBIL log | Partial: the pages save to browser `localStorage` only (a budget REST API exists but the page does not use it) |
+| Privacy preferences | Browser-only; not enforced by the server |
+| Sign out everywhere | Not implemented: tokens are not revoked server-side |
+| AI Finance Assistant | **Planned** (shown as "Coming Soon" in the sidebar; no route or functionality yet) |
+
+> Protected pages are rendered without a server-side check and guarded in the browser by JavaScript; all `/api/**` data endpoints require a valid JWT.
+
 ---
 
 # 🚀 Features

@@ -2,12 +2,12 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 
 <head>
+    <link rel="icon" type="image/png" th:href="@{/images/favicon.png}">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bills, Loans &amp; EMIs | ExpenseX</title>
 
     <link rel="stylesheet" th:href="@{/css/style.css}">
-    <link rel="stylesheet" th:href="@{/css/section.css}">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 
@@ -17,71 +17,7 @@
 
 <div class="dashboard">
 
-    <!-- ===== SECTION SIDEBAR ===== -->
-    <aside class="sidebar" id="appSidebar" aria-label="Bills navigation">
-        <div class="sidebar-brand-row">
-            <a class="sidebar-brand" th:href="@{/dashboard}" aria-label="ExpenseX Dashboard">
-                <span class="brand-icon" aria-hidden="true">💰</span>
-                <span class="brand-name">ExpenseX</span>
-            </a>
-            <button type="button" class="sidebar-toggle" id="sidebarToggle"
-                    aria-label="Collapse sidebar" aria-controls="appSidebar" aria-expanded="true">
-                <span aria-hidden="true">☰</span>
-            </button>
-        </div>
-
-        <nav class="sidebar-navigation" aria-label="Bills sections">
-            <ul class="sidebar-menu">
-                <li class="back-item">
-                    <a th:href="@{/dashboard}" title="Back to Dashboard">
-                        <span class="nav-icon" aria-hidden="true">⬅️</span>
-                        <span class="nav-label">Back to Dashboard</span>
-                    </a>
-                </li>
-
-                <li class="section-label"><span class="nav-label">Bills, Loans &amp; EMIs</span></li>
-
-                <li>
-                    <a href="#overview" data-view="overview" data-title="Upcoming Bills">
-                        <span class="nav-icon" aria-hidden="true">🧾</span>
-                        <span class="nav-label">Upcoming Bills</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="#add-bill" data-view="add-bill" data-title="Add Bill">
-                        <span class="nav-icon" aria-hidden="true">➕</span>
-                        <span class="nav-label">Add Bill</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="#loans" data-view="loans" data-title="Loans &amp; EMIs">
-                        <span class="nav-icon" aria-hidden="true">🏦</span>
-                        <span class="nav-label">Loans &amp; EMIs</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="#calculator" data-view="calculator" data-title="EMI Calculator">
-                        <span class="nav-icon" aria-hidden="true">🧮</span>
-                        <span class="nav-label">EMI Calculator</span>
-                    </a>
-                </li>
-            </ul>
-        </nav>
-
-        <div class="sidebar-profile" id="sidebarProfile">
-            <a class="profile-link" th:href="@{/profile}" title="My Profile">
-                <span class="profile-avatar" aria-hidden="true">👤</span>
-                <span class="profile-details">
-                    <span class="profile-name">My Profile</span>
-                    <span class="profile-caption">Account settings</span>
-                </span>
-            </a>
-            <button type="button" class="profile-logout" onclick="logout()" title="Log out">
-                <span aria-hidden="true">↪</span>
-                <span class="nav-label">Logout</span>
-            </button>
-        </div>
-    </aside>
+    <aside th:replace="~{fragments/sidebar :: sidebar('bills')}"></aside>
 
     <!-- ===== MAIN CONTENT ===== -->
     <main class="content">
@@ -93,6 +29,13 @@
             </button>
             <h1 id="pageTitle">Upcoming Bills</h1>
         </div>
+
+        <nav class="view-tabs" aria-label="Bills sections">
+            <a href="#overview" data-view="overview" data-title="Upcoming Bills">Upcoming Bills</a>
+            <a href="#add-bill" data-view="add-bill" data-title="Add Bill">Add Bill</a>
+            <a href="#loans" data-view="loans" data-title="Loans &amp; EMIs">Loans &amp; EMIs</a>
+            <a href="#calculator" data-view="calculator" data-title="EMI Calculator">EMI Calculator</a>
+        </nav>
 
         <!-- UPCOMING BILLS -->
         <section class="view" id="overview">

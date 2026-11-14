@@ -2,11 +2,12 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 
 <head>
+    <link rel="icon" type="image/png" th:href="@{/images/favicon.png}">
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Analytics - Expense Tracker</title>
+    <title>Reports &amp; Analysis | ExpenseX</title>
 
     <link rel="stylesheet" th:href="@{/css/style.css}">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -21,39 +22,17 @@
 
 <div class="dashboard">
 
-    <aside class="sidebar">
-
-        <h2>Expense Tracker</h2>
-
-        <ul>
-
-            <li>
-                <a th:href="@{/dashboard}">🏠 Dashboard</a>
-            </li>
-
-            <li>
-                <a th:href="@{/add-expense}">➕ Add Expense</a>
-            </li>
-
-            <li>
-                <a th:href="@{/analytics}">📊 Analytics</a>
-            </li>
-
-            <li>
-                <a th:href="@{/profile}">👤 Profile</a>
-            </li>
-
-            <li>
-                <a href="#" onclick="logout()">🚪 Logout</a>
-            </li>
-
-        </ul>
-
-    </aside>
+    <aside th:replace="~{fragments/sidebar :: sidebar('reports')}"></aside>
 
     <main class="content">
 
-        <h1>Analytics</h1>
+        <div class="content-topbar">
+            <button type="button" class="mobile-sidebar-toggle" id="mobileSidebarToggle"
+                    aria-label="Open navigation" aria-controls="appSidebar" aria-expanded="false">
+                <span aria-hidden="true">☰</span>
+            </button>
+            <h1>Reports &amp; Analysis</h1>
+        </div>
 
         <div class="glass-card table-card" style="margin-bottom:25px;">
 
@@ -157,6 +136,7 @@
 
 </div>
 
+<script th:src="@{/js/script.js}"></script>
 <script>
 
     const token = localStorage.getItem("token");
@@ -165,6 +145,11 @@
         window.location="/login";
     }
 
+    // Chart.js defaults for the permanent dark theme (readable labels).
+    Chart.defaults.color = "#b3b3b3";
+    Chart.defaults.borderColor = "#2a2a2a";
+    Chart.defaults.aspectRatio = 2;   // keeps cards from growing very tall
+
     let currentUserId = null;
     let pieChartInstance = null;
     let lineChartInstance = null;
@@ -172,8 +157,8 @@
     let budgetChartInstance = null;
 
     const COLORS = [
-        "#4f46e5","#06b6d4","#f59e0b","#ef4444","#10b981",
-        "#8b5cf6","#ec4899","#84cc16","#f97316","#0ea5e9"
+        "#ff6a00","#ffb02e","#4ade80","#60a5fa","#c084fc",
+        "#f472b6","#facc15","#2dd4bf","#fb7185","#a3a3a3"
     ];
 
     function populateMonthYearSelects(){
@@ -301,13 +286,13 @@
                 datasets: [{
                     label: "Amount Spent",
                     data: amounts,
-                    backgroundColor: "#2563eb",
+                    backgroundColor: "#ff6a00",
                     borderRadius: 6
                 }]
             },
             options: {
                 plugins: { legend: { display: false } },
-                scales: { y: { beginAtZero: true } }
+                scales: { y: { beginAtZero: true, suggestedMax: 100, ticks: { precision: 0 } } }
             }
         });
     }
@@ -327,16 +312,16 @@
                 datasets: [{
                     label: "Spending",
                     data: amounts,
-                    borderColor: "#06b6d4",
-                    backgroundColor: "#06b6d433",
+                    borderColor: "#ff8c32",
+                    backgroundColor: "#ff8c3233",
                     tension: 0.35,
                     fill: true,
-                    pointBackgroundColor: "#06b6d4"
+                    pointBackgroundColor: "#ff8c32"
                 }]
             },
             options: {
                 plugins: { legend: { display: false } },
-                scales: { y: { beginAtZero: true } }
+                scales: { y: { beginAtZero: true, suggestedMax: 100, ticks: { precision: 0 } } }
             }
         });
     }
@@ -358,20 +343,20 @@
                     {
                         label: "Budget",
                         data: budget,
-                        backgroundColor: "#c7d2fe",
+                        backgroundColor: "#6b6b6b",
                         borderRadius: 6
                     },
                     {
                         label: "Actual Spend",
                         data: actual,
-                        backgroundColor: "#ef4444",
+                        backgroundColor: "#ff5c6c",
                         borderRadius: 6
                     }
                 ]
             },
             options: {
                 plugins: { legend: { position: "bottom" } },
-                scales: { y: { beginAtZero: true } }
+                scales: { y: { beginAtZero: true, suggestedMax: 100, ticks: { precision: 0 } } }
             }
         });
     }
@@ -414,11 +399,6 @@
             msg.textContent = "Could not generate report. Please try again.";
             msg.className = "form-msg error";
         }
-    }
-
-    function logout(){
-        localStorage.removeItem("token");
-        window.location="/login";
     }
 
     document.getElementById("monthsBack").addEventListener("change", loadAnalytics);

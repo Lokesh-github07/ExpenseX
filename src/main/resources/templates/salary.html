@@ -2,12 +2,12 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 
 <head>
+    <link rel="icon" type="image/png" th:href="@{/images/favicon.png}">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Income &amp; Budget | ExpenseX</title>
 
     <link rel="stylesheet" th:href="@{/css/style.css}">
-    <link rel="stylesheet" th:href="@{/css/section.css}">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 
@@ -17,71 +17,7 @@
 
 <div class="dashboard">
 
-    <!-- ===== SECTION SIDEBAR ===== -->
-    <aside class="sidebar" id="appSidebar" aria-label="Income and budget navigation">
-        <div class="sidebar-brand-row">
-            <a class="sidebar-brand" th:href="@{/dashboard}" aria-label="ExpenseX Dashboard">
-                <span class="brand-icon" aria-hidden="true">💰</span>
-                <span class="brand-name">ExpenseX</span>
-            </a>
-            <button type="button" class="sidebar-toggle" id="sidebarToggle"
-                    aria-label="Collapse sidebar" aria-controls="appSidebar" aria-expanded="true">
-                <span aria-hidden="true">☰</span>
-            </button>
-        </div>
-
-        <nav class="sidebar-navigation" aria-label="Income and budget sections">
-            <ul class="sidebar-menu">
-                <li class="back-item">
-                    <a th:href="@{/dashboard}" title="Back to Dashboard">
-                        <span class="nav-icon" aria-hidden="true">⬅️</span>
-                        <span class="nav-label">Back to Dashboard</span>
-                    </a>
-                </li>
-
-                <li class="section-label"><span class="nav-label">Income &amp; Budget</span></li>
-
-                <li>
-                    <a href="#overview" data-view="overview" data-title="Income &amp; Budget Overview">
-                        <span class="nav-icon" aria-hidden="true">📈</span>
-                        <span class="nav-label">Overview</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="#add-income" data-view="add-income" data-title="Add Income">
-                        <span class="nav-icon" aria-hidden="true">💵</span>
-                        <span class="nav-label">Add Income</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="#history" data-view="history" data-title="Income History">
-                        <span class="nav-icon" aria-hidden="true">🕘</span>
-                        <span class="nav-label">Income History</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="#budget" data-view="budget" data-title="Monthly Budget">
-                        <span class="nav-icon" aria-hidden="true">🎯</span>
-                        <span class="nav-label">Monthly Budget</span>
-                    </a>
-                </li>
-            </ul>
-        </nav>
-
-        <div class="sidebar-profile" id="sidebarProfile">
-            <a class="profile-link" th:href="@{/profile}" title="My Profile">
-                <span class="profile-avatar" aria-hidden="true">👤</span>
-                <span class="profile-details">
-                    <span class="profile-name">My Profile</span>
-                    <span class="profile-caption">Account settings</span>
-                </span>
-            </a>
-            <button type="button" class="profile-logout" onclick="logout()" title="Log out">
-                <span aria-hidden="true">↪</span>
-                <span class="nav-label">Logout</span>
-            </button>
-        </div>
-    </aside>
+    <aside th:replace="~{fragments/sidebar :: sidebar('income')}"></aside>
 
     <!-- ===== MAIN CONTENT ===== -->
     <main class="content">
@@ -93,6 +29,13 @@
             </button>
             <h1 id="pageTitle">Income &amp; Budget Overview</h1>
         </div>
+
+        <nav class="view-tabs" aria-label="Income and budget sections">
+            <a href="#overview" data-view="overview" data-title="Income &amp; Budget Overview">Overview</a>
+            <a href="#add-income" data-view="add-income" data-title="Add Income">Add Income</a>
+            <a href="#history" data-view="history" data-title="Income History">Income History</a>
+            <a href="#budget" data-view="budget" data-title="Monthly Budget">Monthly Budget</a>
+        </nav>
 
         <!-- OVERVIEW -->
         <section class="view" id="overview">

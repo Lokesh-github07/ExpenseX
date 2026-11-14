@@ -2,9 +2,10 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 
 <head>
+    <link rel="icon" type="image/png" th:href="@{/images/favicon.png}">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#10151f" id="themeColor">
+    <meta name="theme-color" content="#080808">
 
     <title>ExpenseX | Financial Calendar</title>
 
@@ -27,85 +28,7 @@
 <div class="dashboard">
 
     <!-- Sidebar -->
-    <aside class="sidebar">
-        <h2>💰 ExpenseX</h2>
-
-        <ul class="sidebar-menu">
-
-            <li>
-                <a th:href="@{/dashboard}">🏠 Dashboard</a>
-            </li>
-
-            <li>
-                <a th:href="@{/financial-overview}">📈 Financial Overview</a>
-            </li>
-
-            <!-- Money Management -->
-            <li class="popup-section">
-                <button type="button"
-                        class="popup-toggle"
-                        aria-expanded="false">
-                    <span>💰 Money Management</span>
-                    <span class="popup-arrow"></span>
-                </button>
-
-                <div class="sidebar-popup" hidden>
-                    <a th:href="@{/transactions}">💳 Transactions</a>
-                    <a th:href="@{/add-expense}">➕ Add Expense</a>
-                    <a th:href="@{/salary}">💵 Salary &amp; Income</a>
-                    <a th:href="@{/budgets}">🎯 Budget Planner</a>
-                    <a th:href="@{/bills}">🧾 Bills &amp; Payments</a>
-                    <a th:href="@{/loans}">🏦 Loans &amp; EMIs</a>
-                    <a th:href="@{/savings}">🐷 Savings Goals</a>
-                    <a th:href="@{/credit-cards}">💳 Credit Cards</a>
-                </div>
-            </li>
-
-            <!-- Investments and Markets -->
-            <li class="popup-section">
-                <button type="button"
-                        class="popup-toggle"
-                        aria-expanded="false">
-                    <span>📊 Investments &amp; Markets</span>
-                    <span class="popup-arrow"></span>
-                </button>
-
-                <div class="sidebar-popup" hidden>
-                    <a th:href="@{/investments}">📊 Investment Portfolio</a>
-                    <a th:href="@{/sip-fd}">📈 SIP &amp; FD Management</a>
-                    <a th:href="@{/markets}">🌐 Live Market</a>
-                    <a th:href="@{/market-news}">📰 Market News &amp; Insights</a>
-                    <a th:href="@{/price-alerts}">🔔 Price Alerts</a>
-                </div>
-            </li>
-
-            <!-- Intelligence -->
-            <li class="popup-section">
-                <button type="button"
-                        class="popup-toggle"
-                        aria-expanded="false">
-                    <span>🧠 Intelligence</span>
-                    <span class="popup-arrow"></span>
-                </button>
-
-                <div class="sidebar-popup" hidden>
-                    <a th:href="@{/ai-assistant}">🤖 AI Finance Assistant</a>
-                    <a th:href="@{/analytics}">📉 Reports &amp; Analytics</a>
-                    <a th:href="@{/financial-calendar}" class="active"
-                       aria-current="page">
-                        📅 Financial Calendar
-                    </a>
-                </div>
-            </li>
-
-            <li class="sidebar-section personal-heading">PERSONAL</li>
-
-            <li>
-                <a th:href="@{/profile}">👤 My Profile</a>
-            </li>
-
-        </ul>
-    </aside>
+    <aside th:replace="~{fragments/sidebar :: sidebar('calendar')}"></aside>
 
     <!-- Main Content -->
     <main class="content financial-calendar">
@@ -113,6 +36,10 @@
         <!-- Page Header -->
         <header class="fc-topbar">
             <div>
+                <button type="button" class="mobile-sidebar-toggle" id="mobileSidebarToggle"
+                        aria-label="Open navigation" aria-controls="appSidebar" aria-expanded="false">
+                    <span aria-hidden="true">☰</span>
+                </button>
                 <h1>Financial Calendar</h1>
                 <p class="fc-muted">
                     ExpenseX · Markets, economics and personal finances
@@ -296,7 +223,7 @@
 <!-- Shared Footer -->
 <div th:replace="~{fragments/footer :: footer}"></div>
 
-<!-- Shared JavaScript: theme, sidebar and global actions -->
+<!-- Shared JavaScript: sidebar, auth and global actions -->
 <script th:src="@{/js/script.js}" defer></script>
 
 <!-- Calendar-specific JavaScript -->
