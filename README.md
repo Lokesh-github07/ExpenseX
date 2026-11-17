@@ -1,7 +1,5 @@
 # 💰 ExpenseX
 
-[![Work in Progress](https://img.shields.io/badge/Status-Work%20in%20Progress-orange?style=for-the-badge)](https://github.com/Lokesh-github07/ExpenseX)
-
 ![Java](https://img.shields.io/badge/Java-21-orange?logo=openjdk&logoColor=white)
 ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.5.4-6DB33F?logo=springboot&logoColor=white)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Database-4169E1?logo=postgresql&logoColor=white)
@@ -36,40 +34,28 @@ ExpenseX is a practical full-stack project demonstrating backend development, au
 
 ## 📸 Screenshots
 
-### 🌐 Landing, Login & Register
+> 👉 Scroll sideways inside the frame to see all screens.
 
-<p align="center">
-  <img src="docs/screenshots/Landing.png" alt="Landing Page" width="90%">
-</p>
-
-<p align="center">
-  <img src="docs/screenshots/Login.png" alt="Login" width="45%">
-  <img src="docs/screenshots/Register.png" alt="Register" width="45%">
-</p>
-
-### 📊 Dashboard
-
-<p align="center">
-  <img src="docs/screenshots/Dashboard.png" alt="Dashboard" width="90%">
-</p>
-
-### 📈 Reports & Analytics
-
-<p align="center">
-  <img src="docs/screenshots/Report-Analytics.png" alt="Reports and Analytics" width="90%">
-</p>
-
-### 📅 Financial Calendar
-
-<p align="center">
-  <img src="docs/screenshots/Financial-Calendar.png" alt="Financial Calendar" width="90%">
-</p>
-
-### 👤 Profile
-
-<p align="center">
-  <img src="docs/screenshots/Profile.png" alt="Profile" width="90%">
-</p>
+<table>
+  <tr>
+    <th align="center">Landing</th>
+    <th align="center">Login</th>
+    <th align="center">Register</th>
+    <th align="center">Dashboard</th>
+    <th align="center">Reports &amp; Analytics</th>
+    <th align="center">Financial Calendar</th>
+    <th align="center">Profile</th>
+  </tr>
+  <tr>
+    <td align="center"><img src="docs/screenshots/Landing.png" alt="Landing" width="600"></td>
+    <td align="center"><img src="docs/screenshots/Login.png" alt="Login" width="600"></td>
+    <td align="center"><img src="docs/screenshots/Register.png" alt="Register" width="600"></td>
+    <td align="center"><img src="docs/screenshots/Dashboard.png" alt="Dashboard" width="600"></td>
+    <td align="center"><img src="docs/screenshots/Report-Analytics.png" alt="Reports and Analytics" width="600"></td>
+    <td align="center"><img src="docs/screenshots/Financial-Calendar.png" alt="Financial Calendar" width="600"></td>
+    <td align="center"><img src="docs/screenshots/Profile.png" alt="Profile" width="600"></td>
+  </tr>
+</table>
 
 ## 🖥️ Web Interface & Implementation Status
 
