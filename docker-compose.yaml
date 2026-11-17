@@ -31,12 +31,25 @@ services:
       DB_URL: jdbc:postgresql://postgres:5432/expense_tracker
       DB_USERNAME: postgres
       DB_PASSWORD: ${DB_PASSWORD}
+
       JWT_SECRET: ${JWT_SECRET}
       JWT_EXPIRATION: ${JWT_EXPIRATION:-86400000}
       JWT_REFRESH_EXPIRATION: ${JWT_REFRESH_EXPIRATION:-604800000}
-      SPRING_MAIL_USERNAME: ${MAIL_USERNAME}
-      SPRING_MAIL_PASSWORD: ${MAIL_APP_PASSWORD}
+
+      # Brevo SMTP Configuration
+      BREVO_SMTP_LOGIN: ${BREVO_SMTP_LOGIN}
+      BREVO_SMTP_KEY: ${BREVO_SMTP_KEY}
+      MAIL_FROM: ${MAIL_FROM}
+
       MAIL_ENABLED: ${MAIL_ENABLED:-true}
+      MAIL_CONSOLE_FALLBACK: ${MAIL_CONSOLE_FALLBACK:-false}
+
+      # Application Settings
+      JPA_SHOW_SQL: ${JPA_SHOW_SQL:-false}
+      THYMELEAF_CACHE: ${THYMELEAF_CACHE:-true}
+
+      # Financial API
+      FINANCIAL_API_KEY: ${FINANCIAL_API_KEY:-}
 
 volumes:
   postgres-data:

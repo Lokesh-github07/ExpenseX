@@ -1,4 +1,4 @@
-# 💰 ExpenseX                                                                 
+# 💰 ExpenseX
 
 [![Work in Progress](https://img.shields.io/badge/Status-Work%20in%20Progress-orange?style=for-the-badge)](https://github.com/Lokesh-github07/ExpenseX)
 
@@ -7,49 +7,48 @@
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Database-4169E1?logo=postgresql&logoColor=white)
 ![Spring Security](https://img.shields.io/badge/Spring%20Security-Security-6DB33F?logo=springsecurity&logoColor=white)
 ![JWT](https://img.shields.io/badge/JWT-Authentication-black?logo=jsonwebtokens&logoColor=white)
+![Brevo](https://img.shields.io/badge/Email-Brevo%20SMTP-0B996E?logo=brevo&logoColor=white)
 ![Docker](https://img.shields.io/badge/Docker-Containerized-2496ED?logo=docker&logoColor=white)
 ![Maven](https://img.shields.io/badge/Maven-Build-C71A36?logo=apachemaven&logoColor=white)
 ![Swagger](https://img.shields.io/badge/Swagger-OpenAPI-85EA2D?logo=swagger&logoColor=black)
 
 A full-stack **personal expense management application** built with **Java 21, Spring Boot, PostgreSQL, Spring Security, JWT, Thymeleaf, and Docker**.
 
-ExpenseX allows users to securely manage **expenses, income, budgets, categories, authentication, analytics, and financial reports** through a web-based interface and REST APIs.
+ExpenseX lets users securely manage **expenses, income, budgets, categories, analytics, and financial reports** through a web interface and REST APIs. Transactional emails (OTP verification, password reset) are delivered through **Brevo SMTP**.
 
 ---
 
 ## 📌 About
 
-ExpenseX is designed as a practical full-stack application demonstrating backend development, authentication, database management, REST API design, reporting, and containerization.
+ExpenseX is a practical full-stack project demonstrating backend development, authentication, database management, REST API design, reporting, email delivery, and containerization.
 
-The application provides:
-
-- 🔐 Secure authentication
+- 🔐 Secure authentication (JWT + email OTP)
 - 💸 Expense management
 - 💰 Budget management
 - 🏷️ Category management
-- 📊 Financial dashboards
-- 📈 Analytics
+- 📊 Financial dashboards & analytics
 - 📄 PDF & Excel reports
-- 📧 Email OTP verification
-- 🔑 JWT access & refresh tokens
-- 📱 SMS transaction integration
+- 📧 Email OTP delivery via Brevo SMTP
+- 📱 SMS transaction webhook (for a future Android app)
 - 🐳 Docker deployment
 - 📚 Swagger API documentation
+- ☁️ Render deployment support
 
 ## 🖥️ Web Interface & Implementation Status
 
 - **Public pages:** `/` (landing page), `/login`, `/register`, `/forgot-password`, `/terms`.
-- **Theme:** a single permanent dark theme with an electric-orange accent (colors are CSS variables in `static/css/style.css`). There is no theme switching.
+- **Theme:** A single permanent dark theme with an electric-orange accent (colors are CSS variables in `static/css/style.css`). There is no theme switching.
 - **Sidebar:** Dashboard, Transactions & Expenses, Income & Budget, Bills/Loans/EMIs, Savings & CIBIL, Reports & Analysis, Financial Calendar. The profile link is pinned at the bottom.
-- **Profile:** personal details and Logout. **Security & Privacy:** change password, sign out of this browser, privacy preferences and account deletion.
+- **Profile:** Personal details and Logout. **Security & Privacy:** change password, sign out of this browser, privacy preferences and account deletion.
 
 | Area | Status |
-|---|---|
-| Authentication, email OTP, JWT, expenses, categories, dashboard, analytics, PDF/Excel reports, calendar, profile, password change, account deletion | Implemented (server-side) |
-| Income, Budget page, Bills, Loans & EMIs, Savings goals, CIBIL log | Partial: the pages save to browser `localStorage` only (a budget REST API exists but the page does not use it) |
-| Privacy preferences | Browser-only; not enforced by the server |
-| Sign out everywhere | Not implemented: tokens are not revoked server-side |
-| AI Finance Assistant | **Planned** (shown as "Coming Soon" in the sidebar; no route or functionality yet) |
+| ---- | ------ |
+| Authentication, email OTP (Brevo SMTP), JWT, expenses, categories, dashboard, analytics, PDF/Excel reports, calendar, profile, password change, account deletion | ✅ Implemented (server-side) |
+| Income, Budget page, Bills, Loans & EMIs, Savings goals, CIBIL log | 🟡 Partial: the pages save to browser `localStorage` only (a budget REST API exists but the page does not use it yet) |
+| Privacy preferences | 🟡 Browser-only; not enforced by the server |
+| Sign out everywhere | ❌ Not implemented: tokens are not revoked server-side |
+| SMS webhook / Android app | 🟡 Webhook endpoint exists; the Android client is not built yet |
+| AI Finance Assistant | 🗓️ **Planned** (shown as "Coming Soon" in the sidebar; no route or functionality yet) |
 
 > Protected pages are rendered without a server-side check and guarded in the browser by JavaScript; all `/api/**` data endpoints require a valid JWT.
 
@@ -59,161 +58,132 @@ The application provides:
 
 ## 🔐 Authentication & Security
 
-- User registration
-- Email OTP verification
+- User registration with email OTP verification
 - Login OTP verification
-- JWT authentication
-- Access and refresh tokens
-- Forgot password
-- Password reset
-- Change password
+- JWT authentication with access and refresh tokens
+- Forgot password / password reset / change password
 - Account activation/deactivation
-- Spring Security
-- CORS configuration
+- Spring Security with CORS configuration
 - Environment-based secrets
 
 ## 💸 Expense Management
 
-- Add expenses
-- View expenses
-- Edit expenses
-- Delete expenses
-- Category-based filtering
-- Date-range filtering
-- Monthly expense calculation
-- Total expense calculation
-- Expense categorization
+- Add, view, edit and delete expenses
+- Category-based and date-range filtering
+- Monthly and total expense calculation
 
 ## 💰 Budget Management
 
-- Create budgets
-- View budgets
-- Update budgets
-- Delete budgets
-- User-specific budgets
-- Monthly budget management
+- Create, view, update and delete budgets (REST API)
+- User-specific, monthly budgets
+- _The Budget web page currently uses browser `localStorage`; see the status table above._
 
 ## 🏷️ Category Management
 
-- Create categories
-- View categories
-- Update categories
-- Delete categories
+- Create, view, update and delete categories
 
 ## 📊 Dashboard & Analytics
 
-- Expense dashboard
-- Monthly summaries
-- Financial summaries
-- Category-wise analysis
-- User-specific analytics
-- Monthly and yearly statistics
+- Expense dashboard and monthly/yearly summaries
+- Category-wise and user-specific analysis
 
 ## 📄 Reports
 
-Generate financial reports in:
+Generate financial reports in **PDF** and **Excel**, including monthly summary, yearly summary, category-wise summary and expense analytics.
 
-- PDF
-- Excel
+---
 
-Reports include:
+# 📧 Email & OTP – Brevo SMTP
 
-- Monthly summary
-- Yearly summary
-- Category-wise summary
-- Expense analytics
-
-## 📧 Email & OTP
-
-Email functionality is implemented using Gmail SMTP.
+ExpenseX sends all transactional email through **Brevo SMTP** (it no longer uses Gmail or any personal mailbox).
 
 Supported operations:
 
 - Registration OTP
 - Login OTP
 - Password reset
-- OTP verification
-- OTP resend
+- OTP verification / resend
 
-> ⚠️ Never commit email passwords, Google App Passwords, JWT secrets, database credentials, or API keys to GitHub.
+### SMTP settings
+
+| Setting | Value |
+| ------- | ----- |
+| Provider | Brevo |
+| Host | `smtp-relay.brevo.com` |
+| Port | `2525` |
+| Authentication | Enabled |
+| STARTTLS | Enabled |
+| Username | Brevo SMTP login (`BREVO_SMTP_LOGIN`) |
+| Password | Brevo SMTP key (`BREVO_SMTP_KEY`) |
+| From address | Verified Brevo sender (`MAIL_FROM`) |
+
+Reference Spring configuration (adjust to match your `application.properties`):
+
+```properties
+spring.mail.host=smtp-relay.brevo.com
+spring.mail.port=2525
+spring.mail.username=${BREVO_SMTP_LOGIN}
+spring.mail.password=${BREVO_SMTP_KEY}
+spring.mail.properties.mail.smtp.auth=true
+spring.mail.properties.mail.smtp.starttls.enable=true
+spring.mail.properties.mail.smtp.starttls.required=true
+```
+
+> The SMTP **login** is not your sender address. Set the sender separately with `MAIL_FROM` and make sure it is verified in Brevo.
+
+### Getting Brevo credentials
+
+1. Sign in at [https://app.brevo.com/](https://app.brevo.com/).
+2. Go to **Settings → SMTP & API → SMTP**.
+3. Copy your **SMTP login**.
+4. Generate an **SMTP key**.
+5. Verify your **sender email/domain** under Senders.
+6. Put the values in your environment variables (see [Environment Configuration](#-environment-configuration)).
+
+> ⚠️ Use the Brevo **SMTP key**, not the Brevo API key, and not your Gmail password.
+>
+> ⚠️ Never commit SMTP credentials, JWT secrets, database passwords, or API keys to GitHub.
+
+### Email troubleshooting
+
+| Symptom | Likely cause |
+| ------- | ------------ |
+| Authentication failed | Wrong SMTP login/key, or the API key was used instead of the SMTP key |
+| Mail is accepted but never arrives | `MAIL_FROM` is not a verified sender; check Brevo transactional logs |
+| Connection timeout | Outbound port blocked; keep using port `2525` |
+| No email sent at all | `MAIL_ENABLED=false` |
+| OTP only appears in logs | `MAIL_CONSOLE_FALLBACK=true` (development only) |
 
 ---
 
 # 📱 SMS Expense Integration
 
-ExpenseX includes a webhook endpoint designed for integration with a future Android application that can read bank transaction SMS messages.
+ExpenseX includes a webhook endpoint designed for a future Android application that reads bank transaction SMS messages.
 
 ```http
 POST /api/webhook/sms/{webhookToken}
 ```
 
-### Architecture
-
 ```text
-Bank SMS
-   ↓
-Android Application
-   ↓
-SMS Parser
-   ↓
-ExpenseX REST API
-   ↓
-Spring Boot
-   ↓
-PostgreSQL
-   ↓
-Dashboard / Reports
+Bank SMS → Android App → SMS Parser → ExpenseX REST API
+        → Spring Boot → PostgreSQL → Dashboard / Reports
 ```
 
-This provides a foundation for automatically detecting and recording bank transactions.
+This is the foundation for automatically detecting and recording bank transactions.
 
 ---
 
 # 🛠️ Technology Stack
 
-## Backend
-
-- Java 21
-- Spring Boot 3.5.4
-- Spring Web
-- Spring Security
-- Spring Data JPA
-- Hibernate
-- Spring Validation
-- Spring Mail
-- Thymeleaf
-
-## Database
-
-- PostgreSQL
-- PostgreSQL JDBC Driver
-
-## Authentication
-
-- JWT
-- Spring Security
-- Refresh Tokens
-- OTP Verification
-
-## Libraries
-
-- Lombok
-- ModelMapper
-- JJWT
-- Jackson Java 8 Date/Time
-- iText PDF
-- Apache POI
-
-## API Documentation
-
-- Springdoc OpenAPI
-- Swagger UI
-
-## DevOps
-
-- Docker
-- Docker Compose
-- Maven
+| Layer | Technologies |
+| ----- | ------------ |
+| Backend | Java 21, Spring Boot 3.5.4, Spring Web, Spring Security, Spring Data JPA, Hibernate, Spring Validation, Spring Mail, Thymeleaf |
+| Database | PostgreSQL, PostgreSQL JDBC driver |
+| Authentication | JWT (JJWT), refresh tokens, OTP verification |
+| Email | Brevo SMTP, Spring Mail, STARTTLS |
+| Libraries | Lombok, ModelMapper, Jackson Java 8 Date/Time, iText PDF, Apache POI |
+| API docs | Springdoc OpenAPI, Swagger UI |
+| DevOps | Docker, Docker Compose, Maven, Render |
 
 ---
 
@@ -223,33 +193,27 @@ This provides a foundation for automatically detecting and recording bank transa
                     ┌──────────────────┐
                     │      User        │
                     └────────┬─────────┘
-                             │
                              ▼
                     ┌──────────────────┐
                     │   Thymeleaf UI   │
                     └────────┬─────────┘
-                             │
                              ▼
                     ┌──────────────────┐
                     │ Spring Security  │
                     │   JWT + OTP      │
                     └────────┬─────────┘
-                             │
                              ▼
                     ┌──────────────────┐
                     │   Controllers    │
                     └────────┬─────────┘
-                             │
                              ▼
                     ┌──────────────────┐
-                    │    Services      │
+                    │    Services      │──────► Brevo SMTP (OTP / email)
                     └────────┬─────────┘
-                             │
                              ▼
                     ┌──────────────────┐
                     │ Repository / JPA │
                     └────────┬─────────┘
-                             │
                              ▼
                     ┌──────────────────┐
                     │   PostgreSQL     │
@@ -261,25 +225,22 @@ This provides a foundation for automatically detecting and recording bank transa
 # 📂 Project Structure
 
 ```text
-ExpenseTracker/
+ExpenseX/
 │
 ├── src/
 │   ├── main/
-│   │   ├── java/
-│   │   │   └── com/example/expensetracker/
-│   │   │       ├── config/
-│   │   │       ├── controller/
-│   │   │       ├── model/
-│   │   │       ├── repository/
-│   │   │       ├── security/
-│   │   │       ├── service/
-│   │   │       └── util/
-│   │   │
+│   │   ├── java/com/example/expensetracker/
+│   │   │   ├── config/
+│   │   │   ├── controller/
+│   │   │   ├── model/
+│   │   │   ├── repository/
+│   │   │   ├── security/
+│   │   │   ├── service/
+│   │   │   └── util/
 │   │   └── resources/
 │   │       ├── templates/
 │   │       ├── static/
 │   │       └── application.properties
-│   │
 │   └── test/
 │
 ├── Dockerfile
@@ -287,6 +248,7 @@ ExpenseTracker/
 ├── pom.xml
 ├── mvnw
 ├── mvnw.cmd
+├── .env.example
 ├── .gitignore
 └── README.md
 ```
@@ -295,15 +257,12 @@ ExpenseTracker/
 
 # ⚙️ Requirements
 
-Install the following before running the project:
-
 - Java 21
-- Maven
+- Maven (or the included Maven wrapper)
 - PostgreSQL
 - Git
-- Docker Desktop *(optional)*
-
-Check your installation:
+- A Brevo account (free tier is enough) for email OTP
+- Docker Desktop (optional)
 
 ```bash
 java -version
@@ -316,29 +275,23 @@ docker --version
 
 # 🗄️ Database Setup
 
-Create the database using `psql` or pgAdmin:
-
 ```sql
 CREATE DATABASE expense_tracker;
 ```
 
-| Configuration | Value |
-|---|---|
-| Database | `expense_tracker` |
-| Port | `5432` |
-| Default user | `postgres` |
-
-The application uses:
+| Configuration | Local | Docker |
+| ------------- | ----- | ------ |
+| Database | `expense_tracker` | `expense_tracker` |
+| PostgreSQL host | `localhost` | `postgres` |
+| PostgreSQL port | `2004` | `5432` |
+| Default user | `postgres` | `postgres` |
 
 ```properties
 spring.datasource.driver-class-name=org.postgresql.Driver
-spring.jpa.database-platform=org.hibernate.dialect.PostgreSQLDialect
 spring.jpa.hibernate.ddl-auto=update
 ```
 
-Hibernate will automatically create/update the required tables during development.
-
-Maven dependency for the PostgreSQL driver:
+Hibernate creates/updates tables automatically during development. For production, consider `validate` with a migration tool such as Flyway or Liquibase. Hibernate 6 detects the PostgreSQL dialect automatically, so `spring.jpa.database-platform` is no longer needed.
 
 ```xml
 <dependency>
@@ -352,57 +305,109 @@ Maven dependency for the PostgreSQL driver:
 
 # 🔑 Environment Configuration
 
-Use environment variables for sensitive configuration.
+ExpenseX keeps sensitive configuration in environment variables.
 
-Example:
+## 1. Create `.env`
 
-```env
-DB_URL=jdbc:postgresql://localhost:5432/expense_tracker
+Copy `.env.example` to `.env` in the project root (next to `pom.xml`).
+
+Windows:
+
+```cmd
+copy .env.example .env
+```
+
+Linux / macOS:
+
+```bash
+cp .env.example .env
+```
+
+## 2. Fill in the values
+
+```properties
+# PostgreSQL
+DB_URL=jdbc:postgresql://localhost:2004/expense_tracker
 DB_USERNAME=postgres
 DB_PASSWORD=YOUR_DATABASE_PASSWORD
 
+# JWT
 JWT_SECRET=YOUR_LONG_RANDOM_JWT_SECRET
 JWT_EXPIRATION=86400000
 JWT_REFRESH_EXPIRATION=604800000
 
-MAIL_USERNAME=your-email@gmail.com
-MAIL_APP_PASSWORD=YOUR_GOOGLE_APP_PASSWORD
+# Brevo SMTP
+BREVO_SMTP_LOGIN=YOUR_BREVO_SMTP_LOGIN
+BREVO_SMTP_KEY=YOUR_BREVO_SMTP_KEY
+MAIL_FROM=YOUR_VERIFIED_SENDER_EMAIL
+
+# Email settings
+MAIL_ENABLED=true
+MAIL_CONSOLE_FALLBACK=false
+
+# Application settings
+JPA_SHOW_SQL=false
+THYMELEAF_CACHE=true
+
+# FRED Financial Data API (optional)
+FINANCIAL_API_KEY=YOUR_FRED_API_KEY
 ```
 
-### Never commit
+| Variable | Purpose |
+| -------- | ------- |
+| `BREVO_SMTP_LOGIN` | Your Brevo SMTP login |
+| `BREVO_SMTP_KEY` | Your generated Brevo SMTP key |
+| `MAIL_FROM` | Your verified sender email address |
+| `MAIL_ENABLED` | `true` to send real emails |
+| `MAIL_CONSOLE_FALLBACK` | `true` prints OTPs to the console for local development only; keep `false` in production |
+| `FINANCIAL_API_KEY` | Optional FRED API key for financial data |
+
+> Generate a strong JWT secret, for example: `openssl rand -base64 64`
+
+## 3. Never commit
 
 ```text
 .env
 Database passwords
 JWT secrets
-Gmail App Passwords
+Brevo SMTP keys
 API keys
 Webhook tokens
 Production credentials
 ```
 
-If a secret has already been pushed to GitHub, **rotate it immediately**.
+If a secret has already been pushed to GitHub, rotate it immediately.
 
 ---
 
 # ▶️ Run Locally
 
-## 1. Clone Repository
+## 1. Clone
 
 ```bash
 git clone https://github.com/Lokesh-github07/ExpenseX.git
 cd ExpenseX
 ```
 
-## 2. Create Database
+## 2. Create the database
 
 ```sql
 CREATE DATABASE expense_tracker;
 ```
 
-## 3. Configure Environment Variables
+The default local configuration expects PostgreSQL on port `2004`.
 
-Configure your database, JWT, and email credentials.
+## 3. Configure environment
+
+Copy `.env.example` to `.env` and set your PostgreSQL credentials, JWT secret, Brevo SMTP credentials, verified sender email and (optionally) the financial API key.
+
+The application imports the root `.env` file with:
+
+```properties
+spring.config.import=optional:file:./.env[.properties]
+```
+
+Real process environment variables take precedence over `.env` values.
 
 ## 4. Build
 
@@ -410,35 +415,31 @@ Configure your database, JWT, and email credentials.
 mvn clean install
 ```
 
-Windows:
+Windows: `mvnw.cmd clean install`
 
-```bash
-mvnw.cmd clean install
-```
-
-## 5. Start Application
+## 5. Start
 
 ```bash
 mvn spring-boot:run
 ```
 
-Windows:
+Windows: `mvnw.cmd spring-boot:run`
 
-```bash
-mvnw.cmd spring-boot:run
-```
+Open `http://localhost:8080`.
 
-Application:
+## IntelliJ IDEA
 
-```text
-http://localhost:8080
-```
+1. **Run → Edit Configurations**.
+2. Select your Spring Boot application.
+3. Add the variables from `.env` (including the Brevo ones).
+4. Set the working directory to the project root.
+5. Apply and run.
+
+Restart the application after changing environment variables.
 
 ---
 
 # 🌐 Web Pages
-
-Main application pages include:
 
 ```text
 /
@@ -453,20 +454,17 @@ Main application pages include:
 └── /analytics
 ```
 
+Pages behind login are guarded client-side; the data behind them is protected by JWT on `/api/**`.
+
 ---
 
 # 🐳 Docker
 
-ExpenseX can also run using Docker Compose.
-
-### Services
-
 ```text
 ┌──────────────────────┐
-│   expense-tracker-app│
-│       :8080          │
+│  expense-tracker-app │
+│        :8080         │
 └──────────┬───────────┘
-           │
            ▼
 ┌──────────────────────────┐
 │ expense-tracker-postgres │
@@ -474,107 +472,133 @@ ExpenseX can also run using Docker Compose.
 └──────────────────────────┘
 ```
 
-Example PostgreSQL service in `docker-compose.yaml`:
+PostgreSQL is exposed on local port `2004`, while the application reaches it internally on `5432`.
+
+### Environment passed by `docker-compose.yaml`
 
 ```yaml
-services:
-  postgres:
-    image: postgres:16
-    container_name: expense-tracker-postgres
-    environment:
-      POSTGRES_DB: expense_tracker
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
+environment:
+  DB_URL: jdbc:postgresql://postgres:5432/expense_tracker
+  DB_USERNAME: postgres
+  DB_PASSWORD: ${DB_PASSWORD}
 
-volumes:
-  postgres_data:
+  JWT_SECRET: ${JWT_SECRET}
+  JWT_EXPIRATION: ${JWT_EXPIRATION:-86400000}
+  JWT_REFRESH_EXPIRATION: ${JWT_REFRESH_EXPIRATION:-604800000}
+
+  BREVO_SMTP_LOGIN: ${BREVO_SMTP_LOGIN}
+  BREVO_SMTP_KEY: ${BREVO_SMTP_KEY}
+  MAIL_FROM: ${MAIL_FROM}
+
+  MAIL_ENABLED: ${MAIL_ENABLED:-true}
+  MAIL_CONSOLE_FALLBACK: ${MAIL_CONSOLE_FALLBACK:-false}
 ```
 
-In Docker, the application connects using the service name as host:
+> `FINANCIAL_API_KEY`, `JPA_SHOW_SQL` and `THYMELEAF_CACHE` are not passed by default. Add them to the `environment:` block if you need them in Docker.
 
-```env
-DB_URL=jdbc:postgresql://postgres:5432/expense_tracker
-```
-
-## Start
-
-Create `.env`:
-
-```env
-DB_PASSWORD=YOUR_DATABASE_PASSWORD
-JWT_SECRET=YOUR_LONG_RANDOM_SECRET
-JWT_EXPIRATION=86400000
-JWT_REFRESH_EXPIRATION=604800000
-
-MAIL_USERNAME=your-email@gmail.com
-MAIL_APP_PASSWORD=YOUR_GOOGLE_APP_PASSWORD
-```
-
-Run:
+### Commands
 
 ```bash
-docker compose up --build
+docker compose up --build          # build and start
+docker compose up --build -d       # run in background
+docker ps                          # list containers
+docker compose logs -f app         # application logs
+docker compose logs -f postgres    # database logs
+docker compose down                # stop
+docker compose up -d --build --force-recreate app   # apply config changes
+docker compose down -v             # stop and delete database volume
 ```
 
-Run in background:
+> ⚠️ `docker compose down -v` deletes the PostgreSQL volume and all stored data.
 
-```bash
-docker compose up --build -d
-```
+---
 
-Check containers:
+# ☁️ Deployment – Render
 
-```bash
-docker ps
-```
-
-Open:
+ExpenseX can be deployed with **Render Web Services, Render PostgreSQL, and Brevo SMTP**.
 
 ```text
-http://localhost:8080
+             User
+               │
+               ▼
+        Render Web Service
+          (Spring Boot)
+               │
+       ┌───────┴────────┐
+       ▼                ▼
+  PostgreSQL         Brevo SMTP
+   Database          Email / OTP
 ```
 
-Stop:
+## 1. Create the PostgreSQL database
+
+1. Sign in to [Render](https://render.com/) and create a PostgreSQL database.
+2. Copy the connection details.
+3. Use the **Internal Database URL** when the web service is in the same region.
+
+## 2. Create the web service
+
+1. Connect your GitHub repository and select ExpenseX.
+2. Create a Web Service.
+
+**Build command**
 
 ```bash
-docker compose down
+./mvnw clean package -DskipTests
 ```
 
-Remove containers and database volume:
+**Start command**
 
 ```bash
-docker compose down -v
+java -jar target/expense-tracker-0.0.1-SNAPSHOT.jar
 ```
 
-> ⚠️ `docker compose down -v` removes the PostgreSQL Docker volume and its stored data.
+Use the actual JAR name generated by Maven.
+
+## 3. Environment variables
+
+**Render Dashboard → ExpenseX Web Service → Environment**
+
+| Variable | Value |
+| -------- | ----- |
+| `DB_URL` | Render PostgreSQL JDBC URL |
+| `DB_USERNAME` | Render PostgreSQL username |
+| `DB_PASSWORD` | Render PostgreSQL password |
+| `JWT_SECRET` | Strong production secret |
+| `JWT_EXPIRATION` | `86400000` |
+| `JWT_REFRESH_EXPIRATION` | `604800000` |
+| `BREVO_SMTP_LOGIN` | Brevo SMTP login |
+| `BREVO_SMTP_KEY` | Brevo SMTP key |
+| `MAIL_FROM` | Verified Brevo sender email |
+| `MAIL_ENABLED` | `true` |
+| `MAIL_CONSOLE_FALLBACK` | `false` |
+| `JPA_SHOW_SQL` | `false` |
+| `THYMELEAF_CACHE` | `true` |
+| `FINANCIAL_API_KEY` | _(optional)_ FRED API key |
+
+Render provides `PORT` automatically:
+
+```properties
+server.port=${PORT:8080}
+```
+
+> Render's free tier may block outbound SMTP on ports 25, 465 and 587. Brevo's port `2525` is the recommended choice here.
+
+## 4. Verify
+
+1. Check the Render logs and confirm the app starts.
+2. Confirm PostgreSQL connectivity.
+3. Test registration OTP and login OTP.
+4. Check **Brevo → Transactional → Logs** for delivery status.
+
+> A successful deploy does not guarantee email delivery. The app must connect to Brevo, authenticate and submit the message; check the Brevo logs if an email does not arrive.
 
 ---
 
 # 📚 API Documentation
 
-Swagger UI:
-
-```text
-http://localhost:8080/swagger-ui/index.html
-```
-
-OpenAPI specification:
-
-```text
-http://localhost:8080/v3/api-docs
-```
-
-Swagger allows you to:
-
-- View APIs
-- Test endpoints
-- Inspect requests
-- Inspect responses
-- Test protected endpoints
+- Swagger UI: `http://localhost:8080/swagger-ui/index.html`
+- OpenAPI spec: `http://localhost:8080/v3/api-docs`
 
 ---
 
@@ -664,36 +688,23 @@ PUT    /api/users/{id}/activate
 PUT    /api/users/{id}/deactivate
 ```
 
+### Webhook
+
+```text
+POST /api/webhook/sms/{webhookToken}
+```
+
 ---
 
 # 🧪 Testing
 
-The application can be tested using:
-
-- JUnit
-- Mockito
-- Postman
-- Swagger UI
-- Selenium
-- Docker
-
-### Testing Flow
+Tools: JUnit, Mockito, Postman, Swagger UI, Selenium, Docker.
 
 ```text
-Unit Testing
-     ↓
-Integration Testing
-     ↓
-API Testing
-     ↓
-Manual Testing
-     ↓
-UI Automation
-     ↓
-Docker Testing
-     ↓
-Deployment Testing
+Unit → Integration → API → Manual → UI Automation → Docker → Deployment
 ```
+
+Tip: while developing, set `MAIL_CONSOLE_FALLBACK=true` to read OTPs from the console, and switch it back to `false` before deploying.
 
 ---
 
@@ -701,17 +712,6 @@ Deployment Testing
 
 ```bash
 mvn clean package -DskipTests
-```
-
-Generated JAR:
-
-```text
-target/expense-tracker-0.0.1-SNAPSHOT.jar
-```
-
-Run:
-
-```bash
 java -jar target/expense-tracker-0.0.1-SNAPSHOT.jar
 ```
 
@@ -719,27 +719,21 @@ java -jar target/expense-tracker-0.0.1-SNAPSHOT.jar
 
 # 🔒 Security
 
-ExpenseX uses:
+ExpenseX uses Spring Security, JWT with refresh tokens, OTP verification, password reset, account activation/deactivation, authenticated SMTP (Brevo) and environment-based secrets.
 
-- Spring Security
-- JWT authentication
-- Refresh tokens
-- OTP verification
-- Password reset
-- Account activation/deactivation
-- SMTP authentication
-- Environment-based secrets
+### Production recommendations
 
-For production:
-
-- Use HTTPS
-- Use strong JWT secrets
-- Secure database credentials
-- Configure restrictive CORS
-- Protect webhook tokens
-- Disable unnecessary debug logging
-- Maintain database backups
-- Never commit secrets
+- Use HTTPS.
+- Use strong, unique JWT secrets.
+- Secure database credentials and keep regular backups.
+- Configure restrictive CORS.
+- Protect and rotate webhook tokens.
+- Disable unnecessary debug logging.
+- Keep `.env` out of Git and never commit secrets.
+- Keep `MAIL_CONSOLE_FALLBACK=false` in production.
+- Never print OTPs or SMTP credentials in production logs.
+- Use a verified Brevo sender address (ideally an authenticated domain with SPF/DKIM).
+- Consider adding server-side route protection and token revocation (see the status table).
 
 ---
 
@@ -750,14 +744,14 @@ For production:
 - 💳 UPI transaction detection
 - 🔔 Push notifications
 - 🔄 Recurring expenses
-- 🎯 Savings goals
+- 🎯 Server-side savings goals, bills, loans/EMIs and income (currently browser-only)
+- 🔌 Connect the Budget page to the existing budget REST API
+- 🚪 Server-side token revocation ("sign out everywhere")
 - 📈 Investment tracking
 - 💱 Multiple currencies
-- 🤖 AI-powered expense categorization
-- ☁️ Cloud deployment
+- 🤖 AI Finance Assistant and AI-powered expense categorization
 - 🔄 CI/CD pipeline
-- 🧪 Automated integration testing
-- 🧪 Automated API testing
+- 🧪 Automated integration and API testing
 - 📋 Jira QA workflow
 - 👨‍💼 Admin dashboard
 
@@ -766,23 +760,12 @@ For production:
 # 📊 Project Highlights
 
 ```text
-Java 21
-Spring Boot
-Spring Security
-JWT
-REST APIs
-PostgreSQL
-JPA / Hibernate
-Thymeleaf
-OTP Authentication
-Email Integration
-PDF Reports
-Excel Reports
-Docker
-Docker Compose
-Swagger / OpenAPI
-API Testing
-SMS Integration
+Java 21 · Spring Boot · Spring Security · JWT · REST APIs
+PostgreSQL · JPA / Hibernate · Thymeleaf
+OTP Authentication · Brevo SMTP Integration
+PDF & Excel Reports · SMS Webhook
+Docker · Docker Compose · Render Deployment
+Swagger / OpenAPI · API Testing
 ```
 
 ---
@@ -791,19 +774,17 @@ SMS Integration
 
 **Lokesh Pande**
 
-Java Full Stack Developer  
+Java Full Stack Developer
+
 Spring Boot • REST APIs • PostgreSQL • Docker • Testing
 
-🔗 GitHub:  
-https://github.com/Lokesh-github07
+🔗 GitHub: [https://github.com/Lokesh-github07](https://github.com/Lokesh-github07)
 
 ---
 
 ## ⭐ Project
 
 If you find this project useful, consider giving it a ⭐ on GitHub.
-
----
 
 ## 📜 License
 
