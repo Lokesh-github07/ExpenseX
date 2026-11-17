@@ -47,13 +47,13 @@ ExpenseX is a practical full-stack project demonstrating backend development, au
     <th align="center">Profile</th>
   </tr>
   <tr>
-    <td align="center"><img src="docs/screenshots/Landing.png" alt="Landing" width="600"></td>
-    <td align="center"><img src="docs/screenshots/Login.png" alt="Login" width="600"></td>
-    <td align="center"><img src="docs/screenshots/Register.png" alt="Register" width="600"></td>
-    <td align="center"><img src="docs/screenshots/Dashboard.png" alt="Dashboard" width="600"></td>
-    <td align="center"><img src="docs/screenshots/Report-Analytics.png" alt="Reports and Analytics" width="600"></td>
-    <td align="center"><img src="docs/screenshots/Financial-Calendar.png" alt="Financial Calendar" width="600"></td>
-    <td align="center"><img src="docs/screenshots/Profile.png" alt="Profile" width="600"></td>
+    <td align="center"><img src="https://i.postimg.cc/CMWhGFm0/Landing-png.png" alt="Landing" width="600"></td>
+    <td align="center"><img src="https://i.postimg.cc/N0LSCXjW/Login-png.jpg" alt="Login" width="600"></td>
+    <td align="center"><img src="https://i.postimg.cc/HLx1GK6W/Register-png.jpg" alt="Register" width="600"></td>
+    <td align="center"><img src="https://i.postimg.cc/G2KMchtP/Dashboard-png.jpg" alt="Dashboard" width="600"></td>
+    <td align="center"><img src="https://i.postimg.cc/Nf9xnx6D/Report-Analytics-png.jpg" alt="Reports and Analytics" width="600"></td>
+    <td align="center"><img src="https://i.postimg.cc/0QyY0G57/Financial-calendar-png.jpg" alt="Financial Calendar" width="600"></td>
+    <td align="center"><img src="https://i.postimg.cc/VLCjgk1f/profile-png.jpg" alt="Profile" width="600"></td>
   </tr>
 </table>
 
