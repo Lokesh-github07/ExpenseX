@@ -34,6 +34,43 @@ ExpenseX is a practical full-stack project demonstrating backend development, au
 - 📚 Swagger API documentation
 - ☁️ Render deployment support
 
+## 📸 Screenshots
+
+### 🌐 Landing, Login & Register
+
+<p align="center">
+  <img src="docs/screenshots/Landing.png" alt="Landing Page" width="90%">
+</p>
+
+<p align="center">
+  <img src="docs/screenshots/Login.png" alt="Login" width="45%">
+  <img src="docs/screenshots/Register.png" alt="Register" width="45%">
+</p>
+
+### 📊 Dashboard
+
+<p align="center">
+  <img src="docs/screenshots/Dashboard.png" alt="Dashboard" width="90%">
+</p>
+
+### 📈 Reports & Analytics
+
+<p align="center">
+  <img src="docs/screenshots/Report-Analytics.png" alt="Reports and Analytics" width="90%">
+</p>
+
+### 📅 Financial Calendar
+
+<p align="center">
+  <img src="docs/screenshots/Financial-Calendar.png" alt="Financial Calendar" width="90%">
+</p>
+
+### 👤 Profile
+
+<p align="center">
+  <img src="docs/screenshots/Profile.png" alt="Profile" width="90%">
+</p>
+
 ## 🖥️ Web Interface & Implementation Status
 
 - **Public pages:** `/` (landing page), `/login`, `/register`, `/forgot-password`, `/terms`.
