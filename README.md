@@ -809,6 +809,12 @@ Spring Boot • REST APIs • PostgreSQL • Docker • Testing
 
 If you find this project useful, consider giving it a ⭐ on GitHub.
 
-## 📜 License
+# 📄 License
 
-This project is intended for educational, portfolio, and development purposes.
+Copyright © 2026 [Lokesh Jugalkishor Pande].
+
+ExpenseX is distributed under a custom proprietary license.
+
+You are welcome to explore and study the source code and contribute improvements. However, copying, redistributing, or reusing the code in other projects without prior written permission is prohibited.
+
+See the [LICENSE](LICENSE) file for complete terms.
