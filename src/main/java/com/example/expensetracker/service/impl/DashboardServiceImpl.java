@@ -5,6 +5,7 @@ import com.example.expensetracker.model.Budget;
 import com.example.expensetracker.repository.BudgetRepository;
 import com.example.expensetracker.repository.CategoryRepository;
 import com.example.expensetracker.repository.ExpenseRepository;
+import com.example.expensetracker.security.CurrentUserService;
 import com.example.expensetracker.service.DashboardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,30 +20,22 @@ public class DashboardServiceImpl implements DashboardService {
     private final ExpenseRepository expenseRepository;
     private final BudgetRepository budgetRepository;
     private final CategoryRepository categoryRepository;
+    private final CurrentUserService currentUserService;
 
     @Override
     public DashboardResponse getDashboardData() {
 
-        DashboardResponse response =
-                new DashboardResponse();
-
-        BigDecimal totalExpense =
-                expenseRepository.getTotalExpense();
-
-        response.setTotalExpense(totalExpense);
-        response.setTotalTransactions(
-                (long) expenseRepository.count()
+        // Always the authenticated user's own numbers.
+        return getUserDashboard(
+                currentUserService.getCurrentUserId()
         );
-        response.setTotalCategories(
-                (long) categoryRepository.count()
-        );
-
-        return response;
     }
 
     @Override
     public DashboardResponse getUserDashboard(
             Long userId) {
+
+        currentUserService.requireSelf(userId);
 
         DashboardResponse response =
                 new DashboardResponse();
@@ -61,7 +54,7 @@ public class DashboardServiceImpl implements DashboardService {
         );
 
         response.setTotalCategories(
-                (long) categoryRepository.count()
+                categoryRepository.countByUserId(userId)
         );
 
         return response;
@@ -72,6 +65,8 @@ public class DashboardServiceImpl implements DashboardService {
             Integer month,
             Integer year,
             Long userId) {
+
+        currentUserService.requireSelf(userId);
 
         DashboardResponse response =
                 new DashboardResponse();

@@ -12,7 +12,13 @@ import org.springframework.stereotype.Repository;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
+/**
+ * SECURITY NOTE: every query in this repository is scoped to a single user.
+ * Do NOT add unscoped queries (findAll, SUM over the whole table, finders by
+ * category or date alone). Expenses are per-user financial data.
+ */
 @Repository
 public interface ExpenseRepository extends JpaRepository<Expense, Long> {
 
@@ -20,31 +26,31 @@ public interface ExpenseRepository extends JpaRepository<Expense, Long> {
 
     Page<Expense> findByUser(User user, Pageable pageable);
 
-    List<Expense> findByCategoryId(Long categoryId);
+    // ---------- Owner-scoped lookups used by ExpenseService ----------
 
-    List<Expense> findByExpenseDateBetween(
-            LocalDate start,
-            LocalDate end
+    List<Expense> findByUserIdOrderByIdAsc(Long userId);
+
+    // Ownership check for get / update / delete: empty when the expense
+    // does not exist OR belongs to someone else.
+    Optional<Expense> findByIdAndUserId(Long id, Long userId);
+
+    List<Expense> findByUserIdAndCategoryIdOrderByIdAsc(
+            Long userId,
+            Long categoryId
     );
 
-    @Query("SELECT COALESCE(SUM(e.amount),0) FROM Expense e")
-    BigDecimal getTotalExpense();
-
-    @Query("""
-            SELECT COALESCE(SUM(e.amount),0)
-            FROM Expense e
-            WHERE MONTH(e.expenseDate)=:month
-            AND YEAR(e.expenseDate)=:year
-            """)
-    BigDecimal getMonthlyExpense(
-            @Param("month") Integer month,
-            @Param("year") Integer year
+    List<Expense> findByUserIdAndExpenseDateBetweenOrderByIdAsc(
+            Long userId,
+            LocalDate start,
+            LocalDate end
     );
 
     long countByUserId(Long userId);
 
     // Used when permanently deleting a user account
     void deleteByUserId(Long userId);
+
+    // ---------- Owner-scoped aggregates ----------
 
     @Query("""
             SELECT COALESCE(SUM(e.amount),0)

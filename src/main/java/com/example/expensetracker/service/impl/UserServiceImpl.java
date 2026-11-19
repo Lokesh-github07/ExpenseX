@@ -3,6 +3,7 @@ package com.example.expensetracker.service.impl;
 import com.example.expensetracker.dto.request.UpdateProfileRequest;
 import com.example.expensetracker.dto.response.ApiResponse;
 import com.example.expensetracker.dto.response.UserResponse;
+import com.example.expensetracker.exception.ForbiddenException;
 import com.example.expensetracker.exception.ResourceNotFoundException;
 import com.example.expensetracker.model.User;
 import com.example.expensetracker.repository.BudgetRepository;
@@ -11,6 +12,7 @@ import com.example.expensetracker.repository.ExpenseRepository;
 import com.example.expensetracker.repository.NotificationRepository;
 import com.example.expensetracker.repository.RefreshTokenRepository;
 import com.example.expensetracker.repository.UserRepository;
+import com.example.expensetracker.security.CurrentUserService;
 import com.example.expensetracker.service.UserService;
 import com.example.expensetracker.util.ValidationUtil;
 import jakarta.transaction.Transactional;
@@ -42,6 +44,8 @@ public class UserServiceImpl implements UserService {
 
     private final PasswordEncoder passwordEncoder;
 
+    private final CurrentUserService currentUserService;
+
 
 
     // =========================================================
@@ -50,6 +54,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<UserResponse> getAllUsers() {
+
+        // Lists every account: administrators only.
+        currentUserService.requireAdmin();
 
         return userRepository.findAll()
                 .stream()
@@ -69,6 +76,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponse getUserById(Long id) {
+
+        // Response contains the private webhookToken: own account or admin.
+        currentUserService.requireSelfOrAdmin(id);
 
         User user = userRepository.findById(id)
                 .orElseThrow(() ->
@@ -90,6 +100,17 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponse getUserByEmail(String email) {
+
+        // Own account or admin. Checked BEFORE the lookup so a non-admin
+        // cannot probe which e-mail addresses are registered.
+        if (!currentUserService.isAdmin()
+                && !currentUserService.getPrincipal()
+                .getEmail().equalsIgnoreCase(email)) {
+
+            throw new ForbiddenException(
+                    "You are not allowed to access another user's data"
+            );
+        }
 
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() ->
@@ -113,6 +134,8 @@ public class UserServiceImpl implements UserService {
     public UserResponse updateProfile(
             Long id,
             UpdateProfileRequest request) {
+
+        currentUserService.requireSelfOrAdmin(id);
 
         User user = userRepository.findById(id)
                 .orElseThrow(() ->
@@ -161,6 +184,8 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public ApiResponse deleteUser(Long id) {
+
+        currentUserService.requireSelfOrAdmin(id);
 
         User user = userRepository.findById(id)
                 .orElseThrow(() ->
@@ -267,6 +292,8 @@ public class UserServiceImpl implements UserService {
     @Override
     public ApiResponse activateUser(Long id) {
 
+        currentUserService.requireAdmin();
+
         User user = userRepository.findById(id)
                 .orElseThrow(() ->
                         new ResourceNotFoundException(
@@ -291,6 +318,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public ApiResponse deactivateUser(Long id) {
+
+        currentUserService.requireAdmin();
 
         User user = userRepository.findById(id)
                 .orElseThrow(() ->

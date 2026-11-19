@@ -11,6 +11,9 @@ public interface BudgetRepository extends JpaRepository<Budget, Long> {
 
     List<Budget> findByUserId(Long userId);
 
+    // Ownership check: empty when missing OR owned by someone else
+    Optional<Budget> findByIdAndUserId(Long id, Long userId);
+
     Optional<Budget> findByUserIdAndMonthAndYear(
             Long userId,
             Integer month,

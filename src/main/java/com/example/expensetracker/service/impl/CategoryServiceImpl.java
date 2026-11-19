@@ -7,11 +7,11 @@ import com.example.expensetracker.exception.DuplicateResourceException;
 import com.example.expensetracker.exception.ResourceNotFoundException;
 import com.example.expensetracker.model.Category;
 import com.example.expensetracker.repository.CategoryRepository;
+import com.example.expensetracker.security.CurrentUserService;
 import com.example.expensetracker.security.UserPrincipal;
 import com.example.expensetracker.service.CategoryService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -22,13 +22,19 @@ public class CategoryServiceImpl implements CategoryService {
 
     private final CategoryRepository categoryRepository;
     private final ModelMapper modelMapper;
+    private final CurrentUserService currentUserService;
 
     @Override
     public CategoryResponse createCategory(
             CategoryRequest request) {
 
-        if (categoryRepository.existsByName(
-                request.getName())) {
+        UserPrincipal principal =
+                currentUserService.getPrincipal();
+
+        // Names only need to be unique per user, not globally.
+        if (categoryRepository.existsByNameAndUserId(
+                request.getName(),
+                principal.getUserId())) {
 
             throw new DuplicateResourceException(
                     "Category already exists"
@@ -40,11 +46,6 @@ public class CategoryServiceImpl implements CategoryService {
                         request,
                         Category.class
                 );
-
-        UserPrincipal principal = (UserPrincipal)
-                SecurityContextHolder.getContext()
-                        .getAuthentication()
-                        .getPrincipal();
 
         category.setUser(principal.getUser());
 
@@ -59,7 +60,9 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public List<CategoryResponse> getAllCategories() {
 
-        return categoryRepository.findAll()
+        return categoryRepository
+                .findByUserIdOrderByIdAsc(
+                        currentUserService.getCurrentUserId())
                 .stream()
                 .map(category ->
                         modelMapper.map(
@@ -74,7 +77,9 @@ public class CategoryServiceImpl implements CategoryService {
             Long id) {
 
         Category category =
-                categoryRepository.findById(id)
+                categoryRepository.findByIdAndUserId(
+                                id,
+                                currentUserService.getCurrentUserId())
                         .orElseThrow(() ->
                                 new ResourceNotFoundException(
                                         "Category not found with id: " + id
@@ -92,7 +97,9 @@ public class CategoryServiceImpl implements CategoryService {
             CategoryRequest request) {
 
         Category category =
-                categoryRepository.findById(id)
+                categoryRepository.findByIdAndUserId(
+                                id,
+                                currentUserService.getCurrentUserId())
                         .orElseThrow(() ->
                                 new ResourceNotFoundException(
                                         "Category not found with id: " + id
@@ -120,7 +127,9 @@ public class CategoryServiceImpl implements CategoryService {
             Long id) {
 
         Category category =
-                categoryRepository.findById(id)
+                categoryRepository.findByIdAndUserId(
+                                id,
+                                currentUserService.getCurrentUserId())
                         .orElseThrow(() ->
                                 new ResourceNotFoundException(
                                         "Category not found with id: " + id

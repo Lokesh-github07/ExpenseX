@@ -8,6 +8,7 @@ import com.example.expensetracker.model.User;
 import com.example.expensetracker.repository.BudgetRepository;
 import com.example.expensetracker.repository.ExpenseRepository;
 import com.example.expensetracker.repository.UserRepository;
+import com.example.expensetracker.security.CurrentUserService;
 import com.example.expensetracker.service.ReportService;
 import com.itextpdf.text.BaseColor;
 import com.itextpdf.text.Document;
@@ -52,6 +53,7 @@ public class ReportServiceImpl implements ReportService {
     private final ExpenseRepository expenseRepository;
     private final BudgetRepository budgetRepository;
     private final UserRepository userRepository;
+    private final CurrentUserService currentUserService;
 
     // ============================================================
     // Analytics (feeds the analytics dashboard charts)
@@ -61,6 +63,8 @@ public class ReportServiceImpl implements ReportService {
     public AnalyticsResponse getAnalytics(
             Long userId,
             Integer monthsBack) {
+
+        currentUserService.requireSelf(userId);
 
         int months = (monthsBack == null || monthsBack < 1) ? 6 : monthsBack;
 
@@ -181,6 +185,8 @@ public class ReportServiceImpl implements ReportService {
             Long userId,
             Integer month,
             Integer year) {
+
+        currentUserService.requireSelf(userId);
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() ->
@@ -329,6 +335,8 @@ public class ReportServiceImpl implements ReportService {
             Integer month,
             Integer year) {
 
+        currentUserService.requireSelf(userId);
+
         User user = userRepository.findById(userId)
                 .orElseThrow(() ->
                         new ResourceNotFoundException(
@@ -461,6 +469,8 @@ public class ReportServiceImpl implements ReportService {
             Integer month,
             Integer year) {
 
+        currentUserService.requireSelf(userId);
+
         Map<String, Object> summary = new HashMap<>();
 
         summary.put("userId", userId);
@@ -477,6 +487,8 @@ public class ReportServiceImpl implements ReportService {
             Long userId,
             Integer year) {
 
+        currentUserService.requireSelf(userId);
+
         Map<String, Object> summary = new HashMap<>();
 
         summary.put("userId", userId);
@@ -490,6 +502,8 @@ public class ReportServiceImpl implements ReportService {
     @Override
     public Object getCategorySummary(
             Long userId) {
+
+        currentUserService.requireSelf(userId);
 
         Map<String, Object> summary = new HashMap<>();
 

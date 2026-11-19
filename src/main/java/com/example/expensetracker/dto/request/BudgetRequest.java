@@ -19,6 +19,8 @@ public class BudgetRequest {
     @NotNull(message = "Year is required")
     private Integer year;
 
-    @NotNull(message = "User ID is required")
+    // Kept only for backward compatibility with existing clients.
+    // It is NOT trusted: the server always uses the authenticated user.
+    // If supplied, it must equal the caller's own ID (otherwise 403).
     private Long userId;
 }

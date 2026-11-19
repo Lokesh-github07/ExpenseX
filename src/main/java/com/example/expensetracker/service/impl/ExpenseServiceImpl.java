@@ -9,6 +9,7 @@ import com.example.expensetracker.model.User;
 import com.example.expensetracker.repository.CategoryRepository;
 import com.example.expensetracker.repository.ExpenseRepository;
 import com.example.expensetracker.repository.UserRepository;
+import com.example.expensetracker.security.CurrentUserService;
 import com.example.expensetracker.service.ExpenseService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -18,6 +19,14 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
+/**
+ * Every method here works ONLY on the authenticated user's expenses.
+ * The user is taken from the SecurityContext (via CurrentUserService),
+ * never from the request body or URL.
+ *
+ * Expenses that exist but belong to someone else are reported as
+ * "not found" (404) so their existence is not revealed.
+ */
 @Service
 @RequiredArgsConstructor
 public class ExpenseServiceImpl implements ExpenseService {
@@ -26,19 +35,21 @@ public class ExpenseServiceImpl implements ExpenseService {
     private final CategoryRepository categoryRepository;
     private final UserRepository userRepository;
     private final ModelMapper modelMapper;
+    private final CurrentUserService currentUserService;
 
     @Override
     public ExpenseResponse createExpense(
             ExpenseRequest request) {
 
-        Category category = categoryRepository.findById(
-                        request.getCategoryId())
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                "Category not found"));
+        // If the client still sends userId it must be the caller's own;
+        // otherwise 403. The expense is ALWAYS saved for the caller.
+        Long userId =
+                currentUserService.requireSelf(request.getUserId());
 
-        User user = userRepository.findById(
-                        request.getUserId())
+        Category category = findOwnedCategory(
+                request.getCategoryId(), userId);
+
+        User user = userRepository.findById(userId)
                 .orElseThrow(() ->
                         new ResourceNotFoundException(
                                 "User not found"));
@@ -61,7 +72,9 @@ public class ExpenseServiceImpl implements ExpenseService {
     @Override
     public List<ExpenseResponse> getAllExpenses() {
 
-        return expenseRepository.findAll()
+        Long userId = currentUserService.getCurrentUserId();
+
+        return expenseRepository.findByUserIdOrderByIdAsc(userId)
                 .stream()
                 .map(this::convertToResponse)
                 .toList();
@@ -70,12 +83,7 @@ public class ExpenseServiceImpl implements ExpenseService {
     @Override
     public ExpenseResponse getExpenseById(Long id) {
 
-        Expense expense = expenseRepository.findById(id)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                "Expense not found"));
-
-        return convertToResponse(expense);
+        return convertToResponse(findOwnedExpense(id));
     }
 
     @Override
@@ -83,16 +91,13 @@ public class ExpenseServiceImpl implements ExpenseService {
             Long id,
             ExpenseRequest request) {
 
-        Expense expense = expenseRepository.findById(id)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                "Expense not found"));
+        // Ownership check first: someone else's expense -> 404
+        Expense expense = findOwnedExpense(id);
 
-        Category category = categoryRepository.findById(
-                        request.getCategoryId())
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                "Category not found"));
+        // The owner of an expense can never be changed through update.
+        Category category = findOwnedCategory(
+                request.getCategoryId(),
+                currentUserService.getCurrentUserId());
 
         expense.setTitle(request.getTitle());
         expense.setDescription(request.getDescription());
@@ -109,10 +114,7 @@ public class ExpenseServiceImpl implements ExpenseService {
     @Override
     public void deleteExpense(Long id) {
 
-        Expense expense = expenseRepository.findById(id)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                "Expense not found"));
+        Expense expense = findOwnedExpense(id);
 
         expenseRepository.delete(expense);
     }
@@ -121,8 +123,13 @@ public class ExpenseServiceImpl implements ExpenseService {
     public List<ExpenseResponse> getExpensesByCategory(
             Long categoryId) {
 
+        Long userId = currentUserService.getCurrentUserId();
+
         return expenseRepository
-                .findByCategoryId(categoryId)
+                .findByUserIdAndCategoryIdOrderByIdAsc(
+                        userId,
+                        categoryId
+                )
                 .stream()
                 .map(this::convertToResponse)
                 .toList();
@@ -133,8 +140,11 @@ public class ExpenseServiceImpl implements ExpenseService {
             LocalDate startDate,
             LocalDate endDate) {
 
+        Long userId = currentUserService.getCurrentUserId();
+
         return expenseRepository
-                .findByExpenseDateBetween(
+                .findByUserIdAndExpenseDateBetweenOrderByIdAsc(
+                        userId,
                         startDate,
                         endDate
                 )
@@ -146,7 +156,9 @@ public class ExpenseServiceImpl implements ExpenseService {
     @Override
     public BigDecimal getTotalExpense() {
 
-        return expenseRepository.getTotalExpense();
+        return expenseRepository.getTotalExpenseByUser(
+                currentUserService.getCurrentUserId()
+        );
     }
 
     @Override
@@ -155,10 +167,37 @@ public class ExpenseServiceImpl implements ExpenseService {
             int year) {
 
         return expenseRepository
-                .getMonthlyExpense(
+                .getMonthlyExpenseByUser(
+                        currentUserService.getCurrentUserId(),
                         month,
                         year
                 );
+    }
+
+    // ------------------------------------------------------------
+    // Ownership helpers
+    // ------------------------------------------------------------
+
+    private Expense findOwnedExpense(Long id) {
+
+        return expenseRepository
+                .findByIdAndUserId(
+                        id,
+                        currentUserService.getCurrentUserId())
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Expense not found"));
+    }
+
+    private Category findOwnedCategory(
+            Long categoryId,
+            Long userId) {
+
+        return categoryRepository
+                .findByIdAndUserId(categoryId, userId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Category not found"));
     }
 
     private ExpenseResponse convertToResponse(
