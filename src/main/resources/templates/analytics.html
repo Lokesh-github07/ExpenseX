@@ -134,6 +134,9 @@
 
     </main>
 
+    <!-- Shared Footer (sits under the content column, beside the fixed sidebar) -->
+    <div th:replace="~{fragments/footer :: footer}"></div>
+
 </div>
 
 <script th:src="@{/js/script.js}"></script>
@@ -408,7 +411,6 @@
 
 </script>
 
-<div th:replace="~{fragments/footer :: footer}"></div>
 
 </body>
 

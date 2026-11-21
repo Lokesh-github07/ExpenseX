@@ -173,6 +173,9 @@
 
         </div>
     </main>
+    <!-- Shared Footer (sits under the content column, beside the fixed sidebar) -->
+    <div th:replace="~{fragments/footer :: footer}"></div>
+
 </div>
 
 <!-- Floating Quick Actions -->
@@ -220,8 +223,6 @@
     </button>
 </div>
 
-<!-- Shared Footer -->
-<div th:replace="~{fragments/footer :: footer}"></div>
 
 <!-- Shared JavaScript: sidebar, auth and global actions -->
 <script th:src="@{/js/script.js}" defer></script>
