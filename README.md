@@ -10,6 +10,8 @@
 ![Maven](https://img.shields.io/badge/Maven-Build-C71A36?logo=apachemaven&logoColor=white)
 ![Swagger](https://img.shields.io/badge/Swagger-OpenAPI-85EA2D?logo=swagger&logoColor=black)
 
+📄 **[Project Documentation (PDF)](docs/ExpenseX-Project-Documentation.pdf)**
+
 A full-stack **personal expense management application** built with **Java 21, Spring Boot, PostgreSQL, Spring Security, JWT, Thymeleaf, and Docker**.
 
 ExpenseX lets users securely manage **expenses, income, budgets, categories, analytics, and financial reports** through a web interface and REST APIs. Transactional emails (OTP verification, password reset) are delivered through **Brevo SMTP**.
